@@ -1,0 +1,27 @@
+{
+  "name": "ai-code-mentor-frontend",
+  "version": "1.0.0",
+  "description": "AI Code Mentor - Interactive code analysis tool",
+  "scripts": {
+    "dev": "npx serve .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Davichik353/ai-code-mentor-frontend.git"
+  },
+  "keywords": [
+    "ai",
+    "code-mentor",
+    "code-analysis"
+  ],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Davichik353/ai-code-mentor-frontend/issues"
+  },
+  "homepage": "https://github.com/Davichik353/ai-code-mentor-frontend#readme",
+  "dependencies": {
+    "@vercel/speed-insights": "^2.0.0"
+  }
+}
