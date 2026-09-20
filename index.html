@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Code Mentor - Interactive</title>
+    <title>AI Code Mentor</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -78,6 +79,7 @@
             color: #8b8f9e;
             font-size: 13px;
             text-decoration: none;
+            user-select: none;
         }
 
         .nav-item:hover {
@@ -88,6 +90,77 @@
         .nav-item.active {
             background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
             color: white;
+        }
+
+        /* User Profile Card */
+        .user-profile {
+            margin-top: auto;
+            padding: 16px;
+            background: #252d3d;
+            border-radius: 12px;
+            border: 1px solid #2a3347;
+        }
+
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .profile-avatar {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            color: white;
+            font-size: 14px;
+        }
+
+        .profile-info h3 {
+            font-size: 13px;
+            color: white;
+            font-weight: 600;
+        }
+
+        .profile-info p {
+            font-size: 11px;
+            color: #8b8f9e;
+        }
+
+        .profile-level {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .level-badge {
+            font-size: 11px;
+            color: #a5b4fc;
+            font-weight: 600;
+        }
+
+        .xp-text {
+            font-size: 11px;
+            color: #8b8f9e;
+        }
+
+        .xp-bar {
+            height: 6px;
+            background: #1a1f2e;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .xp-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #6366f1 0%, #8b5cf6 100%);
+            transition: width 0.3s ease;
         }
 
         /* Main Content */
@@ -358,6 +431,21 @@
             letter-spacing: 0.5px;
         }
 
+        .mentor-mode-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .mentor-step {
+            font-size: 11px;
+            color: #a5b4fc;
+            background: rgba(99, 102, 241, 0.1);
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+
         .hint-item {
             background: rgba(99, 102, 241, 0.1);
             border-left: 2px solid #6366f1;
@@ -367,6 +455,33 @@
             font-size: 12px;
             color: #a5b4fc;
             line-height: 1.4;
+        }
+
+        .mentor-nav {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .mentor-nav button {
+            flex: 1;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            background: transparent;
+            color: #6366f1;
+            border: 1px solid #6366f1;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .mentor-nav button:hover:not(:disabled) {
+            background: rgba(99, 102, 241, 0.1);
+        }
+
+        .mentor-nav button:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
         }
 
         .error-message {
@@ -391,6 +506,363 @@
             opacity: 0.5;
         }
 
+        .view-hidden {
+            display: none !important;
+        }
+
+        /* History View */
+        .history-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .history-item {
+            background: #252d3d;
+            border-radius: 8px;
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid #2a3347;
+        }
+
+        .history-item:hover {
+            border-color: #6366f1;
+            transform: translateY(-2px);
+        }
+
+        .history-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .history-filename {
+            font-size: 14px;
+            color: white;
+            font-weight: 500;
+        }
+
+        .history-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .badge-history-good {
+            background: rgba(16, 185, 129, 0.2);
+            color: #6ee7b7;
+        }
+
+        .badge-history-fair {
+            background: rgba(245, 158, 11, 0.2);
+            color: #fcd34d;
+        }
+
+        .badge-history-bad {
+            background: rgba(239, 68, 68, 0.2);
+            color: #fca5a5;
+        }
+
+        .history-meta {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 12px;
+            color: #8b8f9e;
+        }
+
+        /* Progress View */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: #252d3d;
+            border: 1px solid #2a3347;
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #8b8f9e;
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .chart-container {
+            background: #252d3d;
+            border: 1px solid #2a3347;
+            border-radius: 12px;
+            padding: 24px;
+        }
+
+        .chart-title {
+            font-size: 16px;
+            color: white;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        /* Todo Styles */
+        .todo-form {
+            display: grid;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .todo-form input,
+        .todo-form textarea {
+            height: auto;
+            resize: vertical;
+            background: #252d3d;
+            border: 1px solid #2a3347;
+            border-radius: 8px;
+            color: #e0e0e0;
+            padding: 12px;
+            font-family: inherit;
+        }
+
+        .todo-form textarea {
+            min-height: 80px;
+        }
+
+        .todo-form input:focus,
+        .todo-form textarea:focus {
+            outline: none;
+            border-color: #6366f1;
+        }
+
+        .todo-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .todo-filters {
+            display: flex;
+            gap: 8px;
+        }
+
+        .todo-filter {
+            flex: 0 0 auto;
+            padding: 8px 12px;
+            color: #8b8f9e;
+            background: transparent;
+            border: 1px solid #2a3347;
+        }
+
+        .todo-filter.active {
+            color: white;
+            background: #6366f1;
+            border-color: #6366f1;
+        }
+
+        .todo-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 16px 0;
+            border-bottom: 1px solid #2a3347;
+        }
+
+        .todo-item:last-child {
+            border-bottom: none;
+        }
+
+        .todo-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            margin-top: 2px;
+            accent-color: #6366f1;
+        }
+
+        .todo-details {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .todo-title {
+            color: white;
+            font-size: 14px;
+            font-weight: 500;
+            word-break: break-word;
+        }
+
+        .todo-description {
+            color: #8b8f9e;
+            font-size: 12px;
+            margin-top: 6px;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        .todo-item.completed .todo-title {
+            color: #8b8f9e;
+            text-decoration: line-through;
+        }
+
+        .todo-actions {
+            display: flex;
+            gap: 6px;
+        }
+
+        .todo-actions button {
+            flex: 0 0 auto;
+            padding: 6px 8px;
+            color: #8b8f9e;
+            background: transparent;
+            border: 1px solid #2a3347;
+        }
+
+        .todo-actions button:hover {
+            color: white;
+            border-color: #6366f1;
+        }
+
+        /* Auth Modal */
+        .auth-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(15, 20, 25, 0.94);
+            backdrop-filter: blur(8px);
+        }
+
+        .auth-box {
+            width: min(420px, 92vw);
+            background: #1a1f2e;
+            border: 1px solid #2a3347;
+            border-radius: 14px;
+            padding: 32px 28px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .auth-box h2 {
+            color: white;
+            margin-bottom: 8px;
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .auth-box p {
+            color: #8b8f9e;
+            font-size: 13px;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .auth-box input {
+            width: 100%;
+            padding: 12px 14px;
+            margin-bottom: 12px;
+            border-radius: 8px;
+            border: 1px solid #2a3347;
+            background: #252d3d;
+            color: white;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .auth-box input:focus {
+            border-color: #6366f1;
+        }
+
+        .password-input-wrap {
+            position: relative;
+            width: 100%;
+            margin-bottom: 12px;
+        }
+
+        .password-input-wrap input {
+            margin-bottom: 0 !important;
+            padding-right: 44px !important;
+        }
+
+        .password-toggle-btn {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: transparent;
+            border: none;
+            color: #8b8f9e;
+            cursor: pointer;
+            padding: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 15px;
+            transition: color 0.2s ease;
+        }
+
+        .password-toggle-btn:hover {
+            color: #a5b4fc;
+        }
+
+        .auth-switch {
+            color: #a5b4fc;
+            cursor: pointer;
+            text-align: center;
+            margin-top: 16px;
+            font-size: 13px;
+            transition: color 0.2s;
+        }
+
+        .auth-switch:hover {
+            color: #c7d2fe;
+            text-decoration: underline;
+        }
+
+        .auth-submit-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+
+        .auth-submit-btn:hover {
+            opacity: 0.95;
+            transform: translateY(-1px);
+        }
+
+        .auth-error {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid #ef4444;
+            color: #fca5a5;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 12px;
+            margin-top: 14px;
+            display: none;
+        }
+
         @media (max-width: 1024px) {
             .content {
                 grid-template-columns: 1fr;
@@ -412,6 +884,10 @@
             .content {
                 padding: 20px;
             }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
@@ -429,26 +905,60 @@
             </div>
 
             <nav class="nav-items">
-                <div class="nav-item active">
-                    <i class="fas fa-chart-line"></i> Dashboard
+                <div class="nav-item active" id="dashboardNav" onclick="showView('dashboard')">
+                    <i class="fas fa-home"></i> Dashboard
                 </div>
-                <div class="nav-item">
-                    <i class="fas fa-history"></i> History
+                <div class="nav-item" id="newAnalysisNav" onclick="showView('newAnalysis')">
+                    <i class="fas fa-code"></i> New Analysis
                 </div>
-                <div class="nav-item">
+                <div class="nav-item" id="historyNav" onclick="showView('history')">
+                    <i class="fas fa-clock-rotate-left"></i> History
+                </div>
+                <div class="nav-item" id="progressNav" onclick="showView('progress')">
+                    <i class="fas fa-chart-line"></i> Progress
+                </div>
+                <div class="nav-item" id="todosNav" onclick="showView('todos')">
+                    <i class="fas fa-list-check"></i> Todo List
+                </div>
+                <div class="nav-item" id="settingsNav" onclick="showView('settings')">
                     <i class="fas fa-cog"></i> Settings
                 </div>
+                <div class="nav-item" onclick="openApiDocs()">
+                    <i class="fas fa-book"></i> API Docs
+                </div>
             </nav>
+
+            <!-- User Profile -->
+            <div class="user-profile">
+                <div class="profile-header">
+                    <div class="profile-avatar" id="userAvatar">U</div>
+                    <div class="profile-info">
+                        <h3 id="userName">User</h3>
+                        <p id="userEmail">Student</p>
+                    </div>
+                </div>
+                <div class="profile-level">
+                    <span class="level-badge" id="userLevel">Level 7</span>
+                    <span class="xp-text" id="userXp">2,450 / 3,000 XP</span>
+                </div>
+                <div class="xp-bar">
+                    <div class="xp-fill" id="userXpFill" style="width: 81.67%"></div>
+                </div>
+                <button onclick="logout()" title="Sign out" style="margin-top: 12px; width: 100%; background: #1a1f2e; border: 1px solid #2a3347; color: #8b8f9e; padding: 6px 10px; border-radius: 6px; font-size: 11px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.2s;">
+                    <i class="fas fa-sign-out-alt"></i> Sign out
+                </button>
+            </div>
         </div>
 
         <!-- Main Content -->
         <div class="main">
-            <div class="header">
+            <!-- Dashboard View -->
+            <div class="header" id="dashboardHeader">
                 <h1>Code Analysis</h1>
                 <p style="color: #8b8f9e; margin-top: 4px; font-size: 13px;">Paste your Python code and get AI-powered feedback</p>
             </div>
 
-            <div class="content">
+            <div class="content" id="dashboardView">
                 <!-- Code Input -->
                 <div class="card">
                     <div class="code-editor">
@@ -470,10 +980,10 @@
                     <!-- Quick Examples -->
                     <div style="margin-top: 24px;">
                         <h3 style="font-size: 12px; color: #8b8f9e; margin-bottom: 8px;">📚 Examples:</h3>
-                        <button class="btn-secondary" style="width: 100%; margin-bottom: 6px; text-align: left;" onclick="loadExample1()">
+                        <button class="btn-secondary" style="width: 100%; margin-bottom: 6px; text-align: left;" onclick="loadExample(1)">
                             Bad Loop Example
                         </button>
-                        <button class="btn-secondary" style="width: 100%; text-align: left;" onclick="loadExample2()">
+                        <button class="btn-secondary" style="width: 100%; text-align: left;" onclick="loadExample(2)">
                             SQL Injection Risk
                         </button>
                     </div>
@@ -490,32 +1000,403 @@
                     </div>
                 </div>
             </div>
+
+            <!-- New Analysis View -->
+            <div class="header view-hidden" id="newAnalysisHeader">
+                <h1>New Code Analysis</h1>
+                <p style="color: #8b8f9e; margin-top: 4px; font-size: 13px;">Paste your code and get AI-powered feedback</p>
+            </div>
+
+            <div class="content view-hidden" id="newAnalysisView">
+                <!-- Code Input -->
+                <div class="card">
+                    <div class="code-editor">
+                        <label class="editor-label">📝 Paste your Python code:</label>
+                        <textarea id="codeInputNew" placeholder="def hello():
+    print('Hello World')
+
+# Add your code here..."></textarea>
+                        <div class="button-group">
+                            <button class="btn-primary" onclick="analyzeCodeNew()">
+                                <i class="fas fa-play"></i> Analyze
+                            </button>
+                            <button class="btn-secondary" onclick="clearCodeNew()">
+                                <i class="fas fa-trash"></i> Clear
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Quick Examples -->
+                    <div style="margin-top: 24px;">
+                        <h3 style="font-size: 12px; color: #8b8f9e; margin-bottom: 8px;">📚 Examples:</h3>
+                        <button class="btn-secondary" style="width: 100%; margin-bottom: 6px; text-align: left;" onclick="loadExample(1)">
+                            Bad Loop Example
+                        </button>
+                        <button class="btn-secondary" style="width: 100%; text-align: left;" onclick="loadExample(2)">
+                            SQL Injection Risk
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Results -->
+                <div class="card">
+                    <h3 class="card-title">✨ Analysis Results</h3>
+                    <div id="resultsContainerNew">
+                        <div class="empty-state">
+                            <div class="empty-icon">📋</div>
+                            <p>Paste code and click "Analyze" to get started</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- History View -->
+            <div class="header view-hidden" id="historyHeader">
+                <h1>Analysis History</h1>
+                <p style="color: #8b8f9e; margin-top: 4px; font-size: 13px;">Review your past code analyses</p>
+            </div>
+
+            <div class="content view-hidden" id="historyView">
+                <div class="card" style="grid-column: 1 / -1;">
+                    <h3 class="card-title">Recent Analyses</h3>
+                    <div id="historyList" class="history-list">
+                        <div class="loading">
+                            <div class="spinner"></div>
+                            <p>Loading history...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Progress View -->
+            <div class="header view-hidden" id="progressHeader">
+                <h1>Your Progress</h1>
+                <p style="color: #8b8f9e; margin-top: 4px; font-size: 13px;">Track your coding improvement over time</p>
+            </div>
+
+            <div class="content view-hidden" id="progressView">
+                <div style="grid-column: 1 / -1;">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-label">Total Analyses</div>
+                            <div class="stat-value" id="statTotal">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Average Score</div>
+                            <div class="stat-value" id="statAverage">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Best Score</div>
+                            <div class="stat-value" id="statBest">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Worst Score</div>
+                            <div class="stat-value" id="statWorst">0</div>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <h3 class="chart-title">Score Trend</h3>
+                        <canvas id="progressChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Todo View -->
+            <div class="header view-hidden" id="todoHeader">
+                <h1>Todo List</h1>
+                <p style="color: #8b8f9e; margin-top: 4px; font-size: 13px;">Keep track of the coding tasks you want to complete</p>
+            </div>
+
+            <div class="content view-hidden" id="todoView">
+                <div class="card" style="grid-column: 1 / -1;">
+                    <form class="todo-form" onsubmit="createTodo(event)">
+                        <input id="todoTitle" type="text" maxlength="200" placeholder="What needs to be done?" required>
+                        <textarea id="todoDescription" maxlength="2000" placeholder="Description (optional)"></textarea>
+                        <button class="btn-primary" type="submit"><i class="fas fa-plus"></i> Add task</button>
+                    </form>
+                    <div class="todo-toolbar">
+                        <h3 class="card-title" style="margin-bottom: 0;">Your tasks</h3>
+                        <div class="todo-filters">
+                            <button class="todo-filter active" data-status="all" onclick="loadTodos('all'); return false;">All</button>
+                            <button class="todo-filter" data-status="active" onclick="loadTodos('active'); return false;">Active</button>
+                            <button class="todo-filter" data-status="completed" onclick="loadTodos('completed'); return false;">Completed</button>
+                        </div>
+                    </div>
+                    <div id="todoList"></div>
+                </div>
+            </div>
+
+            <!-- Settings View -->
+            <div class="header view-hidden" id="settingsHeader">
+                <h1>Settings</h1>
+                <p style="color: #8b8f9e; margin-top: 4px; font-size: 13px;">Customize your AI Code Mentor experience</p>
+            </div>
+
+            <div class="content view-hidden" id="settingsView">
+                <div class="card" style="grid-column: 1 / -1;">
+                    <h3 class="card-title">Coming Soon</h3>
+                    <div class="empty-state">
+                        <div class="empty-icon">⚙️</div>
+                        <p>Settings panel will be available soon</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Auth Overlay -->
+    <div id="authOverlay" class="auth-overlay" style="display: none;">
+        <div class="auth-box">
+            <h2 id="authTitle">Create your account</h2>
+            <p id="authSubtitle">Registration is required before using the mentor.</p>
+            <input id="authName" placeholder="Display name (optional)">
+            <input id="authEmail" type="email" placeholder="Email">
+            <div class="password-input-wrap">
+                <input id="authPassword" type="password" placeholder="Password (10+ chars, upper/lower/number/symbol)">
+                <button type="button" class="password-toggle-btn" onclick="togglePasswordVisibility('authPassword', 'togglePasswordIcon')" title="Show/hide password" aria-label="Toggle password visibility">
+                    <i id="togglePasswordIcon" class="fas fa-eye"></i>
+                </button>
+            </div>
+            <input id="authCode" inputmode="numeric" maxlength="6" placeholder="Email verification code" style="display:none">
+            <button class="auth-submit-btn" onclick="submitAuth()" id="authSubmit">Register</button>
+            <div class="auth-switch" onclick="toggleAuthMode()" id="authSwitch">Already have an account? Sign in</div>
+            <div id="authError" class="auth-error"></div>
         </div>
     </div>
 
     <script>
-        const API_URL = 'https://ai-code-mentor-backend-z80q.onrender.com';
+        const API_URL = (() => {
+            const host = location.hostname;
+            if (!host || host === 'localhost' || host === '127.0.0.1') return 'http://localhost:8000';
+            if (host.endsWith('onrender.com')) return '';
+            return 'https://ai-code-mentor-backend-z80q.onrender.com';
+        })();
 
-        // Load example codes
-        function loadExample1() {
-            document.getElementById('codeInput').value = `data = [1, 2, 3, 4, 5]
+        let currentTodoStatus = 'all';
+        let progressChart = null;
+        let currentHintIndex = 0;
+        let currentMentorHints = [];
+        let authMode = 'register';
+
+        // Auth functions
+        function authHeaders() {
+            const token = localStorage.getItem('mentor_token');
+            return token ? { 'Authorization': `Bearer ${token}` } : {};
+        }
+
+        function isAuthenticated() {
+            return !!localStorage.getItem('mentor_token');
+        }
+
+        function toggleAuthMode() {
+            authMode = authMode === 'register' ? 'login' : 'register';
+            document.getElementById('authTitle').textContent = authMode === 'register' ? 'Create your account' : 'Welcome back';
+            document.getElementById('authSubmit').textContent = authMode === 'register' ? 'Register' : 'Sign in';
+            document.getElementById('authName').style.display = authMode === 'register' ? 'block' : 'none';
+            document.getElementById('authSwitch').textContent = authMode === 'register'
+                ? 'Already have an account? Sign in' : 'No account yet? Register';
+        }
+
+        async function submitAuth() {
+            const email = document.getElementById('authEmail').value.trim();
+            const password = document.getElementById('authPassword').value;
+            const error = document.getElementById('authError');
+            if (!email || password.length < 10) {
+                error.textContent = 'Enter a valid email and a strong password.';
+                error.style.display = 'block';
+                return;
+            }
+            try {
+                const body = { email, password };
+                if (authMode === 'register') body.display_name = document.getElementById('authName').value.trim() || null;
+                const response = await fetch(`${API_URL}/auth/${authMode}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.detail || 'Authentication failed');
+                if (authMode === 'register' && data.access_token && !data.verification_required) {
+                    localStorage.setItem('mentor_token', data.access_token);
+                    document.getElementById('authOverlay').style.display = 'none';
+                    updateUserProfile(data.user || { display_name: email.split('@')[0], email });
+                } else if (authMode === 'register') {
+                    document.getElementById('authCode').style.display = 'block';
+                    document.getElementById('authSubmit').textContent = 'Verify email';
+                    document.getElementById('authSubmit').onclick = verifyEmail;
+                    error.textContent = 'Verification code sent. Enter the 6-digit code from your email.';
+                    error.style.display = 'block';
+                } else {
+                    localStorage.setItem('mentor_token', data.access_token);
+                    document.getElementById('authOverlay').style.display = 'none';
+                    updateUserProfile(data.user || { display_name: email.split('@')[0], email });
+                }
+            } catch (e) {
+                error.textContent = e.message;
+                error.style.display = 'block';
+            }
+        }
+
+        async function verifyEmail() {
+            const email = encodeURIComponent(document.getElementById('authEmail').value);
+            const code = encodeURIComponent(document.getElementById('authCode').value);
+            const response = await fetch(`${API_URL}/auth/verify-email?email=${email}&code=${code}`, { method: 'POST' });
+            const data = await response.json();
+            if (!response.ok) {
+                document.getElementById('authError').textContent = data.detail || 'Verification failed';
+                return;
+            }
+            localStorage.setItem('mentor_token', data.access_token);
+            document.getElementById('authOverlay').style.display = 'none';
+            updateUserProfile(data.user || { display_name: email.split('@')[0], email });
+        }
+
+        function logout() {
+            localStorage.removeItem('mentor_token');
+            document.getElementById('userName').textContent = 'User';
+            document.getElementById('userEmail').textContent = 'Student';
+            document.getElementById('userAvatar').textContent = 'U';
+            document.getElementById('authOverlay').style.display = 'flex';
+        }
+
+        function togglePasswordVisibility(inputId, iconId) {
+            const input = document.getElementById(inputId);
+            const icon = document.getElementById(iconId);
+            if (!input || !icon) return;
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+
+        function updateUserProfile(user) {
+            const name = user.display_name || user.email?.split('@')[0] || 'User';
+            document.getElementById('userName').textContent = name;
+            document.getElementById('userEmail').textContent = user.email || '';
+            document.getElementById('userAvatar').textContent = name.charAt(0).toUpperCase();
+
+            // Update Level/XP if available
+            if (user.level !== undefined) {
+                const level = user.level || 1;
+                const xpCurrent = user.xp_current || 0;
+                const xpNeeded = user.xp_needed || 1000;
+                const xpPercent = Math.min(100, (xpCurrent / xpNeeded) * 100);
+
+                document.getElementById('userLevel').textContent = `Level ${level}`;
+                document.getElementById('userXp').textContent = `${xpCurrent} / ${xpNeeded} XP`;
+                document.getElementById('userXpFill').style.width = `${xpPercent}%`;
+            }
+        }
+
+        // View switching
+        function showView(view) {
+            // Hide all views
+            document.querySelectorAll('.header').forEach(h => h.classList.add('view-hidden'));
+            document.querySelectorAll('.content').forEach(c => c.classList.add('view-hidden'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+
+            // Show selected view
+            const viewMap = {
+                'dashboard': { header: 'dashboardHeader', content: 'dashboardView', nav: 'dashboardNav' },
+                'newAnalysis': { header: 'newAnalysisHeader', content: 'newAnalysisView', nav: 'newAnalysisNav' },
+                'history': { header: 'historyHeader', content: 'historyView', nav: 'historyNav' },
+                'progress': { header: 'progressHeader', content: 'progressView', nav: 'progressNav' },
+                'todos': { header: 'todoHeader', content: 'todoView', nav: 'todosNav' },
+                'settings': { header: 'settingsHeader', content: 'settingsView', nav: 'settingsNav' },
+            };
+
+            if (viewMap[view]) {
+                const config = viewMap[view];
+                document.getElementById(config.header)?.classList.remove('view-hidden');
+                document.getElementById(config.content)?.classList.remove('view-hidden');
+                document.getElementById(config.nav)?.classList.add('active');
+
+                // Load data for specific views
+                if (view === 'history') loadHistory();
+                if (view === 'progress') loadProgress();
+                if (view === 'todos') loadTodos(currentTodoStatus);
+            }
+        }
+
+        // Load examples
+        function loadExample(num) {
+            const examples = {
+                1: `data = [1, 2, 3, 4, 5]
 for i in range(len(data)):
     print(data[i])
 
 result = []
 for item in data:
-    result.append(item * 2)`;
-        }
-
-        function loadExample2() {
-            document.getElementById('codeInput').value = `import sqlite3
+    result.append(item * 2)`,
+                2: `import sqlite3
 
 def get_user(user_id):
     query = f"SELECT * FROM users WHERE id = {user_id}"
     conn = sqlite3.connect("db.sqlite")
     cursor = conn.cursor()
     cursor.execute(query)
-    return cursor.fetchone()`;
+    return cursor.fetchone()`
+            };
+            document.getElementById('codeInput').value = examples[num] || '';
+        }
+
+        // Analyze code
+        async function analyzeCode() {
+            const code = document.getElementById('codeInput').value.trim();
+            if (!code || code.length < 5) {
+                showError('Please paste some code first!', 'resultsContainer');
+                return;
+            }
+            if (!isAuthenticated()) {
+                document.getElementById('authOverlay').style.display = 'flex';
+                return;
+            }
+            showLoading('resultsContainer');
+            try {
+                const response = await fetch(`${API_URL}/analyze`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', ...authHeaders() },
+                    body: JSON.stringify({ code, filename: 'analysis.py' })
+                });
+                if (response.status === 401) {
+                    localStorage.removeItem('mentor_token');
+                    document.getElementById('authOverlay').style.display = 'flex';
+                    throw new Error('Please sign in to analyze code');
+                }
+                if (!response.ok) {
+                    const errData = await response.json().catch(() => ({}));
+                    throw new Error(errData.detail || `API Error: ${response.status}`);
+                }
+                const data = await response.json();
+                currentMentorHints = data.mentor_hints || [];
+                currentHintIndex = 0;
+                displayResults(data, 'resultsContainer');
+            } catch (error) {
+                showError(error.message || 'Cannot connect to server. Make sure backend is running on localhost:8000', 'resultsContainer');
+                console.error('Error:', error);
+            }
+        }
+
+        function showLoading(containerId) {
+            document.getElementById(containerId).innerHTML = `
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Analyzing your code...</p>
+                </div>
+            `;
+        }
+
+        function showError(message, containerId) {
+            document.getElementById(containerId).innerHTML = `
+                <div class="error-message">
+                    <i class="fas fa-exclamation-circle"></i> ${message}
+                </div>
+            `;
         }
 
         function clearCode() {
@@ -528,64 +1409,8 @@ def get_user(user_id):
             `;
         }
 
-        async function analyzeCode() {
-            const code = document.getElementById('codeInput').value.trim();
-
-            if (!code) {
-                showError('Please paste some code first!');
-                return;
-            }
-
-            if (code.length < 5) {
-                showError('Code must be at least 5 characters');
-                return;
-            }
-
-            showLoading();
-
-            try {
-                const response = await fetch(`${API_URL}/analyze`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        code: code,
-                        filename: 'analysis.py'
-                    })
-                });
-
-                if (!response.ok) {
-                    throw new Error('API Error: ' + response.statusText);
-                }
-
-                const data = await response.json();
-                displayResults(data);
-
-            } catch (error) {
-                showError('Cannot connect to server. Make sure backend is running on localhost:8000');
-                console.error('Error:', error);
-            }
-        }
-
-        function showLoading() {
-            document.getElementById('resultsContainer').innerHTML = `
-                <div class="loading">
-                    <div class="spinner"></div>
-                    <p>Analyzing your code...</p>
-                </div>
-            `;
-        }
-
-        function showError(message) {
-            document.getElementById('resultsContainer').innerHTML = `
-                <div class="error-message">
-                    <i class="fas fa-exclamation-circle"></i> ${message}
-                </div>
-            `;
-        }
-
-        function displayResults(data) {
+        // Display results with enhanced mentor mode
+        function displayResults(data, containerId) {
             const feedback = data.feedback;
             let html = '';
 
@@ -630,19 +1455,53 @@ def get_user(user_id):
                 });
             }
 
-            // Mentor Hints
-            if (data.mentor_hints && data.mentor_hints.length > 0) {
+            // Mentor Hints with step navigation
+            if (currentMentorHints && currentMentorHints.length > 0) {
                 html += `
                     <div class="hints-section">
-                        <div class="hints-title">💡 Mentor Hints</div>
+                        <div class="mentor-mode-header">
+                            <div class="hints-title">💡 Mentor Mode</div>
+                            <div class="mentor-step">Step ${currentHintIndex + 1} of ${currentMentorHints.length}</div>
+                        </div>
+                        <div class="hint-item" id="mentorHintContent">
+                            <strong>${currentMentorHints[currentHintIndex].hint}</strong><br>
+                            ${currentMentorHints[currentHintIndex].guide}
+                        </div>
+                        <div class="mentor-nav">
+                            <button onclick="previousHint()" ${currentHintIndex === 0 ? 'disabled' : ''}>← Previous Hint</button>
+                            <button onclick="nextHint()" ${currentHintIndex === currentMentorHints.length - 1 ? 'disabled' : ''}>Next Hint →</button>
+                        </div>
+                    </div>
                 `;
-                data.mentor_hints.forEach(hint => {
-                    html += `<div class="hint-item"><strong>${hint.hint}</strong><br>${hint.guide}</div>`;
-                });
-                html += `</div>`;
             }
 
-            document.getElementById('resultsContainer').innerHTML = html;
+            document.getElementById(containerId).innerHTML = html;
+        }
+
+        function previousHint() {
+            if (currentHintIndex > 0) {
+                currentHintIndex--;
+                updateMentorHint();
+            }
+        }
+
+        function nextHint() {
+            if (currentHintIndex < currentMentorHints.length - 1) {
+                currentHintIndex++;
+                updateMentorHint();
+            }
+        }
+
+        function updateMentorHint() {
+            const hint = currentMentorHints[currentHintIndex];
+            const mentorContent = document.getElementById('mentorHintContent');
+            if (mentorContent) {
+                mentorContent.innerHTML = `<strong>${hint.hint}</strong><br>${hint.guide}`;
+            }
+            // Update buttons
+            const buttons = document.querySelectorAll('.mentor-nav button');
+            buttons[0].disabled = currentHintIndex === 0;
+            buttons[1].disabled = currentHintIndex === currentMentorHints.length - 1;
         }
 
         function createResultCard(item, type) {
@@ -671,8 +1530,330 @@ def get_user(user_id):
             return '🔴 Critical Issues';
         }
 
+        // History
+        async function loadHistory() {
+            const list = document.getElementById('historyList');
+            list.innerHTML = '<div class="loading"><div class="spinner"></div><p>Loading history...</p></div>';
+            try {
+                const response = await fetch(`${API_URL}/history?limit=20`, {
+                    headers: authHeaders()
+                });
+                if (response.status === 401) {
+                    document.getElementById('authOverlay').style.display = 'flex';
+                    list.innerHTML = '<div class="empty-state"><div class="empty-icon">🔒</div><p>Please sign in to view history</p></div>';
+                    return;
+                }
+                if (!response.ok) throw new Error(`API Error: ${response.status}`);
+                const data = await response.json();
+                renderHistory(data.analyses || []);
+            } catch (error) {
+                list.innerHTML = '<div class="error-message"><i class="fas fa-exclamation-circle"></i> Cannot load history</div>';
+                console.error('History error:', error);
+            }
+        }
+
+        function renderHistory(analyses) {
+            const list = document.getElementById('historyList');
+            if (!analyses.length) {
+                list.innerHTML = '<div class="empty-state"><div class="empty-icon">📚</div><p>No analyses yet. Start by analyzing some code!</p></div>';
+                return;
+            }
+            list.innerHTML = analyses.map(analysis => {
+                const score = analysis.score;
+                let badgeClass = 'badge-history-good';
+                if (score < 70) badgeClass = 'badge-history-bad';
+                else if (score < 80) badgeClass = 'badge-history-fair';
+
+                const date = new Date(analysis.timestamp);
+                const time = date.toLocaleString();
+
+                return `
+                    <div class="history-item" onclick="viewAnalysis('${analysis.id}')">
+                        <div class="history-header">
+                            <div class="history-filename">${analysis.filename}</div>
+                            <div class="history-badge ${badgeClass}">Score: ${score}</div>
+                        </div>
+                        <div class="history-meta">
+                            <i class="fas fa-code"></i> ${analysis.code_preview}
+                            <span style="color: #6366f1;">→</span>
+                            <i class="fas fa-clock"></i> ${time}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function viewAnalysis(id) {
+            console.log('View analysis:', id);
+            // TODO: Show full analysis details
+        }
+
+        // Progress
+        async function loadProgress() {
+            try {
+                const response = await fetch(`${API_URL}/progress`);
+                if (!response.ok) throw new Error(`API Error: ${response.status}`);
+                const data = await response.json();
+                renderProgress(data);
+            } catch (error) {
+                console.error('Progress error:', error);
+            }
+        }
+
+        function renderProgress(data) {
+            document.getElementById('statTotal').textContent = data.total_analyses || 0;
+            document.getElementById('statAverage').textContent = data.average_score || 0;
+            document.getElementById('statBest').textContent = data.best_score || 0;
+            document.getElementById('statWorst').textContent = data.worst_score || 0;
+
+            // Chart
+            const ctx = document.getElementById('progressChart')?.getContext('2d');
+            if (ctx) {
+                if (progressChart) progressChart.destroy();
+
+                const trend = data.score_trend || [];
+                const labels = trend.map((_, i) => i + 1);
+
+                progressChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Score',
+                            data: trend,
+                            borderColor: '#6366f1',
+                            backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                            borderWidth: 2,
+                            fill: true,
+                            tension: 0.4,
+                            pointRadius: 4,
+                            pointBackgroundColor: '#8b5cf6',
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        plugins: {
+                            legend: {
+                                display: false,
+                            }
+                        },
+                        scales: {
+                            y: {
+                                min: 0,
+                                max: 100,
+                                grid: {
+                                    color: '#2a3347',
+                                },
+                                ticks: {
+                                    color: '#8b8f9e',
+                                }
+                            },
+                            x: {
+                                grid: {
+                                    display: false,
+                                },
+                                ticks: {
+                                    color: '#8b8f9e',
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        // Todo functions
+        async function loadTodos(status = 'all') {
+            currentTodoStatus = status;
+            document.querySelectorAll('.todo-filter').forEach(button => {
+                button.classList.toggle('active', button.dataset.status === status);
+            });
+            const list = document.getElementById('todoList');
+            list.innerHTML = '<div class="loading"><div class="spinner"></div><p>Loading tasks...</p></div>';
+            try {
+                const response = await fetch(`${API_URL}/todos?status=${status}`, {
+                    headers: authHeaders()
+                });
+                if (response.status === 401) {
+                    document.getElementById('authOverlay').style.display = 'flex';
+                    list.innerHTML = '<div class="empty-state"><div class="empty-icon">🔒</div><p>Please sign in to view tasks</p></div>';
+                    return;
+                }
+                if (!response.ok) throw new Error(`API Error: ${response.status}`);
+                const todos = await response.json();
+                renderTodos(todos);
+            } catch (error) {
+                list.innerHTML = '<div class="error-message"><i class="fas fa-exclamation-circle"></i> Cannot load tasks</div>';
+                console.error('Todo error:', error);
+            }
+        }
+
+        function renderTodos(todos) {
+            const list = document.getElementById('todoList');
+            if (!todos.length) {
+                list.innerHTML = '<div class="empty-state"><div class="empty-icon">✅</div><p>No tasks in this view</p></div>';
+                return;
+            }
+            list.innerHTML = todos.map(todo => `
+                <div class="todo-item ${todo.completed ? 'completed' : ''}">
+                    <input type="checkbox" ${todo.completed ? 'checked' : ''} onchange="toggleTodo('${todo.id}', this.checked)">
+                    <div class="todo-details">
+                        <div class="todo-title">${escapeHtml(todo.title)}</div>
+                        ${todo.description ? `<div class="todo-description">${escapeHtml(todo.description)}</div>` : ''}
+                    </div>
+                    <div class="todo-actions">
+                        <button onclick="editTodo('${todo.id}', '${escapeJs(todo.title)}', '${escapeJs(todo.description || '')}')" title="Edit"><i class="fas fa-pen"></i></button>
+                        <button onclick="deleteTodo('${todo.id}')" title="Delete"><i class="fas fa-trash"></i></button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function createTodo(event) {
+            event.preventDefault();
+            const title = document.getElementById('todoTitle').value.trim();
+            const description = document.getElementById('todoDescription').value.trim();
+            try {
+                const response = await fetch(`${API_URL}/todos`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ title, description: description || null })
+                });
+                if (!response.ok) throw new Error(`API Error: ${response.status}`);
+                event.target.reset();
+                await loadTodos(currentTodoStatus);
+            } catch (error) {
+                console.error('Todo error:', error);
+            }
+        }
+
+        async function toggleTodo(id, completed) {
+            await updateTodo(id, { completed });
+        }
+
+        async function editTodo(id, title, description) {
+            const nextTitle = prompt('Task title:', title);
+            if (nextTitle === null) return;
+            const nextDescription = prompt('Description (optional):', description);
+            if (nextDescription === null) return;
+            await updateTodo(id, { title: nextTitle, description: nextDescription || null });
+        }
+
+        async function updateTodo(id, changes) {
+            try {
+                const response = await fetch(`${API_URL}/todos/${id}`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(changes)
+                });
+                if (!response.ok) throw new Error(`API Error: ${response.status}`);
+                await loadTodos(currentTodoStatus);
+            } catch (error) {
+                console.error('Todo error:', error);
+            }
+        }
+
+        async function deleteTodo(id) {
+            if (!confirm('Delete this task?')) return;
+            try {
+                const response = await fetch(`${API_URL}/todos/${id}`, { method: 'DELETE' });
+                if (!response.ok) throw new Error(`API Error: ${response.status}`);
+                await loadTodos(currentTodoStatus);
+            } catch (error) {
+                console.error('Todo error:', error);
+            }
+        }
+
+        // Utilities
+        function escapeHtml(value) {
+            return value.replace(/[&<>"']/g, character => ({
+                '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;'
+            }[character]));
+        }
+
+        function escapeJs(value) {
+            return value.replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/\r?\n/g, '\\n');
+        }
+
+        function openApiDocs() {
+            window.open(API_URL + '/docs', '_blank');
+        }
+
+        // New Analysis view functions (copy of main)
+        function analyzeCodeNew() {
+            const code = document.getElementById('codeInputNew').value.trim();
+            if (!code || code.length < 5) {
+                showError('Please paste some code first!', 'resultsContainerNew');
+                return;
+            }
+            if (!isAuthenticated()) {
+                document.getElementById('authOverlay').style.display = 'flex';
+                return;
+            }
+            showLoading('resultsContainerNew');
+            analyzeCodeHelper(code, 'resultsContainerNew');
+        }
+
+        async function analyzeCodeHelper(code, containerId) {
+            try {
+                const response = await fetch(`${API_URL}/analyze`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', ...authHeaders() },
+                    body: JSON.stringify({ code, filename: 'analysis.py' })
+                });
+                if (response.status === 401) {
+                    localStorage.removeItem('mentor_token');
+                    document.getElementById('authOverlay').style.display = 'flex';
+                    throw new Error('Please sign in to analyze code');
+                }
+                if (!response.ok) {
+                    const errData = await response.json().catch(() => ({}));
+                    throw new Error(errData.detail || `API Error: ${response.status}`);
+                }
+                const data = await response.json();
+                currentMentorHints = data.mentor_hints || [];
+                currentHintIndex = 0;
+                displayResults(data, containerId);
+            } catch (error) {
+                showError(error.message || 'Cannot connect to server', containerId);
+                console.error('Error:', error);
+            }
+        }
+
+        function clearCodeNew() {
+            document.getElementById('codeInputNew').value = '';
+            document.getElementById('resultsContainerNew').innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-icon">📋</div>
+                    <p>Paste code and click "Analyze" to get started</p>
+                </div>
+            `;
+        }
+
         // Test connection on load
         window.addEventListener('load', async () => {
+            // Check authentication on load
+            const token = localStorage.getItem('mentor_token');
+            if (token) {
+                try {
+                    const me = await fetch(`${API_URL}/auth/me`, { headers: authHeaders() });
+                    if (me.ok) {
+                        const data = await me.json();
+                        updateUserProfile(data);
+                    } else {
+                        localStorage.removeItem('mentor_token');
+                        document.getElementById('authOverlay').style.display = 'flex';
+                    }
+                } catch (e) {
+                    // If backend not available, proceed without auth
+                    console.warn('Cannot verify auth, proceeding without');
+                }
+            } else {
+                document.getElementById('authOverlay').style.display = 'flex';
+            }
+
+            // Test backend connection
             try {
                 const response = await fetch(`${API_URL}/`);
                 if (!response.ok) {
