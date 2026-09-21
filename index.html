@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Code Mentor</title>
+    <title>AI Code Mentor - Interactive</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -15,8 +14,10 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
-            background: #0f1419;
-            color: #e0e0e0;
+            background: radial-gradient(circle at 82% 8%, rgba(88, 29, 122, 0.85) 0%, transparent 24%),
+                        radial-gradient(circle at 30% 100%, rgba(247, 81, 190, 0.22) 0%, transparent 35%),
+                        #120d1b;
+            color: #f5eaf8;
         }
 
         .container {
@@ -27,140 +28,85 @@
 
         /* Sidebar */
         .sidebar {
-            width: 220px;
-            background: #1a1f2e;
-            border-right: 1px solid #2a3347;
-            padding: 20px;
+            width: 230px;
+            background: rgba(18, 9, 30, 0.96);
+            border-right: 1px solid rgba(255, 255, 255, 0.06);
+            padding: 18px 14px 14px;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
+            box-shadow: inset -1px 0 0 rgba(255,255,255,0.03);
         }
 
         .logo {
             display: flex;
             align-items: center;
             gap: 10px;
-            margin-bottom: 30px;
+            margin: 0 8px 28px;
+            padding: 4px 0;
         }
 
         .logo-icon {
-            width: 32px;
-            height: 32px;
-            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-            border-radius: 8px;
+            width: 38px;
+            height: 38px;
+            background: linear-gradient(135deg, #f32eb4 0%, #7d24dd 100%);
+            border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
-            font-weight: bold;
+            font-weight: 700;
+            box-shadow: 0 10px 24px rgba(216, 72, 191, 0.35);
         }
 
         .logo-text h2 {
-            font-size: 14px;
-            font-weight: 600;
-            color: white;
+            font-size: 15px;
+            font-weight: 700;
+            color: #f9f2fb;
+            line-height: 1.2;
+        }
+
+        .logo-text h2::after {
+            content: 'Learn. Improve. Grow.';
+            display: block;
+            color: rgba(220, 200, 229, 0.7);
+            font-size: 10px;
+            font-weight: 500;
+            margin-top: 2px;
+            letter-spacing: 0.01em;
         }
 
         .nav-items {
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 6px;
             flex-grow: 1;
+            margin-top: 14px;
         }
 
         .nav-item {
             display: flex;
             align-items: center;
             gap: 12px;
-            padding: 12px 14px;
-            border-radius: 8px;
+            padding: 11px 14px;
+            border-radius: 10px;
             cursor: pointer;
-            transition: all 0.3s;
-            color: #8b8f9e;
-            font-size: 13px;
+            transition: all 0.2s ease;
+            color: rgba(216, 202, 223, 0.85);
+            font-size: 14px;
             text-decoration: none;
-            user-select: none;
+            font-weight: 500;
         }
 
         .nav-item:hover {
-            background: #252d3d;
-            color: #e0e0e0;
+            background: rgba(255,255,255,0.04);
+            color: #f8ebf9;
         }
 
         .nav-item.active {
-            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            background: linear-gradient(90deg, rgba(137, 39, 206, 0.95), rgba(173, 59, 214, 0.95));
             color: white;
-        }
-
-        /* User Profile Card */
-        .user-profile {
-            margin-top: auto;
-            padding: 16px;
-            background: #252d3d;
-            border-radius: 12px;
-            border: 1px solid #2a3347;
-        }
-
-        .profile-header {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 12px;
-        }
-
-        .profile-avatar {
-            width: 40px;
-            height: 40px;
-            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 600;
-            color: white;
-            font-size: 14px;
-        }
-
-        .profile-info h3 {
-            font-size: 13px;
-            color: white;
-            font-weight: 600;
-        }
-
-        .profile-info p {
-            font-size: 11px;
-            color: #8b8f9e;
-        }
-
-        .profile-level {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 8px;
-        }
-
-        .level-badge {
-            font-size: 11px;
-            color: #a5b4fc;
-            font-weight: 600;
-        }
-
-        .xp-text {
-            font-size: 11px;
-            color: #8b8f9e;
-        }
-
-        .xp-bar {
-            height: 6px;
-            background: #1a1f2e;
-            border-radius: 3px;
-            overflow: hidden;
-        }
-
-        .xp-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #6366f1 0%, #8b5cf6 100%);
-            transition: width 0.3s ease;
+            box-shadow: 0 12px 24px rgba(115, 43, 182, 0.26);
         }
 
         /* Main Content */
@@ -169,39 +115,44 @@
             display: flex;
             flex-direction: column;
             overflow: hidden;
+            background: linear-gradient(180deg, rgba(12, 8, 18, 0.96) 0%, rgba(18, 9, 25, 0.96) 100%);
         }
 
         .header {
-            padding: 20px 30px;
-            border-bottom: 1px solid #2a3347;
+            padding: 16px 22px 14px;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            background: rgba(17, 9, 25, 0.58);
         }
 
         .header h1 {
-            font-size: 24px;
-            font-weight: 600;
-            color: white;
+            font-size: 20px;
+            font-weight: 700;
+            color: #f4edf8;
+            margin: 0;
         }
 
         .content {
             flex: 1;
             overflow-y: auto;
-            padding: 30px;
+            padding: 16px 20px 20px 20px;
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
+            grid-template-columns: minmax(0, 1fr) 310px;
+            gap: 18px;
+            align-items: start;
         }
 
         .card {
-            background: #1a1f2e;
-            border: 1px solid #2a3347;
-            border-radius: 12px;
-            padding: 24px;
+            background: rgba(24, 12, 35, 0.96);
+            border: 1px solid rgba(147, 104, 177, 0.25);
+            border-radius: 14px;
+            padding: 16px 18px;
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.14);
         }
 
         .card-title {
             font-size: 14px;
-            font-weight: 600;
-            color: white;
+            font-weight: 700;
+            color: #f7eef9;
             margin-bottom: 16px;
         }
 
@@ -219,53 +170,56 @@
 
         textarea {
             width: 100%;
-            height: 300px;
-            background: #252d3d;
-            border: 1px solid #2a3347;
-            border-radius: 8px;
-            color: #10b981;
-            font-family: 'Courier New', monospace;
+            height: 290px;
+            background: rgba(14, 9, 20, 0.95);
+            border: 1px solid rgba(93, 66, 114, 0.75);
+            border-radius: 10px;
+            color: #f2baf9;
+            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
             font-size: 12px;
-            padding: 12px;
+            padding: 16px 18px;
             resize: none;
-            line-height: 1.5;
+            line-height: 1.55;
+            box-shadow: inset 0 0 0 1px rgba(255,255,255,0.01);
         }
 
         textarea::placeholder {
-            color: #5a6170;
+            color: #6d5d7f;
         }
 
         textarea:focus {
             outline: none;
-            border-color: #6366f1;
-            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.1);
+            border-color: rgba(212, 118, 245, 0.9);
+            box-shadow: 0 0 0 2px rgba(199, 97, 223, 0.12);
         }
 
         .button-group {
             display: flex;
-            gap: 8px;
-            margin-top: 16px;
+            gap: 10px;
+            margin-top: 18px;
+            justify-content: flex-start;
         }
 
         button {
-            flex: 1;
+            flex: 0 0 auto;
             padding: 10px 16px;
-            border-radius: 8px;
+            border-radius: 10px;
             font-size: 13px;
-            font-weight: 500;
+            font-weight: 600;
             cursor: pointer;
             border: none;
-            transition: all 0.3s;
+            transition: all 0.2s ease;
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            background: linear-gradient(135deg, #ee2db8 0%, #9d25e4 100%);
             color: white;
+            box-shadow: 0 12px 22px rgba(198, 66, 196, 0.25);
         }
 
         .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+            filter: brightness(1.03);
+            transform: translateY(-1px);
         }
 
         .btn-primary:disabled {
@@ -275,13 +229,13 @@
         }
 
         .btn-secondary {
-            background: transparent;
-            color: #6366f1;
-            border: 1px solid #6366f1;
+            background: rgba(255,255,255,0.02);
+            color: #f1baf7;
+            border: 1px solid rgba(200, 109, 214, 0.5);
         }
 
         .btn-secondary:hover {
-            background: rgba(99, 102, 241, 0.1);
+            background: rgba(255,255,255,0.04);
         }
 
         /* Results Section */
@@ -291,6 +245,24 @@
             gap: 16px;
             max-height: 600px;
             overflow-y: auto;
+        }
+
+        .results-card {
+            padding: 16px 18px 12px;
+        }
+
+        .results-card #resultsContainer {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 10px;
+        }
+
+        .results-card .result-card {
+            min-height: 120px;
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(147, 104, 177, 0.25);
+            border-radius: 12px;
+            padding: 12px 12px 10px;
         }
 
         .loading {
@@ -431,21 +403,6 @@
             letter-spacing: 0.5px;
         }
 
-        .mentor-mode-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 12px;
-        }
-
-        .mentor-step {
-            font-size: 11px;
-            color: #a5b4fc;
-            background: rgba(99, 102, 241, 0.1);
-            padding: 4px 8px;
-            border-radius: 4px;
-        }
-
         .hint-item {
             background: rgba(99, 102, 241, 0.1);
             border-left: 2px solid #6366f1;
@@ -455,33 +412,6 @@
             font-size: 12px;
             color: #a5b4fc;
             line-height: 1.4;
-        }
-
-        .mentor-nav {
-            display: flex;
-            gap: 8px;
-            margin-top: 12px;
-        }
-
-        .mentor-nav button {
-            flex: 1;
-            padding: 8px 12px;
-            border-radius: 6px;
-            font-size: 12px;
-            background: transparent;
-            color: #6366f1;
-            border: 1px solid #6366f1;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .mentor-nav button:hover:not(:disabled) {
-            background: rgba(99, 102, 241, 0.1);
-        }
-
-        .mentor-nav button:disabled {
-            opacity: 0.3;
-            cursor: not-allowed;
         }
 
         .error-message {
@@ -500,367 +430,116 @@
             color: #5a6170;
         }
 
-        .empty-icon {
-            font-size: 48px;
-            margin-bottom: 16px;
-            opacity: 0.5;
-        }
-
-        .view-hidden {
-            display: none !important;
-        }
-
-        /* History View */
-        .history-list {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .history-item {
-            background: #252d3d;
-            border-radius: 8px;
-            padding: 16px;
-            cursor: pointer;
-            transition: all 0.2s;
-            border: 1px solid #2a3347;
-        }
-
-        .history-item:hover {
-            border-color: #6366f1;
-            transform: translateY(-2px);
-        }
-
-        .history-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 8px;
-        }
-
-        .history-filename {
-            font-size: 14px;
-            color: white;
-            font-weight: 500;
-        }
-
-        .history-badge {
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 11px;
-            font-weight: 600;
-        }
-
-        .badge-history-good {
-            background: rgba(16, 185, 129, 0.2);
-            color: #6ee7b7;
-        }
-
-        .badge-history-fair {
-            background: rgba(245, 158, 11, 0.2);
-            color: #fcd34d;
-        }
-
-        .badge-history-bad {
-            background: rgba(239, 68, 68, 0.2);
-            color: #fca5a5;
-        }
-
-        .history-meta {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-size: 12px;
-            color: #8b8f9e;
-        }
-
-        /* Progress View */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 16px;
-            margin-bottom: 24px;
-        }
-
-        .stat-card {
-            background: #252d3d;
-            border: 1px solid #2a3347;
-            border-radius: 8px;
-            padding: 20px;
-        }
-
-        .stat-label {
-            font-size: 12px;
-            color: #8b8f9e;
-            margin-bottom: 8px;
-        }
-
-        .stat-value {
-            font-size: 28px;
-            font-weight: 700;
-            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .chart-container {
-            background: #252d3d;
-            border: 1px solid #2a3347;
-            border-radius: 12px;
-            padding: 24px;
-        }
-
-        .chart-title {
-            font-size: 16px;
-            color: white;
-            font-weight: 600;
-            margin-bottom: 20px;
-        }
-
-        /* Todo Styles */
-        .todo-form {
-            display: grid;
-            gap: 12px;
-            margin-bottom: 20px;
-        }
-
-        .todo-form input,
-        .todo-form textarea {
-            height: auto;
-            resize: vertical;
-            background: #252d3d;
-            border: 1px solid #2a3347;
-            border-radius: 8px;
-            color: #e0e0e0;
-            padding: 12px;
-            font-family: inherit;
-        }
-
-        .todo-form textarea {
-            min-height: 80px;
-        }
-
-        .todo-form input:focus,
-        .todo-form textarea:focus {
-            outline: none;
-            border-color: #6366f1;
-        }
-
-        .todo-toolbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 20px;
-        }
-
-        .todo-filters {
-            display: flex;
-            gap: 8px;
-        }
-
-        .todo-filter {
-            flex: 0 0 auto;
-            padding: 8px 12px;
-            color: #8b8f9e;
-            background: transparent;
-            border: 1px solid #2a3347;
-        }
-
-        .todo-filter.active {
-            color: white;
-            background: #6366f1;
-            border-color: #6366f1;
-        }
-
-        .todo-item {
-            display: flex;
-            align-items: flex-start;
-            gap: 12px;
-            padding: 16px 0;
-            border-bottom: 1px solid #2a3347;
-        }
-
-        .todo-item:last-child {
-            border-bottom: none;
-        }
-
-        .todo-item input[type="checkbox"] {
-            width: 18px;
-            height: 18px;
-            margin-top: 2px;
-            accent-color: #6366f1;
-        }
-
-        .todo-details {
-            flex: 1;
-            min-width: 0;
-        }
-
-        .todo-title {
-            color: white;
-            font-size: 14px;
-            font-weight: 500;
-            word-break: break-word;
-        }
-
-        .todo-description {
-            color: #8b8f9e;
-            font-size: 12px;
-            margin-top: 6px;
-            white-space: pre-wrap;
-            word-break: break-word;
-        }
-
-        .todo-item.completed .todo-title {
-            color: #8b8f9e;
-            text-decoration: line-through;
-        }
-
-        .todo-actions {
-            display: flex;
-            gap: 6px;
-        }
-
-        .todo-actions button {
-            flex: 0 0 auto;
-            padding: 6px 8px;
-            color: #8b8f9e;
-            background: transparent;
-            border: 1px solid #2a3347;
-        }
-
-        .todo-actions button:hover {
-            color: white;
-            border-color: #6366f1;
-        }
-
-        /* Auth Modal */
         .auth-overlay {
-            position: fixed;
-            inset: 0;
-            z-index: 1000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: rgba(15, 20, 25, 0.94);
-            backdrop-filter: blur(8px);
+            position: fixed; inset: 0; z-index: 10; display: none; align-items: center;
+            justify-content: center; background: rgba(2, 7, 15, 0.70);
+            backdrop-filter: blur(1px);
         }
-
         .auth-box {
-            width: min(420px, 92vw);
-            background: #1a1f2e;
-            border: 1px solid #2a3347;
-            border-radius: 14px;
-            padding: 32px 28px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+            width: min(500px, 92vw);
+            background: rgba(27, 34, 48, 0.96);
+            border: 1px solid rgba(117, 130, 164, 0.28);
+            border-radius: 18px;
+            padding: 44px 40px 30px;
+            box-shadow: 0 24px 48px rgba(0,0,0,0.35);
         }
-
         .auth-box h2 {
             color: white;
-            margin-bottom: 8px;
-            font-size: 20px;
+            margin-bottom: 10px;
+            font-size: clamp(2.2rem, 2.7vw, 3.3rem);
             font-weight: 700;
+            line-height: 1.1;
+            text-align: center;
         }
-
         .auth-box p {
-            color: #8b8f9e;
-            font-size: 13px;
-            margin-bottom: 20px;
-            line-height: 1.5;
+            color: rgba(217, 222, 241, 0.8);
+            font-size: 15px;
+            margin-bottom: 26px;
+            text-align: center;
         }
-
-        .auth-box input {
+        .auth-box input, .language-select {
             width: 100%;
-            padding: 12px 14px;
-            margin-bottom: 12px;
-            border-radius: 8px;
-            border: 1px solid #2a3347;
-            background: #252d3d;
+            padding: 18px 16px;
+            margin-bottom: 16px;
+            border-radius: 10px;
+            border: 1px solid rgba(132, 146, 173, 0.22);
+            background: rgba(109, 122, 143, 0.18);
             color: white;
-            font-size: 14px;
-            outline: none;
-            transition: border-color 0.2s;
+            font-size: 16px;
         }
-
-        .auth-box input:focus {
-            border-color: #6366f1;
-        }
-
         .password-input-wrap {
             position: relative;
             width: 100%;
-            margin-bottom: 12px;
+            margin-bottom: 16px;
         }
-
         .password-input-wrap input {
             margin-bottom: 0 !important;
-            padding-right: 44px !important;
+            padding-right: 52px !important;
         }
-
         .password-toggle-btn {
             position: absolute;
-            right: 12px;
+            right: 14px;
             top: 50%;
             transform: translateY(-50%);
             background: transparent;
             border: none;
-            color: #8b8f9e;
+            color: rgba(216, 222, 237, 0.8);
             cursor: pointer;
             padding: 6px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 15px;
+            font-size: 18px;
             transition: color 0.2s ease;
         }
-
         .password-toggle-btn:hover {
-            color: #a5b4fc;
+            color: #fff;
         }
-
         .auth-switch {
-            color: #a5b4fc;
+            color: rgba(245, 110, 219, 0.95);
             cursor: pointer;
             text-align: center;
-            margin-top: 16px;
-            font-size: 13px;
-            transition: color 0.2s;
-        }
-
-        .auth-switch:hover {
-            color: #c7d2fe;
-            text-decoration: underline;
-        }
-
-        .auth-submit-btn {
-            width: 100%;
-            padding: 12px;
-            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-weight: 600;
+            margin-top: 22px;
             font-size: 14px;
-            cursor: pointer;
-            transition: all 0.3s;
-            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+            font-weight: 500;
         }
-
-        .auth-submit-btn:hover {
-            opacity: 0.95;
-            transform: translateY(-1px);
+        .file-row { display: flex; gap: 8px; align-items: center; margin-top: 12px; }
+        .file-row input { display: none; }
+        .user-bar { margin-top: auto; border-top: 1px solid #2a3347; padding-top: 14px; font-size: 12px; color: #8b8f9e; }
+        .profile-card { margin-top: auto; padding: 14px 12px; border: 1px solid #552266; border-radius: 11px; background: rgba(31, 17, 45, .85); color: #f4eaf7; }
+        .profile-head { display: flex; align-items: center; gap: 9px; }
+        .profile-avatar { width: 36px; height: 36px; display: grid; place-items: center; border-radius: 50%; background: linear-gradient(135deg, #f151ba, #8e26d9); font-weight: 700; }
+        .profile-head b, .profile-head small { display: block; }
+        .profile-head b { font-size: 12px; }
+        .profile-head small { color: #ad91af; font-size: 10px; margin-top: 2px; }
+        .profile-card p { color: #c6b5ca; font-size: 10px; margin: 12px 0; }
+        .level-row { display: flex; justify-content: space-between; color: #d9c9df; font-size: 9px; }
+        .xp-track { height: 5px; border-radius: 5px; background: #3b244b; margin-top: 6px; overflow: hidden; }
+        .xp-track span { display: block; width: 0%; height: 100%; background: linear-gradient(90deg, #f344ba, #a62de2); }
+        .profile-email { display: block; margin-top: 8px; color: #a990ad; font-size: 9px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .video-link { display: block; color: #a5b4fc; margin-top: 10px; font-size: 12px; }
+        .file-upload { display: inline-flex; align-items: center; gap: 6px; padding: 9px 12px; border: 1px solid #8a3db5; border-radius: 7px; color: #e8a6ff; cursor: pointer; font-size: 11px; }
+        .file-upload:hover { background: rgba(232, 166, 255, .1); }
+        .investor-panel {
+            position: fixed; inset: 0; z-index: 9; display: none; overflow-y: auto;
+            background: rgba(15, 20, 25, 0.98); padding: 36px;
         }
+        .investor-inner { max-width: 1040px; margin: 0 auto; }
+        .investor-hero { padding: 28px; border-radius: 14px; background: linear-gradient(135deg, #252d3d, #31245a); margin-bottom: 20px; }
+        .investor-hero h2 { color: white; font-size: 28px; margin-bottom: 10px; }
+        .investor-hero p { color: #d5d8e7; line-height: 1.6; max-width: 760px; }
+        .investor-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 20px; }
+        .investor-stat { background: #1a1f2e; border: 1px solid #2a3347; border-radius: 10px; padding: 18px; }
+        .investor-stat strong { display: block; color: #a5b4fc; font-size: 22px; margin-bottom: 6px; }
+        .investor-stat span { color: #8b8f9e; font-size: 12px; }
+        .investor-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .investor-list { color: #c4c4c4; line-height: 1.8; padding-left: 18px; font-size: 13px; }
+        @media (max-width: 768px) { .investor-panel { padding: 20px; } .investor-grid, .investor-columns { grid-template-columns: 1fr; } }
 
-        .auth-error {
-            background: rgba(239, 68, 68, 0.15);
-            border: 1px solid #ef4444;
-            color: #fca5a5;
-            padding: 10px 14px;
-            border-radius: 8px;
-            font-size: 12px;
-            margin-top: 14px;
-            display: none;
+        .empty-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.5;
         }
 
         @media (max-width: 1024px) {
@@ -884,11 +563,131 @@
             .content {
                 padding: 20px;
             }
-
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
         }
+
+        /* Dashboard visual system */
+        :root {
+            --bg: #10091a;
+            --panel: #1a1027;
+            --panel-soft: #211532;
+            --border: #39204e;
+            --pink: #e83bbd;
+            --purple: #8627d9;
+            --muted: #a99bb8;
+        }
+        body { background: radial-gradient(circle at 82% 8%, #291440 0, transparent 31%), var(--bg); color: #f8f3fb; }
+        .container { height: 100vh; }
+        .sidebar { width: 224px; background: rgba(22, 11, 32, .96); border-right: 1px solid var(--border); padding: 22px 14px 14px; }
+        .logo { padding: 0 8px; margin-bottom: 32px; }
+        .logo-icon { width: 38px; height: 38px; background: linear-gradient(135deg, #f532b8, #7d1fe1); box-shadow: 0 8px 24px rgba(225, 35, 181, .28); }
+        .logo-text h2 { font-size: 16px; }
+        .logo-text:after { content: 'Learn. Improve. Grow.'; display: block; color: var(--muted); font-size: 10px; margin-top: 2px; }
+        .nav-items { gap: 6px; }
+        .nav-item { padding: 11px 13px; color: #c0b1cb; }
+        .nav-item.active { background: linear-gradient(100deg, #771bc9, #a81be1); box-shadow: 0 8px 22px rgba(128, 24, 207, .25); }
+        .main { min-width: 0; }
+        .header { padding: 16px 22px; background: rgba(18, 9, 28, .65); border-bottom: 1px solid var(--border); }
+        .topbar { display: flex; justify-content: space-between; align-items: center; }
+        .header h1 { font-size: 20px; }
+        .topbar-actions { display: flex; align-items: center; gap: 10px; }
+        .theme-button { flex: 0 0 auto; width: 34px; height: 34px; padding: 0; border: 1px solid var(--border); background: var(--panel); color: #ff70d5; border-radius: 50%; }
+        .new-analysis-button { flex: 0 0 auto; padding: 9px 15px; }
+        .content { grid-template-columns: minmax(0, 1fr) 310px; align-items: start; gap: 14px; padding: 14px 22px 24px; }
+        .workspace-column { min-width: 0; display: flex; flex-direction: column; gap: 14px; }
+        .card, .rail-card { background: rgba(28, 15, 42, .96); border: 1px solid var(--border); border-radius: 12px; padding: 14px; box-shadow: 0 14px 35px rgba(0, 0, 0, .16); }
+        .code-card { padding: 10px; }
+        .editor-toolbar { display: flex; justify-content: space-between; align-items: center; background: #171025; border: 1px solid #302041; border-radius: 8px; padding: 8px 12px; margin-bottom: 12px; }
+        .editor-file { color: #eee4f5; font-size: 12px; }
+        .editor-file i { color: #ffd35c; margin-right: 7px; }
+        .clear-editor { width: auto; flex: 0 0 auto; padding: 3px 9px; color: var(--muted); background: transparent; font-size: 11px; }
+        .editor-label { color: var(--muted); }
+        textarea { height: 274px; background: #100b1b; border-color: #302041; color: #f3a9ff; border-radius: 7px; }
+        .language-select { width: 130px; display: inline-block; margin: 0 0 0 8px; background: #281436; border-color: #4f2369; }
+        .file-row { display: inline-flex; float: left; margin-top: 13px; }
+        .file-row input { max-width: 120px; }
+        .button-group { clear: both; }
+        .button-group button { padding: 9px 11px; }
+        .btn-primary { background: linear-gradient(100deg, #ef28b7, #9a20e3); }
+        .btn-secondary { color: #e8a6ff; border-color: #8a3db5; }
+        .quick-examples { display: none; }
+        .results-card { min-height: 220px; }
+        .results-card #resultsContainer { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+        .results-card #resultsContainer > h4, .results-card #resultsContainer > .hints-section, .results-card #resultsContainer > .score-section, .results-card #resultsContainer > .empty-state, .results-card #resultsContainer > .error-message { grid-column: 1 / -1; }
+        .results-card .result-card { min-height: 142px; }
+        .card-title { color: #f9edff; }
+        .results-container { max-height: none; }
+        .right-rail { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+        .rail-card {
+            background: #f8edf4;
+            color: #2c1830;
+            border: 1px solid rgba(228, 205, 222, 0.9);
+            border-radius: 14px;
+            padding: 14px 14px 12px;
+            box-shadow: 0 10px 22px rgba(14, 5, 21, 0.09);
+        }
+        .rail-title { font-size: 14px; font-weight: 700; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; color: #301b33; }
+        .rail-title span { color: #988699; font-weight: 400; }
+        .score-card { text-align: center; }
+        .score-ring {
+            width: 126px;
+            height: 126px;
+            margin: 10px auto 12px;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border: 10px solid #ead8e9;
+            border-top-color: #8b2ad8;
+            border-right-color: #d737b4;
+            transform: rotate(-25deg);
+            background: rgba(255,255,255,0.08);
+        }
+        .score-ring strong, .score-ring small { transform: rotate(25deg); }
+        .score-ring strong { font-size: 30px; line-height: 1; color: #2d1d34; }
+        .score-ring small { font-size: 10px; color: #785c7f; margin-top: 4px; }
+        .score-card p { color: #573d5c; font-size: 12px; line-height: 1.45; margin: 0 auto 8px; max-width: 210px; }
+        .score-breakdown { display: grid; grid-template-columns: repeat(4, 1fr); border-top: 1px solid #ead6e5; margin: 10px -14px -12px; padding: 12px 8px 6px; }
+        .score-breakdown span { border-right: 1px solid #ead6e5; }
+        .score-breakdown span:last-child { border: 0; }
+        .score-breakdown b, .score-breakdown em { display: block; font-style: normal; }
+        .score-breakdown b { color: #b22487; font-size: 15px; font-weight: 700; }
+        .score-breakdown em { color: #806b82; font-size: 9px; }
+        .step-pill { background: #f1cfe6; color: #9e3289 !important; padding: 5px 8px; border-radius: 6px; font-size: 10px; }
+        .rail-hint { background: #fff8fb; border: 1px solid #efdce9; border-radius: 7px; padding: 13px; color: #4d3850; font-size: 12px; line-height: 1.45; min-height: 78px; }
+        .hint-actions { display: flex; gap: 7px; margin-top: 10px; }
+        .hint-actions button { font-size: 10px; padding: 8px 6px; color: #8d438a; border-color: #d99bca; }
+        .hint-actions .btn-primary { color: #fff; }
+        .hint-footer { display: block; color: #9f7896; margin-top: 11px; }
+        .view-all { border: 0; background: none; color: #b32993; font-size: 11px; width: auto; padding: 0; }
+        .recent-item { display: flex; align-items: center; gap: 8px; padding: 9px 0; border-top: 1px solid #ead6e5; font-size: 11px; }
+        .recent-item > div { flex: 1; }
+        .recent-item b, .recent-item small { display: block; }
+        .recent-item small { color: #8d788c; margin-top: 3px; }
+        .file-icon { font-size: 17px; }
+        .status-good, .status-bad { padding: 4px 7px; border-radius: 5px; font-size: 9px; }
+        .status-good { background: #c8e9ca; color: #33853d; }
+        .status-bad { background: #f4cad8; color: #a32b58; }
+        .score-section { display: none; }
+        .progress-card { padding: 14px 18px; }
+        .progress-heading { display: flex; justify-content: space-between; align-items: center; }
+        .progress-heading .card-title { margin: 0; }
+        .progress-heading > span { color: #ad91af; font-size: 10px; }
+        .progress-body { display: flex; gap: 20px; align-items: center; }
+        .progress-chart { height: 92px; flex: 1; display: flex; align-items: end; gap: 8px; padding: 8px 4px 0; border-bottom: 1px solid #4b265d; background: repeating-linear-gradient(to bottom, transparent 0, transparent 22px, rgba(112, 57, 126, .24) 23px); }
+        .progress-chart span { flex: 1; min-width: 8px; border-radius: 5px 5px 0 0; background: linear-gradient(180deg, #ee47c2, #8627d9); box-shadow: 0 0 10px rgba(224, 51, 186, .35); }
+        .progress-summary { min-width: 116px; display: grid; gap: 3px; color: #f1e6f4; }
+        .progress-summary strong { font-size: 22px; }
+        .progress-summary small { color: #ad91af; font-size: 10px; }
+        .progress-summary b { font-size: 18px; }
+        .progress-summary button { width: 100%; flex: 0 0 auto; padding: 8px 5px; font-size: 10px; margin-top: 4px; }
+        .light-mode { background: #f5eef7; color: #261329; }
+        .light-mode .main, .light-mode .header { background: #f5eef7; }
+        .light-mode .header h1, .light-mode .card-title { color: #261329; }
+        .light-mode .card, .light-mode .code-card { background: #fffaff; border-color: #e4cce7; }
+        .light-mode textarea { background: #fff; color: #72208d; }
+        @media (max-width: 1050px) { .content { grid-template-columns: minmax(0, 1fr); } .right-rail { display: grid; grid-template-columns: repeat(3, 1fr); } .results-card #resultsContainer { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+        @media (max-width: 768px) { .topbar { align-items: flex-start; gap: 10px; } .new-analysis-button { font-size: 0; } .new-analysis-button i { font-size: 13px; } .right-rail { display: flex; } .content { padding: 12px; } .sidebar { width: 100%; } .results-card #resultsContainer { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
@@ -905,247 +704,234 @@
             </div>
 
             <nav class="nav-items">
-                <div class="nav-item active" id="dashboardNav" onclick="showView('dashboard')">
-                    <i class="fas fa-home"></i> Dashboard
+                <div class="nav-item active" onclick="showDashboard()">
+                    <i class="fas fa-chart-line"></i> Dashboard
                 </div>
-                <div class="nav-item" id="newAnalysisNav" onclick="showView('newAnalysis')">
-                    <i class="fas fa-code"></i> New Analysis
+                <div class="nav-item" onclick="loadHistory()">
+                    <i class="fas fa-history"></i> History
                 </div>
-                <div class="nav-item" id="historyNav" onclick="showView('history')">
-                    <i class="fas fa-clock-rotate-left"></i> History
-                </div>
-                <div class="nav-item" id="progressNav" onclick="showView('progress')">
-                    <i class="fas fa-chart-line"></i> Progress
-                </div>
-                <div class="nav-item" id="todosNav" onclick="showView('todos')">
-                    <i class="fas fa-list-check"></i> Todo List
-                </div>
-                <div class="nav-item" id="settingsNav" onclick="showView('settings')">
+                <div class="nav-item" onclick="showSettings()">
                     <i class="fas fa-cog"></i> Settings
                 </div>
-                <div class="nav-item" onclick="openApiDocs()">
-                    <i class="fas fa-book"></i> API Docs
+                <div class="nav-item" onclick="showInvestorDemo()">
+                    <i class="fas fa-rocket"></i> Investor Demo
+                </div>
+                <div class="nav-item" onclick="showProgress()">
+                    <i class="fas fa-chart-bar"></i> Progress
+                </div>
+                <div class="nav-item" onclick="showStatistics()">
+                    <i class="fas fa-chart-pie"></i> Statistics
+                </div>
+                <div class="nav-item" onclick="showSavedSnippets()">
+                    <i class="fas fa-bookmark"></i> Saved Snippets
+                </div>
+                <div class="nav-item" onclick="showApiDocs()">
+                    <i class="fas fa-file-lines"></i> API Docs
                 </div>
             </nav>
-
-            <!-- User Profile -->
-            <div class="user-profile">
-                <div class="profile-header">
-                    <div class="profile-avatar" id="userAvatar">U</div>
-                    <div class="profile-info">
-                        <h3 id="userName">User</h3>
-                        <p id="userEmail">Student</p>
-                    </div>
-                </div>
-                <div class="profile-level">
-                    <span class="level-badge" id="userLevel">Level 1</span>
-                    <span class="xp-text" id="userXp">0 / 2,000 XP</span>
-                </div>
-                <div class="xp-bar">
-                    <div class="xp-fill" id="userXpFill" style="width: 0%"></div>
-                </div>
-                <button onclick="logout()" title="Sign out" style="margin-top: 12px; width: 100%; background: #1a1f2e; border: 1px solid #2a3347; color: #8b8f9e; padding: 6px 10px; border-radius: 6px; font-size: 11px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.2s;">
-                    <i class="fas fa-sign-out-alt"></i> Sign out
-                </button>
+            <div class="profile-card">
+                <div class="profile-head"><span class="profile-avatar">D</span><span><b id="userName">Davichik</b><small>Student</small></span></div>
+                <p>Keep coding, keep growing! 🚀</p>
+                <div class="level-row"><span>Level 1</span><span>0 / 2,000 XP</span></div>
+                <div class="xp-track"><span></span></div>
+                <span id="userEmail" class="profile-email">Not signed in</span>
+                <button class="btn-secondary" style="margin-top:8px;width:100%;" onclick="logout()">Sign out</button>
             </div>
         </div>
 
         <!-- Main Content -->
         <div class="main">
-            <!-- Dashboard View -->
-            <div class="header" id="dashboardHeader">
-                <h1>Code Analysis</h1>
-                <p style="color: #8b8f9e; margin-top: 4px; font-size: 13px;">Paste your Python code and get AI-powered feedback</p>
+            <div class="header topbar">
+                <div>
+                    <h1>New Code Analysis</h1>
+                    <p style="color: #8b8f9e; margin-top: 4px; font-size: 13px;">Paste your code below and get AI-powered feedback</p>
+                </div>
+                <div class="topbar-actions">
+                    <button class="theme-button" onclick="document.body.classList.toggle('light-mode')" aria-label="Toggle theme">☾</button>
+                    <button class="btn-primary new-analysis-button" onclick="clearCode()"><i class="fas fa-plus"></i> New Analysis</button>
+                </div>
             </div>
 
-            <div class="content" id="dashboardView">
+            <div class="content">
+                <div class="workspace-column">
                 <!-- Code Input -->
-                <div class="card">
+                <div class="card code-card">
                     <div class="code-editor">
-                        <label class="editor-label">📝 Paste your Python code:</label>
-                        <textarea id="codeInput" placeholder="def hello():
-    print('Hello World')
+                        <div class="editor-toolbar"><span class="editor-file"><i class="fab fa-python"></i> <span id="editorFileLabel">main.py</span></span><button class="clear-editor" onclick="clearCode()">Clear</button></div>
+                        <label class="editor-label">Paste code or upload any file:</label>
+                        <select id="languageSelect" class="language-select">
+                            <option value="">Auto-detect language</option>
+                            <option>Python</option><option>JavaScript</option><option>TypeScript</option>
+                            <option>Java</option><option>C++</option><option>C#</option><option>Go</option>
+                            <option>Rust</option><option>PHP</option><option>Ruby</option><option>SQL</option>
+                            <option>HTML</option><option>CSS</option><option>Other</option>
+                        </select>
+                        <textarea id="codeInput">def get_user(user_id):
+    query = "SELECT * FROM users WHERE id = %s"
+    conn = sqlite3.connect("db.sqlite3")
+    cursor = conn.cursor()
+    cursor.execute(query, (user_id,))
+    return cursor.fetchone()
 
-# Add your code here..."></textarea>
+user_input = input("Enter user id: ")
+user = get_user(user_input)
+print(user)
+</textarea>
+                        <div class="file-row">
+                            <label class="file-upload" for="fileInput"><i class="fas fa-upload"></i> Upload File</label>
+                            <input id="fileInput" type="file" onchange="loadFile(event)">
+                            <span id="fileName" style="font-size:11px;color:#8b8f9e;">No file selected</span>
+                        </div>
                         <div class="button-group">
                             <button class="btn-primary" onclick="analyzeCode()">
-                                <i class="fas fa-play"></i> Analyze
+                                <i class="fas fa-wand-magic-sparkles"></i> Analyze Code
                             </button>
                             <button class="btn-secondary" onclick="clearCode()">
                                 <i class="fas fa-trash"></i> Clear
                             </button>
+                            <button class="btn-secondary" onclick="findTextErrors()">
+                                <i class="fas fa-search"></i> Find errors
+                            </button>
                         </div>
                     </div>
 
                     <!-- Quick Examples -->
                     <div style="margin-top: 24px;">
                         <h3 style="font-size: 12px; color: #8b8f9e; margin-bottom: 8px;">📚 Examples:</h3>
-                        <button class="btn-secondary" style="width: 100%; margin-bottom: 6px; text-align: left;" onclick="loadExample(1)">
+                        <button class="btn-secondary" style="width: 100%; margin-bottom: 6px; text-align: left;" onclick="loadExample1()">
                             Bad Loop Example
                         </button>
-                        <button class="btn-secondary" style="width: 100%; text-align: left;" onclick="loadExample(2)">
+                        <button class="btn-secondary" style="width: 100%; text-align: left;" onclick="loadExample2()">
                             SQL Injection Risk
                         </button>
                     </div>
                 </div>
 
                 <!-- Results -->
-                <div class="card">
+                <div class="card results-card">
                     <h3 class="card-title">✨ Analysis Results</h3>
                     <div id="resultsContainer">
-                        <div class="empty-state">
-                            <div class="empty-icon">📋</div>
-                            <p>Paste code and click "Analyze" to get started</p>
+                        <div class="result-card critical">
+                            <div class="result-header">
+                                <span class="result-badge badge-critical">Critical (2)</span>
+                            </div>
+                            <h4 class="result-title">SQL Injection Vulnerability</h4>
+                            <p class="result-text">User input is used in a SQL query without sanitization.</p>
+                        </div>
+                        <div class="result-card improvement">
+                            <div class="result-header">
+                                <span class="result-badge badge-improvement">Improvement (3)</span>
+                            </div>
+                            <h4 class="result-title">No Input Validation</h4>
+                            <p class="result-text">User input is used directly without validating data types or boundaries.</p>
+                        </div>
+                        <div class="result-card learning">
+                            <div class="result-header">
+                                <span class="result-badge badge-learning">Learning (2)</span>
+                            </div>
+                            <h4 class="result-title">Parameterized Queries</h4>
+                            <p class="result-text">Use parameterized queries to improve data safety and reduce injection risk.</p>
+                        </div>
+                        <div class="result-card good">
+                            <div class="result-header">
+                                <span class="result-badge badge-good">Good (4)</span>
+                            </div>
+                            <h4 class="result-title">Function Structure</h4>
+                            <p class="result-text">Code organization is clear and functions are used appropriately.</p>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- New Analysis View -->
-            <div class="header view-hidden" id="newAnalysisHeader">
-                <h1>New Code Analysis</h1>
-                <p style="color: #8b8f9e; margin-top: 4px; font-size: 13px;">Paste your code and get AI-powered feedback</p>
-            </div>
-
-            <div class="content view-hidden" id="newAnalysisView">
-                <!-- Code Input -->
-                <div class="card">
-                    <div class="code-editor">
-                        <label class="editor-label">📝 Paste your Python code:</label>
-                        <textarea id="codeInputNew" placeholder="def hello():
-    print('Hello World')
-
-# Add your code here..."></textarea>
-                        <div class="button-group">
-                            <button class="btn-primary" onclick="analyzeCodeNew()">
-                                <i class="fas fa-play"></i> Analyze
-                            </button>
-                            <button class="btn-secondary" onclick="clearCodeNew()">
-                                <i class="fas fa-trash"></i> Clear
-                            </button>
+                <div class="card progress-card">
+                    <div class="progress-heading"><h3 class="card-title">Your Progress</h3><span>Average Score</span></div>
+                    <div class="progress-body">
+                        <div class="progress-chart" aria-label="Progress chart">
+                            <span style="height:24%"></span><span style="height:39%"></span><span style="height:50%"></span>
+                            <span style="height:62%"></span><span style="height:68%"></span><span style="height:74%"></span>
+                            <span style="height:82%"></span><span style="height:91%"></span><span style="height:97%"></span>
                         </div>
-                    </div>
-
-                    <!-- Quick Examples -->
-                    <div style="margin-top: 24px;">
-                        <h3 style="font-size: 12px; color: #8b8f9e; margin-bottom: 8px;">📚 Examples:</h3>
-                        <button class="btn-secondary" style="width: 100%; margin-bottom: 6px; text-align: left;" onclick="loadExample(1)">
-                            Bad Loop Example
-                        </button>
-                        <button class="btn-secondary" style="width: 100%; text-align: left;" onclick="loadExample(2)">
-                            SQL Injection Risk
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Results -->
-                <div class="card">
-                    <h3 class="card-title">✨ Analysis Results</h3>
-                    <div id="resultsContainerNew">
-                        <div class="empty-state">
-                            <div class="empty-icon">📋</div>
-                            <p>Paste code and click "Analyze" to get started</p>
+                        <div class="progress-summary"><strong id="progressAverage">100</strong><small>Analyses</small><b id="progressCount">24</b><button class="btn-primary" onclick="showProgress()">View Progress →</button></div>
+                            <div class="score-breakdown">
+                                <span><b id="railCritical">2</b><em>Critical</em></span>
+                                <span><b id="railImprovement">3</b><em>Improvement</em></span>
+                                <span><b id="railLearning">2</b><em>Learning</em></span>
+                                <span><b id="railGood">4</b><em>Good</em></span>
+                            </div>
                         </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- History View -->
-            <div class="header view-hidden" id="historyHeader">
-                <h1>Analysis History</h1>
-                <p style="color: #8b8f9e; margin-top: 4px; font-size: 13px;">Review your past code analyses</p>
-            </div>
-
-            <div class="content view-hidden" id="historyView">
-                <div class="card" style="grid-column: 1 / -1;">
-                    <h3 class="card-title">Recent Analyses</h3>
-                    <div id="historyList" class="history-list">
-                        <div class="loading">
-                            <div class="spinner"></div>
-                            <p>Loading history...</p>
+                        <div class="rail-card mentor-card">
+                            <div class="rail-title">Mentor Mode <span class="step-pill">Step 1 of 3</span></div>
+                            <div id="railHint" class="rail-hint">Заметь ли ты, что ты напрямую вставляешь user_input в SQL-запрос? Подумай об обезопасности данных.</div>
+                            <div class="hint-actions"><button class="btn-secondary" onclick="changeHint(-1)">← Previous Hint</button><button class="btn-primary" onclick="changeHint(1)">Next Hint →</button></div>
+                            <small class="hint-footer">💡 Hints help you find the solution yourself!</small>
                         </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Progress View -->
-            <div class="header view-hidden" id="progressHeader">
-                <h1>Your Progress</h1>
-                <p style="color: #8b8f9e; margin-top: 4px; font-size: 13px;">Track your coding improvement over time</p>
-            </div>
-
-            <div class="content view-hidden" id="progressView">
-                <div style="grid-column: 1 / -1;">
-                    <div class="stats-grid">
-                        <div class="stat-card">
-                            <div class="stat-label">Total Analyses</div>
-                            <div class="stat-value" id="statTotal">0</div>
+                        <div class="rail-card recent-card">
+                            <div class="rail-title">Recent Analyses <button class="view-all" onclick="loadHistory()">View all</button></div>
+                            <div class="recent-item"><span class="file-icon">🐍</span><div><b>user_auth.py</b><small>Score: 78/100</small></div><span class="status-good">Good</span></div>
+                            <div class="recent-item"><span class="file-icon">🐍</span><div><b>data_processing.py</b><small>Score: 85/100</small></div><span class="status-good">Good</span></div>
+                            <div class="recent-item"><span class="file-icon">🌐</span><div><b>web_scraper.py</b><small>Score: 45/100</small></div><span class="status-bad">Bad</span></div>
                         </div>
-                        <div class="stat-card">
-                            <div class="stat-label">Average Score</div>
-                            <div class="stat-value" id="statAverage">0</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-label">Best Score</div>
-                            <div class="stat-value" id="statBest">0</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-label">Worst Score</div>
-                            <div class="stat-value" id="statWorst">0</div>
-                        </div>
-                    </div>
-                    <div class="chart-container">
-                        <h3 class="chart-title">Score Trend</h3>
-                        <canvas id="progressChart"></canvas>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Todo View -->
-            <div class="header view-hidden" id="todoHeader">
-                <h1>Todo List</h1>
-                <p style="color: #8b8f9e; margin-top: 4px; font-size: 13px;">Keep track of the coding tasks you want to complete</p>
-            </div>
-
-            <div class="content view-hidden" id="todoView">
-                <div class="card" style="grid-column: 1 / -1;">
-                    <form class="todo-form" onsubmit="createTodo(event)">
-                        <input id="todoTitle" type="text" maxlength="200" placeholder="What needs to be done?" required>
-                        <textarea id="todoDescription" maxlength="2000" placeholder="Description (optional)"></textarea>
-                        <button class="btn-primary" type="submit"><i class="fas fa-plus"></i> Add task</button>
-                    </form>
-                    <div class="todo-toolbar">
-                        <h3 class="card-title" style="margin-bottom: 0;">Your tasks</h3>
-                        <div class="todo-filters">
-                            <button class="todo-filter active" data-status="all" onclick="loadTodos('all'); return false;">All</button>
-                            <button class="todo-filter" data-status="active" onclick="loadTodos('active'); return false;">Active</button>
-                            <button class="todo-filter" data-status="completed" onclick="loadTodos('completed'); return false;">Completed</button>
-                        </div>
-                    </div>
-                    <div id="todoList"></div>
-                </div>
-            </div>
-
-            <!-- Settings View -->
-            <div class="header view-hidden" id="settingsHeader">
-                <h1>Settings</h1>
-                <p style="color: #8b8f9e; margin-top: 4px; font-size: 13px;">Customize your AI Code Mentor experience</p>
-            </div>
-
-            <div class="content view-hidden" id="settingsView">
-                <div class="card" style="grid-column: 1 / -1;">
-                    <h3 class="card-title">Coming Soon</h3>
-                    <div class="empty-state">
-                        <div class="empty-icon">⚙️</div>
-                        <p>Settings panel will be available soon</p>
-                    </div>
+                    </aside>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Auth Overlay -->
-    <div id="authOverlay" class="auth-overlay" style="display: none;">
+    <section id="investorPanel" class="investor-panel">
+        <div class="investor-inner">
+            <button class="btn-secondary" style="max-width:160px;margin-bottom:20px;" onclick="closeInvestorDemo()">
+                <i class="fas fa-arrow-left"></i> Back to app
+            </button>
+            <div class="investor-hero">
+                <h2>AI Code Mentor</h2>
+                <p>Интерактивный AI-наставник, который помогает разработчику быстро найти ошибку, понять причину и изучить решение через релевантные материалы.</p>
+            </div>
+            <div class="investor-grid">
+                <div class="investor-stat"><strong>Any language</strong><span>Поддержка популярных языков программирования</span></div>
+                <div class="investor-stat"><strong>3 шага</strong><span>Ошибка → объяснение → следующий шаг обучения</span></div>
+                <div class="investor-stat"><strong>24/7</strong><span>Самообслуживание без ожидания ментора</span></div>
+            </div>
+            <div class="investor-columns">
+                <div class="card">
+                    <h3 class="card-title">Проблема</h3>
+                    <ul class="investor-list">
+                        <li>Новички видят ошибку, но не понимают её причину.</li>
+                        <li>Поиск решения занимает много времени.</li>
+                        <li>Обычные AI-ответы часто дают готовый код вместо обучения.</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3 class="card-title">Решение</h3>
+                    <ul class="investor-list">
+                        <li>Анализирует код и находит критические проблемы.</li>
+                        <li>Объясняет «почему», а не только «что исправить».</li>
+                        <li>Даёт progressive hints и ссылки на YouTube-обучение.</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3 class="card-title">Бизнес-модель</h3>
+                    <ul class="investor-list">
+                        <li>Freemium для начинающих разработчиков.</li>
+                        <li>Pro-подписка для расширенных анализов и истории.</li>
+                        <li>B2B-лицензии для учебных центров и команд.</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3 class="card-title">Следующий этап</h3>
+                    <ul class="investor-list">
+                        <li>Собрать первые интервью и retention-метрики.</li>
+                        <li>Добавить командные кабинеты и отчёты прогресса.</li>
+                        <li>Интегрировать GitHub/GitLab и IDE-плагин.</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="button-group" style="max-width:420px;margin:22px auto 0;">
+                <button class="btn-primary" onclick="startInvestorDemo()">Запустить live-demo</button>
+                <button class="btn-secondary" onclick="window.print()">Печать pitch</button>
+            </div>
+        </div>
+    </section>
+
+    <div id="authOverlay" class="auth-overlay">
         <div class="auth-box">
             <h2 id="authTitle">Create your account</h2>
             <p id="authSubtitle">Registration is required before using the mentor.</p>
@@ -1158,105 +944,33 @@
                 </button>
             </div>
             <input id="authCode" inputmode="numeric" maxlength="6" placeholder="Email verification code" style="display:none">
-            <button class="auth-submit-btn" onclick="submitAuth()" id="authSubmit">Register</button>
+            <button class="btn-primary" style="width:100%;" onclick="submitAuth()" id="authSubmit">Register</button>
             <div class="auth-switch" onclick="toggleAuthMode()" id="authSwitch">Already have an account? Sign in</div>
-            <div id="authError" class="auth-error"></div>
+            <div id="authError" class="error-message" style="display:none;margin-top:12px;"></div>
         </div>
     </div>
 
     <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const overlay = document.getElementById('authOverlay');
+            if (overlay) overlay.style.display = 'none';
+        });
+
         const API_URL = (() => {
             const host = location.hostname;
-            if (!host || host === 'localhost' || host === '127.0.0.1') return 'http://localhost:8000';
+            if (location.protocol === 'file:') return 'https://ai-code-mentor-backend-z80q.onrender.com';
+            if (host === 'localhost' || host === '127.0.0.1') return 'http://localhost:8000';
             if (host.endsWith('onrender.com')) return '';
             return 'https://ai-code-mentor-backend-z80q.onrender.com';
         })();
-
-        let currentTodoStatus = 'all';
-        let progressChart = null;
-        let currentHintIndex = 0;
-        let currentMentorHints = [];
         let authMode = 'register';
+        let selectedFilename = 'analysis.txt';
+        let currentHints = [];
+        let currentHintIndex = 0;
 
-        // Auth functions
         function authHeaders() {
             const token = localStorage.getItem('mentor_token');
             return token ? { 'Authorization': `Bearer ${token}` } : {};
-        }
-
-        function isAuthenticated() {
-            return !!localStorage.getItem('mentor_token');
-        }
-
-        function toggleAuthMode() {
-            authMode = authMode === 'register' ? 'login' : 'register';
-            document.getElementById('authTitle').textContent = authMode === 'register' ? 'Create your account' : 'Welcome back';
-            document.getElementById('authSubmit').textContent = authMode === 'register' ? 'Register' : 'Sign in';
-            document.getElementById('authName').style.display = authMode === 'register' ? 'block' : 'none';
-            document.getElementById('authSwitch').textContent = authMode === 'register'
-                ? 'Already have an account? Sign in' : 'No account yet? Register';
-        }
-
-        async function submitAuth() {
-            const email = document.getElementById('authEmail').value.trim();
-            const password = document.getElementById('authPassword').value;
-            const error = document.getElementById('authError');
-            if (!email || password.length < 10) {
-                error.textContent = 'Enter a valid email and a strong password.';
-                error.style.display = 'block';
-                return;
-            }
-            try {
-                const body = { email, password };
-                if (authMode === 'register') body.display_name = document.getElementById('authName').value.trim() || null;
-                const response = await fetch(`${API_URL}/auth/${authMode}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(body)
-                });
-                const data = await response.json();
-                if (!response.ok) throw new Error(data.detail || 'Authentication failed');
-                if (authMode === 'register' && data.access_token && !data.verification_required) {
-                    localStorage.setItem('mentor_token', data.access_token);
-                    document.getElementById('authOverlay').style.display = 'none';
-                    updateUserProfile(data.user || { display_name: email.split('@')[0], email });
-                } else if (authMode === 'register') {
-                    document.getElementById('authCode').style.display = 'block';
-                    document.getElementById('authSubmit').textContent = 'Verify email';
-                    document.getElementById('authSubmit').onclick = verifyEmail;
-                    error.textContent = 'Verification code sent. Enter the 6-digit code from your email.';
-                    error.style.display = 'block';
-                } else {
-                    localStorage.setItem('mentor_token', data.access_token);
-                    document.getElementById('authOverlay').style.display = 'none';
-                    updateUserProfile(data.user || { display_name: email.split('@')[0], email });
-                }
-            } catch (e) {
-                error.textContent = e.message;
-                error.style.display = 'block';
-            }
-        }
-
-        async function verifyEmail() {
-            const email = encodeURIComponent(document.getElementById('authEmail').value);
-            const code = encodeURIComponent(document.getElementById('authCode').value);
-            const response = await fetch(`${API_URL}/auth/verify-email?email=${email}&code=${code}`, { method: 'POST' });
-            const data = await response.json();
-            if (!response.ok) {
-                document.getElementById('authError').textContent = data.detail || 'Verification failed';
-                return;
-            }
-            localStorage.setItem('mentor_token', data.access_token);
-            document.getElementById('authOverlay').style.display = 'none';
-            updateUserProfile(data.user || { display_name: email.split('@')[0], email });
-        }
-
-        function logout() {
-            localStorage.removeItem('mentor_token');
-            document.getElementById('userName').textContent = 'User';
-            document.getElementById('userEmail').textContent = 'Student';
-            document.getElementById('userAvatar').textContent = 'U';
-            document.getElementById('authOverlay').style.display = 'flex';
         }
 
         function togglePasswordVisibility(inputId, iconId) {
@@ -1274,133 +988,127 @@
             }
         }
 
-        function updateUserProfile(user) {
-            const name = user.display_name || user.email?.split('@')[0] || 'User';
-            document.getElementById('userName').textContent = name;
-            document.getElementById('userEmail').textContent = user.email || '';
-            document.getElementById('userAvatar').textContent = name.charAt(0).toUpperCase();
-
-            // Update Level/XP if available
-            if (user.level !== undefined) {
-                const level = user.level || 1;
-                const xpCurrent = user.xp_current || 0;
-                const xpNeeded = user.xp_needed || 1000;
-                const xpPercent = Math.min(100, (xpCurrent / xpNeeded) * 100);
-
-                document.getElementById('userLevel').textContent = `Level ${level}`;
-                document.getElementById('userXp').textContent = `${xpCurrent} / ${xpNeeded} XP`;
-                document.getElementById('userXpFill').style.width = `${xpPercent}%`;
-            }
+        function toggleAuthMode() {
+            authMode = authMode === 'register' ? 'login' : 'register';
+            document.getElementById('authTitle').textContent = authMode === 'register' ? 'Create your account' : 'Welcome back';
+            document.getElementById('authSubmit').textContent = authMode === 'register' ? 'Register' : 'Sign in';
+            document.getElementById('authName').style.display = authMode === 'register' ? 'block' : 'none';
+            document.getElementById('authSwitch').textContent = authMode === 'register'
+                ? 'Already have an account? Sign in' : 'No account yet? Register';
         }
 
-        // View switching
-        function showView(view) {
-            // Hide all views
-            document.querySelectorAll('.header').forEach(h => h.classList.add('view-hidden'));
-            document.querySelectorAll('.content').forEach(c => c.classList.add('view-hidden'));
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-
-            // Show selected view
-            const viewMap = {
-                'dashboard': { header: 'dashboardHeader', content: 'dashboardView', nav: 'dashboardNav' },
-                'newAnalysis': { header: 'newAnalysisHeader', content: 'newAnalysisView', nav: 'newAnalysisNav' },
-                'history': { header: 'historyHeader', content: 'historyView', nav: 'historyNav' },
-                'progress': { header: 'progressHeader', content: 'progressView', nav: 'progressNav' },
-                'todos': { header: 'todoHeader', content: 'todoView', nav: 'todosNav' },
-                'settings': { header: 'settingsHeader', content: 'settingsView', nav: 'settingsNav' },
-            };
-
-            if (viewMap[view]) {
-                const config = viewMap[view];
-                document.getElementById(config.header)?.classList.remove('view-hidden');
-                document.getElementById(config.content)?.classList.remove('view-hidden');
-                document.getElementById(config.nav)?.classList.add('active');
-
-                // Load data for specific views
-                if (view === 'history') loadHistory();
-                if (view === 'progress') loadProgress();
-                if (view === 'todos') loadTodos(currentTodoStatus);
-            }
+        async function submitAuth() {
+            const email = document.getElementById('authEmail').value.trim();
+            const password = document.getElementById('authPassword').value;
+            const error = document.getElementById('authError');
+            if (!email || password.length < 10) { error.textContent = 'Enter a valid email and a strong password.'; error.style.display = 'block'; return; }
+            try {
+                const body = { email, password };
+                if (authMode === 'register') body.display_name = document.getElementById('authName').value.trim() || null;
+                const response = await fetch(`${API_URL}/auth/${authMode}`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(body) });
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.detail || 'Authentication failed');
+                if (authMode === 'register' && data.access_token && !data.verification_required) {
+                    localStorage.setItem('mentor_token', data.access_token);
+                    document.getElementById('authOverlay').style.display = 'none';
+                    const user = data.user || { display_name: email.split('@')[0], email };
+                    document.getElementById('userEmail').textContent = (user.display_name || user.email) || email;
+                    document.getElementById('userName').textContent = user.display_name || email.split('@')[0];
+                    if (user.level) {
+                        document.querySelector('.level-row span:first-child').textContent = `Level ${user.level}`;
+                        document.querySelector('.level-row span:last-child').textContent = `${user.xp_current || 0} / ${user.xp_needed || 1000} XP`;
+                        const xpCurrent = user.xp_current || 0;
+                        const xpNeeded = user.xp_needed || 1000;
+                        const xpPercent = Math.min(100, (xpCurrent / xpNeeded) * 100);
+                        const xpFill = document.querySelector('.xp-track span');
+                        if (xpFill) xpFill.style.width = `${xpPercent}%`;
+                    }
+                } else if (authMode === 'register') {
+                    document.getElementById('authCode').style.display = 'block';
+                    document.getElementById('authSubmit').textContent = 'Verify email';
+                    document.getElementById('authSubmit').onclick = verifyEmail;
+                    error.textContent = 'Verification code sent. Enter the 6-digit code from your email.';
+                    error.style.display = 'block';
+                } else {
+                    localStorage.setItem('mentor_token', data.access_token);
+                    document.getElementById('authOverlay').style.display = 'none';
+                    const user = data.user || {};
+                    document.getElementById('userEmail').textContent = user.display_name || user.email;
+                    document.getElementById('userName').textContent = user.display_name || user.email.split('@')[0];
+                    if (user.level) {
+                        document.querySelector('.level-row span:first-child').textContent = `Level ${user.level}`;
+                        document.querySelector('.level-row span:last-child').textContent = `${user.xp_current || 0} / ${user.xp_needed || 1000} XP`;
+                        const xpCurrent = user.xp_current || 0;
+                        const xpNeeded = user.xp_needed || 1000;
+                        const xpPercent = Math.min(100, (xpCurrent / xpNeeded) * 100);
+                        const xpFill = document.querySelector('.xp-track span');
+                        if (xpFill) xpFill.style.width = `${xpPercent}%`;
+                    }
+                }
+            } catch (e) { error.textContent = e.message; error.style.display = 'block'; }
         }
 
-        // Load examples
-        function loadExample(num) {
-            const examples = {
-                1: `data = [1, 2, 3, 4, 5]
+        async function verifyEmail() {
+            const email = encodeURIComponent(document.getElementById('authEmail').value);
+            const code = encodeURIComponent(document.getElementById('authCode').value);
+            const response = await fetch(`${API_URL}/auth/verify-email?email=${email}&code=${code}`, { method: 'POST' });
+            const data = await response.json();
+            if (!response.ok) { document.getElementById('authError').textContent = data.detail || 'Verification failed'; return; }
+            localStorage.setItem('mentor_token', data.access_token);
+            document.getElementById('authOverlay').style.display = 'none';
+            document.getElementById('userEmail').textContent = data.user.display_name || data.user.email;
+        }
+
+        function logout() { localStorage.removeItem('mentor_token'); location.reload(); }
+
+        async function loadFile(event) {
+            const file = event.target.files[0]; if (!file) return;
+            selectedFilename = file.name; document.getElementById('fileName').textContent = file.name;
+            document.getElementById('editorFileLabel').textContent = file.name;
+            try { document.getElementById('codeInput').value = await file.text(); }
+            catch (e) { showError('This file cannot be read as text. Binary files are accepted, but upload a text source file for analysis.'); }
+        }
+
+        function findTextErrors() {
+            const code = document.getElementById('codeInput').value;
+            if (!code.trim()) { showError('Paste text or upload a file first.'); return; }
+            const lines = code.split('\n'), issues = [];
+            lines.forEach((line, i) => { if (line.length > 120) issues.push(`Line ${i + 1}: more than 120 characters`); });
+            const brackets = {'(':')','[':']','{':'}'}, stack = [];
+            for (const char of code) { if (brackets[char]) stack.push(brackets[char]); else if (Object.values(brackets).includes(char) && stack.pop() !== char) issues.push('Unbalanced brackets or braces'); }
+            if (stack.length) issues.push('Some brackets or braces are not closed');
+            if (!issues.length) showError('Quick text check found no obvious formatting or bracket errors. Run Analyze for a full language-aware review.');
+            else document.getElementById('resultsContainer').innerHTML = `<div class="error-message"><strong>Quick check:</strong><br>${issues.map(escapeHtml).join('<br>')}</div>`;
+        }
+
+        function escapeHtml(value) { return String(value).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+        // Load example codes
+        function loadExample1() {
+            document.getElementById('codeInput').value = `data = [1, 2, 3, 4, 5]
 for i in range(len(data)):
     print(data[i])
 
 result = []
 for item in data:
-    result.append(item * 2)`,
-                2: `import sqlite3
+    result.append(item * 2)`;
+        }
+
+        function loadExample2() {
+            document.getElementById('codeInput').value = `import sqlite3
 
 def get_user(user_id):
     query = f"SELECT * FROM users WHERE id = {user_id}"
     conn = sqlite3.connect("db.sqlite")
     cursor = conn.cursor()
     cursor.execute(query)
-    return cursor.fetchone()`
-            };
-            document.getElementById('codeInput').value = examples[num] || '';
-        }
-
-        // Analyze code
-        async function analyzeCode() {
-            const code = document.getElementById('codeInput').value.trim();
-            if (!code || code.length < 5) {
-                showError('Please paste some code first!', 'resultsContainer');
-                return;
-            }
-            if (!isAuthenticated()) {
-                document.getElementById('authOverlay').style.display = 'flex';
-                return;
-            }
-            showLoading('resultsContainer');
-            try {
-                const response = await fetch(`${API_URL}/analyze`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', ...authHeaders() },
-                    body: JSON.stringify({ code, filename: 'analysis.py' })
-                });
-                if (response.status === 401) {
-                    localStorage.removeItem('mentor_token');
-                    document.getElementById('authOverlay').style.display = 'flex';
-                    throw new Error('Please sign in to analyze code');
-                }
-                if (!response.ok) {
-                    const errData = await response.json().catch(() => ({}));
-                    throw new Error(errData.detail || `API Error: ${response.status}`);
-                }
-                const data = await response.json();
-                currentMentorHints = data.mentor_hints || [];
-                currentHintIndex = 0;
-                displayResults(data, 'resultsContainer');
-            } catch (error) {
-                showError(error.message || 'Cannot connect to server. Make sure backend is running on localhost:8000', 'resultsContainer');
-                console.error('Error:', error);
-            }
-        }
-
-        function showLoading(containerId) {
-            document.getElementById(containerId).innerHTML = `
-                <div class="loading">
-                    <div class="spinner"></div>
-                    <p>Analyzing your code...</p>
-                </div>
-            `;
-        }
-
-        function showError(message, containerId) {
-            document.getElementById(containerId).innerHTML = `
-                <div class="error-message">
-                    <i class="fas fa-exclamation-circle"></i> ${message}
-                </div>
-            `;
+    return cursor.fetchone()`;
         }
 
         function clearCode() {
             document.getElementById('codeInput').value = '';
+            selectedFilename = 'analysis.txt';
+            document.getElementById('editorFileLabel').textContent = 'main.py';
             document.getElementById('resultsContainer').innerHTML = `
                 <div class="empty-state">
                     <div class="empty-icon">📋</div>
@@ -1409,10 +1117,89 @@ def get_user(user_id):
             `;
         }
 
-        // Display results with enhanced mentor mode
-        function displayResults(data, containerId) {
+        async function analyzeCode() {
+            const code = document.getElementById('codeInput').value.trim();
+
+            if (!code) {
+                showError('Please paste some code first!');
+                return;
+            }
+
+            if (code.length < 5) {
+                showError('Code must be at least 5 characters');
+                return;
+            }
+
+            showLoading();
+
+            try {
+                const response = await fetch(`${API_URL}/analyze`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', ...authHeaders() },
+                    body: JSON.stringify({
+                        code: code,
+                        filename: selectedFilename,
+                        language: document.getElementById('languageSelect').value || null
+                    })
+                });
+
+                if (!response.ok) {
+                    let detail = 'API Error: ' + response.status;
+                    try { const err = await response.json(); detail = err.detail || detail; } catch (e) {}
+                    throw new Error(detail);
+                }
+
+                const data = await response.json();
+                displayResults(data);
+
+            } catch (error) {
+                const msg = String(error.message || '');
+                if (msg.includes('401') || /required|expired|sign in/i.test(msg)) {
+                    showError('Please sign in again.');
+                } else if (/Failed to fetch|NetworkError|Cannot connect/i.test(msg)) {
+                    showError('Cannot connect to the analysis server. Open http://localhost:8000/app after starting the backend.');
+                } else {
+                    showError(msg);
+                }
+                console.error('Error:', error);
+            }
+        }
+
+        function showLoading() {
+            document.getElementById('resultsContainer').innerHTML = `
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Analyzing your code...</p>
+                </div>
+            `;
+        }
+
+        function showError(message) {
+            document.getElementById('resultsContainer').innerHTML = `
+                <div class="error-message">
+                    <i class="fas fa-exclamation-circle"></i> ${message}
+                </div>
+            `;
+        }
+
+        function displayResults(data) {
             const feedback = data.feedback;
             let html = '';
+            currentHints = data.mentor_hints || [];
+            currentHintIndex = 0;
+            const criticalCount = (feedback.critical || []).length;
+            const improvementCount = (feedback.improvements || []).length;
+            const learningCount = (feedback.learning || []).length;
+            const goodCount = (feedback.good || []).length;
+            document.getElementById('railScore').textContent = data.score;
+            document.getElementById('railCritical').textContent = criticalCount;
+            document.getElementById('railImprovement').textContent = improvementCount;
+            document.getElementById('railLearning').textContent = learningCount;
+            document.getElementById('railGood').textContent = goodCount;
+            document.getElementById('railFeedback').textContent = data.summary || getScoreFeedback(data.score);
+            if (data.mentor_hints && data.mentor_hints.length) {
+                document.getElementById('railHint').textContent = data.mentor_hints[0].hint;
+            }
 
             // Score
             html += `
@@ -1455,53 +1242,19 @@ def get_user(user_id):
                 });
             }
 
-            // Mentor Hints with step navigation
-            if (currentMentorHints && currentMentorHints.length > 0) {
+            // Mentor Hints
+            if (data.mentor_hints && data.mentor_hints.length > 0) {
                 html += `
                     <div class="hints-section">
-                        <div class="mentor-mode-header">
-                            <div class="hints-title">💡 Mentor Mode</div>
-                            <div class="mentor-step">Step ${currentHintIndex + 1} of ${currentMentorHints.length}</div>
-                        </div>
-                        <div class="hint-item" id="mentorHintContent">
-                            <strong>${currentMentorHints[currentHintIndex].hint}</strong><br>
-                            ${currentMentorHints[currentHintIndex].guide}
-                        </div>
-                        <div class="mentor-nav">
-                            <button onclick="previousHint()" ${currentHintIndex === 0 ? 'disabled' : ''}>← Previous Hint</button>
-                            <button onclick="nextHint()" ${currentHintIndex === currentMentorHints.length - 1 ? 'disabled' : ''}>Next Hint →</button>
-                        </div>
-                    </div>
+                        <div class="hints-title">💡 Mentor Hints</div>
                 `;
+                data.mentor_hints.forEach(hint => {
+                    html += `<div class="hint-item"><strong>${hint.hint}</strong><br>${hint.guide}</div>`;
+                });
+                html += `</div>`;
             }
 
-            document.getElementById(containerId).innerHTML = html;
-        }
-
-        function previousHint() {
-            if (currentHintIndex > 0) {
-                currentHintIndex--;
-                updateMentorHint();
-            }
-        }
-
-        function nextHint() {
-            if (currentHintIndex < currentMentorHints.length - 1) {
-                currentHintIndex++;
-                updateMentorHint();
-            }
-        }
-
-        function updateMentorHint() {
-            const hint = currentMentorHints[currentHintIndex];
-            const mentorContent = document.getElementById('mentorHintContent');
-            if (mentorContent) {
-                mentorContent.innerHTML = `<strong>${hint.hint}</strong><br>${hint.guide}`;
-            }
-            // Update buttons
-            const buttons = document.querySelectorAll('.mentor-nav button');
-            buttons[0].disabled = currentHintIndex === 0;
-            buttons[1].disabled = currentHintIndex === currentMentorHints.length - 1;
+            document.getElementById('resultsContainer').innerHTML = html;
         }
 
         function createResultCard(item, type) {
@@ -1510,6 +1263,8 @@ def get_user(user_id):
             let description = item.explanation || item.why || '';
             let suggestion = item.suggestion || item.fix || item.resource || '';
 
+            const topic = title || description;
+            const videoLink = topic ? `<a class="video-link" target="_blank" rel="noopener" href="https://www.youtube.com/results?search_query=${encodeURIComponent(topic + ' programming error tutorial')}"><i class="fab fa-youtube"></i> Find a YouTube explanation</a>` : '';
             return `
                 <div class="result-card ${type}">
                     <div class="result-header">
@@ -1518,8 +1273,100 @@ def get_user(user_id):
                     <h4 class="result-title">${title}</h4>
                     ${description ? `<p class="result-text">${description}</p>` : ''}
                     ${suggestion ? `<p class="result-text" style="margin-top: 8px; color: #a5b4fc;"><strong>→ ${suggestion}</strong></p>` : ''}
+                    ${videoLink}
                 </div>
             `;
+        }
+
+        async function loadHistory() {
+            try {
+                const response = await fetch(`${API_URL}/history`, { headers: authHeaders() });
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.detail || 'Unable to load history');
+                document.getElementById('resultsContainer').innerHTML = (data.analyses || []).map(item =>
+                    `<div class="result-card good"><h4 class="result-title">${escapeHtml(item.filename)} — ${item.score}/100</h4><p class="result-text">${escapeHtml(item.feedback_summary)}</p></div>`
+                ).join('') || '<div class="empty-state">No analyses yet.</div>';
+            } catch (error) {
+                showError(error.message);
+            }
+        }
+
+        function showDashboard() { location.reload(); }
+        function showSettings() {
+            document.getElementById('resultsContainer').innerHTML = '<div class="empty-state"><div class="empty-icon">⚙️</div><p>Settings are saved automatically in this browser.</p><button class="btn-secondary" onclick="logout()">Sign out</button></div>';
+        }
+
+        function changeHint(direction) {
+            if (!currentHints.length) {
+                document.getElementById('railHint').textContent = 'Analyze code first to unlock mentor hints.';
+                return;
+            }
+            currentHintIndex = (currentHintIndex + direction + currentHints.length) % currentHints.length;
+            document.getElementById('railHint').textContent = currentHints[currentHintIndex].hint;
+            document.querySelector('.step-pill').textContent = `Step ${currentHintIndex + 1} of ${currentHints.length}`;
+        }
+
+        async function showProgress() {
+            try {
+                const response = await fetch(`${API_URL}/progress`, { headers: authHeaders() });
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.detail || 'Unable to load progress');
+                document.getElementById('progressAverage').textContent = data.average_score || 0;
+                document.getElementById('progressCount').textContent = data.total_analyses || 0;
+                document.getElementById('resultsContainer').innerHTML = `<div class="empty-state"><div class="empty-icon">📈</div><p>Average score: <strong>${data.average_score || 0}</strong><br>Total analyses: <strong>${data.total_analyses || 0}</strong></p></div>`;
+            } catch (error) { showError(error.message); }
+        }
+
+        async function showStatistics() {
+            try {
+                const response = await fetch(`${API_URL}/stats`, { headers: authHeaders() });
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.detail || 'Unable to load statistics');
+                document.getElementById('resultsContainer').innerHTML = `<div class="empty-state"><div class="empty-icon">📊</div><p>Analyses: <strong>${data.total_analyses || 0}</strong><br>Average score: <strong>${data.average_score || 0}</strong><br>Best score: <strong>${data.best_score || 0}</strong></p></div>`;
+            } catch (error) { showError(error.message); }
+        }
+
+        function showSavedSnippets() {
+            const code = document.getElementById('codeInput').value.trim();
+            if (code) localStorage.setItem('mentor_saved_snippet', JSON.stringify({ filename: selectedFilename, code }));
+            const saved = JSON.parse(localStorage.getItem('mentor_saved_snippet') || 'null');
+            document.getElementById('resultsContainer').innerHTML = saved
+                ? `<div class="result-card good"><h4 class="result-title">${escapeHtml(saved.filename)}</h4><p class="result-text">Saved snippet is ready.</p><button class="btn-primary" onclick="restoreSnippet()">Open snippet</button></div>`
+                : '<div class="empty-state"><div class="empty-icon">🔖</div><p>No saved snippets yet. Enter code and open Saved Snippets to save it.</p></div>';
+        }
+
+        function restoreSnippet() {
+            const saved = JSON.parse(localStorage.getItem('mentor_saved_snippet') || 'null');
+            if (!saved) return;
+            selectedFilename = saved.filename;
+            document.getElementById('codeInput').value = saved.code;
+            document.getElementById('editorFileLabel').textContent = saved.filename;
+        }
+
+        function showApiDocs() {
+            window.open(`${API_URL || location.origin}/docs`, '_blank', 'noopener');
+        }
+
+        function showInvestorDemo() {
+            document.getElementById('investorPanel').style.display = 'block';
+        }
+
+        function closeInvestorDemo() {
+            document.getElementById('investorPanel').style.display = 'none';
+        }
+
+        function startInvestorDemo() {
+            closeInvestorDemo();
+            document.getElementById('languageSelect').value = 'Python';
+            selectedFilename = 'investor-demo.py';
+            document.getElementById('fileName').textContent = selectedFilename;
+            document.getElementById('codeInput').value = `import sqlite3
+
+def find_user(user_id):
+    query = f"SELECT * FROM users WHERE id = {user_id}"
+    connection = sqlite3.connect("app.db")
+    return connection.execute(query).fetchone()`;
+            analyzeCode();
         }
 
         function getScoreFeedback(score) {
@@ -1530,330 +1377,29 @@ def get_user(user_id):
             return '🔴 Critical Issues';
         }
 
-        // History
-        async function loadHistory() {
-            const list = document.getElementById('historyList');
-            list.innerHTML = '<div class="loading"><div class="spinner"></div><p>Loading history...</p></div>';
-            try {
-                const response = await fetch(`${API_URL}/history?limit=20`, {
-                    headers: authHeaders()
-                });
-                if (response.status === 401) {
-                    document.getElementById('authOverlay').style.display = 'flex';
-                    list.innerHTML = '<div class="empty-state"><div class="empty-icon">🔒</div><p>Please sign in to view history</p></div>';
-                    return;
-                }
-                if (!response.ok) throw new Error(`API Error: ${response.status}`);
-                const data = await response.json();
-                renderHistory(data.analyses || []);
-            } catch (error) {
-                list.innerHTML = '<div class="error-message"><i class="fas fa-exclamation-circle"></i> Cannot load history</div>';
-                console.error('History error:', error);
-            }
-        }
-
-        function renderHistory(analyses) {
-            const list = document.getElementById('historyList');
-            if (!analyses.length) {
-                list.innerHTML = '<div class="empty-state"><div class="empty-icon">📚</div><p>No analyses yet. Start by analyzing some code!</p></div>';
-                return;
-            }
-            list.innerHTML = analyses.map(analysis => {
-                const score = analysis.score;
-                let badgeClass = 'badge-history-good';
-                if (score < 70) badgeClass = 'badge-history-bad';
-                else if (score < 80) badgeClass = 'badge-history-fair';
-
-                const date = new Date(analysis.timestamp);
-                const time = date.toLocaleString();
-
-                return `
-                    <div class="history-item" onclick="viewAnalysis('${analysis.id}')">
-                        <div class="history-header">
-                            <div class="history-filename">${analysis.filename}</div>
-                            <div class="history-badge ${badgeClass}">Score: ${score}</div>
-                        </div>
-                        <div class="history-meta">
-                            <i class="fas fa-code"></i> ${analysis.code_preview}
-                            <span style="color: #6366f1;">→</span>
-                            <i class="fas fa-clock"></i> ${time}
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        function viewAnalysis(id) {
-            console.log('View analysis:', id);
-            // TODO: Show full analysis details
-        }
-
-        // Progress
-        async function loadProgress() {
-            try {
-                const response = await fetch(`${API_URL}/progress`);
-                if (!response.ok) throw new Error(`API Error: ${response.status}`);
-                const data = await response.json();
-                renderProgress(data);
-            } catch (error) {
-                console.error('Progress error:', error);
-            }
-        }
-
-        function renderProgress(data) {
-            document.getElementById('statTotal').textContent = data.total_analyses || 0;
-            document.getElementById('statAverage').textContent = data.average_score || 0;
-            document.getElementById('statBest').textContent = data.best_score || 0;
-            document.getElementById('statWorst').textContent = data.worst_score || 0;
-
-            // Chart
-            const ctx = document.getElementById('progressChart')?.getContext('2d');
-            if (ctx) {
-                if (progressChart) progressChart.destroy();
-
-                const trend = data.score_trend || [];
-                const labels = trend.map((_, i) => i + 1);
-
-                progressChart = new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        labels: labels,
-                        datasets: [{
-                            label: 'Score',
-                            data: trend,
-                            borderColor: '#6366f1',
-                            backgroundColor: 'rgba(99, 102, 241, 0.1)',
-                            borderWidth: 2,
-                            fill: true,
-                            tension: 0.4,
-                            pointRadius: 4,
-                            pointBackgroundColor: '#8b5cf6',
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: true,
-                        plugins: {
-                            legend: {
-                                display: false,
-                            }
-                        },
-                        scales: {
-                            y: {
-                                min: 0,
-                                max: 100,
-                                grid: {
-                                    color: '#2a3347',
-                                },
-                                ticks: {
-                                    color: '#8b8f9e',
-                                }
-                            },
-                            x: {
-                                grid: {
-                                    display: false,
-                                },
-                                ticks: {
-                                    color: '#8b8f9e',
-                                }
-                            }
-                        }
-                    }
-                });
-            }
-        }
-
-        // Todo functions
-        async function loadTodos(status = 'all') {
-            currentTodoStatus = status;
-            document.querySelectorAll('.todo-filter').forEach(button => {
-                button.classList.toggle('active', button.dataset.status === status);
-            });
-            const list = document.getElementById('todoList');
-            list.innerHTML = '<div class="loading"><div class="spinner"></div><p>Loading tasks...</p></div>';
-            try {
-                const response = await fetch(`${API_URL}/todos?status=${status}`, {
-                    headers: authHeaders()
-                });
-                if (response.status === 401) {
-                    document.getElementById('authOverlay').style.display = 'flex';
-                    list.innerHTML = '<div class="empty-state"><div class="empty-icon">🔒</div><p>Please sign in to view tasks</p></div>';
-                    return;
-                }
-                if (!response.ok) throw new Error(`API Error: ${response.status}`);
-                const todos = await response.json();
-                renderTodos(todos);
-            } catch (error) {
-                list.innerHTML = '<div class="error-message"><i class="fas fa-exclamation-circle"></i> Cannot load tasks</div>';
-                console.error('Todo error:', error);
-            }
-        }
-
-        function renderTodos(todos) {
-            const list = document.getElementById('todoList');
-            if (!todos.length) {
-                list.innerHTML = '<div class="empty-state"><div class="empty-icon">✅</div><p>No tasks in this view</p></div>';
-                return;
-            }
-            list.innerHTML = todos.map(todo => `
-                <div class="todo-item ${todo.completed ? 'completed' : ''}">
-                    <input type="checkbox" ${todo.completed ? 'checked' : ''} onchange="toggleTodo('${todo.id}', this.checked)">
-                    <div class="todo-details">
-                        <div class="todo-title">${escapeHtml(todo.title)}</div>
-                        ${todo.description ? `<div class="todo-description">${escapeHtml(todo.description)}</div>` : ''}
-                    </div>
-                    <div class="todo-actions">
-                        <button onclick="editTodo('${todo.id}', '${escapeJs(todo.title)}', '${escapeJs(todo.description || '')}')" title="Edit"><i class="fas fa-pen"></i></button>
-                        <button onclick="deleteTodo('${todo.id}')" title="Delete"><i class="fas fa-trash"></i></button>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        async function createTodo(event) {
-            event.preventDefault();
-            const title = document.getElementById('todoTitle').value.trim();
-            const description = document.getElementById('todoDescription').value.trim();
-            try {
-                const response = await fetch(`${API_URL}/todos`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ title, description: description || null })
-                });
-                if (!response.ok) throw new Error(`API Error: ${response.status}`);
-                event.target.reset();
-                await loadTodos(currentTodoStatus);
-            } catch (error) {
-                console.error('Todo error:', error);
-            }
-        }
-
-        async function toggleTodo(id, completed) {
-            await updateTodo(id, { completed });
-        }
-
-        async function editTodo(id, title, description) {
-            const nextTitle = prompt('Task title:', title);
-            if (nextTitle === null) return;
-            const nextDescription = prompt('Description (optional):', description);
-            if (nextDescription === null) return;
-            await updateTodo(id, { title: nextTitle, description: nextDescription || null });
-        }
-
-        async function updateTodo(id, changes) {
-            try {
-                const response = await fetch(`${API_URL}/todos/${id}`, {
-                    method: 'PATCH',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(changes)
-                });
-                if (!response.ok) throw new Error(`API Error: ${response.status}`);
-                await loadTodos(currentTodoStatus);
-            } catch (error) {
-                console.error('Todo error:', error);
-            }
-        }
-
-        async function deleteTodo(id) {
-            if (!confirm('Delete this task?')) return;
-            try {
-                const response = await fetch(`${API_URL}/todos/${id}`, { method: 'DELETE' });
-                if (!response.ok) throw new Error(`API Error: ${response.status}`);
-                await loadTodos(currentTodoStatus);
-            } catch (error) {
-                console.error('Todo error:', error);
-            }
-        }
-
-        // Utilities
-        function escapeHtml(value) {
-            return value.replace(/[&<>"']/g, character => ({
-                '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;'
-            }[character]));
-        }
-
-        function escapeJs(value) {
-            return value.replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/\r?\n/g, '\\n');
-        }
-
-        function openApiDocs() {
-            window.open(API_URL + '/docs', '_blank');
-        }
-
-        // New Analysis view functions (copy of main)
-        function analyzeCodeNew() {
-            const code = document.getElementById('codeInputNew').value.trim();
-            if (!code || code.length < 5) {
-                showError('Please paste some code first!', 'resultsContainerNew');
-                return;
-            }
-            if (!isAuthenticated()) {
-                document.getElementById('authOverlay').style.display = 'flex';
-                return;
-            }
-            showLoading('resultsContainerNew');
-            analyzeCodeHelper(code, 'resultsContainerNew');
-        }
-
-        async function analyzeCodeHelper(code, containerId) {
-            try {
-                const response = await fetch(`${API_URL}/analyze`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', ...authHeaders() },
-                    body: JSON.stringify({ code, filename: 'analysis.py' })
-                });
-                if (response.status === 401) {
-                    localStorage.removeItem('mentor_token');
-                    document.getElementById('authOverlay').style.display = 'flex';
-                    throw new Error('Please sign in to analyze code');
-                }
-                if (!response.ok) {
-                    const errData = await response.json().catch(() => ({}));
-                    throw new Error(errData.detail || `API Error: ${response.status}`);
-                }
-                const data = await response.json();
-                currentMentorHints = data.mentor_hints || [];
-                currentHintIndex = 0;
-                displayResults(data, containerId);
-            } catch (error) {
-                showError(error.message || 'Cannot connect to server', containerId);
-                console.error('Error:', error);
-            }
-        }
-
-        function clearCodeNew() {
-            document.getElementById('codeInputNew').value = '';
-            document.getElementById('resultsContainerNew').innerHTML = `
-                <div class="empty-state">
-                    <div class="empty-icon">📋</div>
-                    <p>Paste code and click "Analyze" to get started</p>
-                </div>
-            `;
-        }
-
         // Test connection on load
         window.addEventListener('load', async () => {
-            // Check authentication on load
             const token = localStorage.getItem('mentor_token');
             if (token) {
                 try {
                     const me = await fetch(`${API_URL}/auth/me`, { headers: authHeaders() });
                     if (me.ok) {
                         const data = await me.json();
-                        updateUserProfile(data);
-                    } else {
-                        localStorage.removeItem('mentor_token');
-                        document.getElementById('authOverlay').style.display = 'flex';
-                    }
-                } catch (e) {
-                    // If backend not available, proceed without auth
-                    console.warn('Cannot verify auth, proceeding without');
-                }
-            } else {
-                document.getElementById('authOverlay').style.display = 'flex';
+                        document.getElementById('authOverlay').style.display = 'none';
+                        document.getElementById('userEmail').textContent = data.display_name || data.email;
+                        document.getElementById('userName').textContent = data.display_name || data.email.split('@')[0];
+                        if (data.level) {
+                            document.querySelector('.level-row span:first-child').textContent = `Level ${data.level}`;
+                            document.querySelector('.level-row span:last-child').textContent = `${data.xp_current || 0} / ${data.xp_needed || 1000} XP`;
+                            const xpCurrent = data.xp_current || 0;
+                            const xpNeeded = data.xp_needed || 1000;
+                            const xpPercent = Math.min(100, (xpCurrent / xpNeeded) * 100);
+                            const xpFill = document.querySelector('.xp-track span');
+                            if (xpFill) xpFill.style.width = `${xpPercent}%`;
+                        }
+                    } else localStorage.removeItem('mentor_token');
+                } catch (e) { console.warn('Authentication check failed', e); }
             }
-
-            // Test backend connection
             try {
                 const response = await fetch(`${API_URL}/`);
                 if (!response.ok) {
