@@ -783,7 +783,7 @@ print(user)
                             <span id="fileName" style="font-size:11px;color:#8b8f9e;">No file selected</span>
                         </div>
                         <div class="button-group">
-                            <button class="btn-primary" onclick="analyzeCode()">
+                            <button class="btn-primary" id="analyzeButton" onclick="analyzeCode()">
                                 <i class="fas fa-wand-magic-sparkles"></i> Analyze Code
                             </button>
                             <button class="btn-secondary" onclick="clearCode()">
@@ -943,7 +943,7 @@ print(user)
                     <i id="togglePasswordIcon" class="fas fa-eye"></i>
                 </button>
             </div>
-            <input id="authCode" inputmode="numeric" maxlength="6" placeholder="Email verification code" style="display:none">
+            <input id="authCode" inputmode="text" maxlength="64" placeholder="Email verification code" style="display:none">
             <button class="btn-primary" style="width:100%;" onclick="submitAuth()" id="authSubmit">Register</button>
             <div class="auth-switch" onclick="toggleAuthMode()" id="authSwitch">Already have an account? Sign in</div>
             <div id="authError" class="error-message" style="display:none;margin-top:12px;"></div>
@@ -990,18 +990,33 @@ print(user)
 
         function toggleAuthMode() {
             authMode = authMode === 'register' ? 'login' : 'register';
+            const authSubmit = document.getElementById('authSubmit');
+            const authName = document.getElementById('authName');
+            const authCode = document.getElementById('authCode');
+            const authError = document.getElementById('authError');
+
             document.getElementById('authTitle').textContent = authMode === 'register' ? 'Create your account' : 'Welcome back';
-            document.getElementById('authSubmit').textContent = authMode === 'register' ? 'Register' : 'Sign in';
-            document.getElementById('authName').style.display = authMode === 'register' ? 'block' : 'none';
+            authSubmit.textContent = authMode === 'register' ? 'Register' : 'Sign in';
+            authSubmit.onclick = submitAuth;
+            authName.style.display = authMode === 'register' ? 'block' : 'none';
+            authCode.style.display = 'none';
+            authError.style.display = 'none';
+            authError.textContent = '';
             document.getElementById('authSwitch').textContent = authMode === 'register'
                 ? 'Already have an account? Sign in' : 'No account yet? Register';
         }
 
         async function submitAuth() {
+            const btn = document.getElementById('authSubmit');
+            const originalText = btn.textContent;
+            btn.disabled = true;
+            btn.textContent = authMode === 'register' ? 'Registering...' : 'Signing in...';
+            document.getElementById('authError').style.display = 'none';
             const email = document.getElementById('authEmail').value.trim();
             const password = document.getElementById('authPassword').value;
             const error = document.getElementById('authError');
-            if (!email || password.length < 10) { error.textContent = 'Enter a valid email and a strong password.'; error.style.display = 'block'; return; }
+            if (!email) { error.textContent = 'Enter your email address.'; error.style.display = 'block'; btn.disabled = false; btn.textContent = originalText; return; }
+            if (authMode === 'register' && password.length < 10) { error.textContent = 'Password must be at least 10 characters.'; error.style.display = 'block'; btn.disabled = false; btn.textContent = originalText; return; }
             try {
                 const body = { email, password };
                 if (authMode === 'register') body.display_name = document.getElementById('authName').value.trim() || null;
@@ -1027,7 +1042,7 @@ print(user)
                     document.getElementById('authCode').style.display = 'block';
                     document.getElementById('authSubmit').textContent = 'Verify email';
                     document.getElementById('authSubmit').onclick = verifyEmail;
-                    error.textContent = 'Verification code sent. Enter the 6-digit code from your email.';
+                    error.textContent = 'Verification code sent. Enter the code from your email.';
                     error.style.display = 'block';
                 } else {
                     localStorage.setItem('mentor_token', data.access_token);
@@ -1049,14 +1064,26 @@ print(user)
         }
 
         async function verifyEmail() {
-            const email = encodeURIComponent(document.getElementById('authEmail').value);
-            const code = encodeURIComponent(document.getElementById('authCode').value);
-            const response = await fetch(`${API_URL}/auth/verify-email?email=${email}&code=${code}`, { method: 'POST' });
-            const data = await response.json();
-            if (!response.ok) { document.getElementById('authError').textContent = data.detail || 'Verification failed'; return; }
-            localStorage.setItem('mentor_token', data.access_token);
-            document.getElementById('authOverlay').style.display = 'none';
-            document.getElementById('userEmail').textContent = data.user.display_name || data.user.email;
+            const btn = document.getElementById('authSubmit');
+            const originalText = btn.textContent;
+            btn.disabled = true;
+            btn.textContent = 'Verifying...';
+            document.getElementById('authError').style.display = 'none';
+            try {
+                const email = encodeURIComponent(document.getElementById('authEmail').value);
+                const code = encodeURIComponent(document.getElementById('authCode').value);
+                const response = await fetch(`${API_URL}/auth/verify-email?email=${email}&code=${code}`, { method: 'POST' });
+                const data = await response.json();
+                if (!response.ok) { document.getElementById('authError').textContent = data.detail || 'Verification failed'; document.getElementById('authError').style.display = 'block'; return; }
+                localStorage.setItem('mentor_token', data.access_token);
+                document.getElementById('authOverlay').style.display = 'none';
+                document.getElementById('userEmail').textContent = data.user.display_name || data.user.email;
+            } catch (e) {
+                document.getElementById('authError').textContent = e.message || 'Network error'; document.getElementById('authError').style.display = 'block';
+            } finally {
+                btn.disabled = false;
+                btn.textContent = originalText;
+            }
         }
 
         function logout() { localStorage.removeItem('mentor_token'); location.reload(); }
@@ -1118,6 +1145,8 @@ def get_user(user_id):
         }
 
         async function analyzeCode() {
+            const analyzeButton = document.getElementById('analyzeButton');
+            if (analyzeButton && analyzeButton.disabled) return;
             const code = document.getElementById('codeInput').value.trim();
 
             if (!code) {
@@ -1131,6 +1160,7 @@ def get_user(user_id):
             }
 
             showLoading();
+            if (analyzeButton) analyzeButton.disabled = true;
 
             try {
                 const response = await fetch(`${API_URL}/analyze`, {
@@ -1162,6 +1192,8 @@ def get_user(user_id):
                     showError(msg);
                 }
                 console.error('Error:', error);
+            } finally {
+                if (analyzeButton) analyzeButton.disabled = false;
             }
         }
 
