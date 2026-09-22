@@ -623,6 +623,10 @@
         .settings-checkbox { display: flex; align-items: center; gap: 8px; color: #d8c7df; font-size: 12px; }
         .settings-checkbox input { accent-color: var(--pink); }
         .snippet-meta { color: #a990ad; font-size: 10px; margin-top: 5px; }
+        .account-details { display: grid; gap: 7px; margin: 14px 0 18px; max-width: 460px; text-align: left; }
+        .account-detail { display: flex; justify-content: space-between; gap: 16px; padding: 9px 11px; border: 1px solid rgba(147, 104, 177, 0.25); border-radius: 7px; color: #d8c7df; font-size: 12px; }
+        .account-detail span:last-child { color: #a990ad; text-align: right; overflow-wrap: anywhere; }
+        .danger-button { color: #ffb5c1; border-color: rgba(214, 75, 104, .65); }
         .card-title { color: #f9edff; }
         .results-container { max-height: none; }
         .right-rail { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
@@ -1480,19 +1484,55 @@ def get_user(user_id):
         }
 
         function showDashboard() { location.reload(); }
-        function showSettings() {
+        async function showSettings() {
             const settings = getSettings();
+            const response = await fetch(`${API_URL}/auth/me`, { headers: authHeaders() });
+            if (!response.ok) { showError('Unable to load account settings.'); return; }
+            const account = await response.json();
+            const registered = account.created_at ? new Date(account.created_at).toLocaleDateString() : 'Unknown';
             document.getElementById('resultsContainer').innerHTML = `<div class="empty-state">
-                <div class="empty-icon">⚙️</div><h3 class="card-title">Workspace settings</h3>
+                <div class="empty-icon">⚙️</div><h3 class="card-title">Settings</h3>
+                <div class="account-details">
+                    <div class="account-detail"><span>Name</span><span>${escapeHtml(account.display_name || 'Not set')}</span></div>
+                    <div class="account-detail"><span>Email</span><span>${escapeHtml(account.email)}</span></div>
+                    <div class="account-detail"><span>Registered</span><span>${escapeHtml(registered)}</span></div>
+                </div>
                 <div class="settings-form">
                     <label class="settings-field">Default analysis language
                         <select id="settingsLanguage" class="language-select"><option value="">Auto-detect language</option><option>Python</option><option>JavaScript</option><option>TypeScript</option><option>Java</option><option>C++</option><option>C#</option><option>Go</option><option>Rust</option><option>PHP</option><option>Ruby</option><option>SQL</option><option>HTML</option><option>CSS</option><option>Other</option></select>
                     </label>
                     <label class="settings-checkbox"><input id="settingsAutoSave" type="checkbox" ${settings.autoSave ? 'checked' : ''}> Save analyzed code to snippets automatically</label>
                 </div>
-                <div class="settings-actions"><button class="btn-primary" onclick="saveSettings()">Save settings</button><button class="btn-secondary" onclick="logout()">Sign out</button></div>
+                <div class="settings-actions"><button class="btn-primary" onclick="saveSettings()">Save settings</button><button class="btn-secondary" onclick="exportAccountData()">Export history</button><button class="btn-secondary" onclick="logout()">Sign out</button><button class="btn-secondary danger-button" onclick="deleteAccount()">Delete account</button></div>
             </div>`;
             document.getElementById('settingsLanguage').value = settings.defaultLanguage || '';
+        }
+
+        async function exportAccountData() {
+            try {
+                const response = await fetch(`${API_URL}/history?limit=50`, { headers: authHeaders() });
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.detail || 'Unable to export history');
+                const blob = new Blob([JSON.stringify({ exported_at: new Date().toISOString(), analyses: data.analyses || [] }, null, 2)], { type: 'application/json' });
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = 'ai-code-mentor-history.json';
+                link.click();
+                URL.revokeObjectURL(link.href);
+            } catch (error) { showError(error.message); }
+        }
+
+        async function deleteAccount() {
+            if (!confirm('Delete your account and all saved analyses? This cannot be undone.')) return;
+            try {
+                const response = await fetch(`${API_URL}/auth/account`, { method: 'DELETE', headers: authHeaders() });
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.detail || 'Unable to delete account');
+                localStorage.removeItem('mentor_token');
+                localStorage.removeItem('mentor_saved_snippets');
+                localStorage.removeItem('mentor_saved_snippet');
+                location.reload();
+            } catch (error) { showError(error.message); }
         }
 
         function saveSettings() {
