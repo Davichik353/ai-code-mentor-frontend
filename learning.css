@@ -1,4 +1,4 @@
-.learning-panel { padding:24px; max-width:1200px; margin:auto; color:#eee5fa; }
+.learning-panel { padding:24px; max-width:1200px; width:100%; margin:0 auto; color:#eee5fa; flex:1; min-height:0; overflow-y:auto; }
 .learning-panel[hidden] { display:none; }
 .learning-panel h2 { font-size:26px; margin-bottom:12px; }
 .learning-panel h3 { font-size:19px; margin-bottom:10px; }
@@ -29,6 +29,11 @@
 .light-mode .learning-panel a { color:#642479; }
 #localeSelect { background:#25132d; color:white; border:1px solid #8963a0; border-radius:7px; padding:7px; width:auto; }
 @media(max-width:768px) { .learning-panel { padding:12px; } .learning-card { padding:14px; } .topbar-actions { flex-wrap:wrap; } }
-#learningNav { width:100%; background:transparent; color:#c8b9d8; border:0; text-align:left; font:inherit; font-size:13px; }
+#learningNav { width:100%; background:#2b173b; color:#f4edf8; border:1px solid #70448b; text-align:left; font:inherit; font-size:14px; font-weight:600; }
+#learningNav > i { font-size:20px; color:#dcb1ff; }
+#learningNavDescription { display:block; margin-top:4px; color:#c8b9d8; font-size:12px; font-weight:400; }
+.learning-feedback { flex-shrink:0; }
+.learning-panel .learning-state { max-width:650px; margin:20px auto; }
+.learning-panel .learning-state h2 { font-size:23px; }
 #learningNav.active { color:#fff; background:linear-gradient(100deg,#8b1de1,#c018da); }
 #learningNav:hover { background:#3e2154; }

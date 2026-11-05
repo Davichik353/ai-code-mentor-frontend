@@ -3,6 +3,8 @@
     const root=document.getElementById('learningRoot');
     const feedback=document.getElementById('learningFeedback');
     const state={view:'home',data:null,profile:null,templates:[],drafts:{},report:null,controller:null,publicSlug:null};
+    let navigationId=0;
+    let pendingAuth=false;
     const tr=(ru,uz)=>window.MentorLocale==='uz'?uz:ru;
     const local=value=>typeof value==='object' && value!==null ? value[window.MentorLocale]||value.ru||'' : String(value??'');
     const esc=value=>escapeHtml(String(value??''));
@@ -25,15 +27,29 @@
     }
     function show(html) { root.innerHTML=html; restoreDraft(); }
     function message(text) { feedback.textContent=text; }
+    function updateNavigation() {
+        document.getElementById('learningNavLabel').textContent=tr('Учебный кабинет','O‘quv xonasi');
+        document.getElementById('learningNavDescription').textContent=tr('Группы и задания','Guruhlar va topshiriqlar');
+    }
+    function showSignIn() {
+        pendingAuth=true;
+        show(`<section class="learning-card learning-state"><h2>${tr('Войдите в учебный кабинет','O‘quv xonasiga kiring')}</h2><p>${tr('После входа можно создать группу, выдать задание или присоединиться по коду преподавателя.','Kirgandan so‘ng guruh yarating, topshiriq bering yoki o‘qituvchi kodi orqali qo‘shiling.')}</p>${button(tr('Войти или зарегистрироваться','Kirish yoki ro‘yxatdan o‘tish'),'sign-in')}</section>`);
+    }
     async function api(path,body,publicRequest=false) {
-        const response=await fetch(`${API_URL}/learning${path}`,{
+        let response;
+        try { response=await fetch(`${API_URL}/learning${path}`,{
+            signal:AbortSignal.timeout(60000),
             method:body===undefined?'GET':'POST',
             headers:{'Content-Type':'application/json',...(publicRequest?{}:authHeaders())},
             ...(body===undefined?{}:{body:JSON.stringify(body)})
-        });
+        }); } catch(error) {
+            throw new Error(error.name==='TimeoutError'
+                ? tr('Сервер не ответил за минуту. Повторите загрузку.','Server bir daqiqada javob bermadi. Qayta yuklang.')
+                : tr('Нет соединения с сервером. Проверьте интернет и повторите.','Server bilan aloqa yo‘q. Internetni tekshirib, qayta urinib ko‘ring.'));
+        }
         const data=await response.json();
         if(!response.ok) {
-            if(response.status===401) {showAuthOverlay(); throw new Error(tr('Войдите в аккаунт.','Hisobingizga kiring.'));}
+            if(response.status===401) {localStorage.removeItem('mentor_token'); showSignIn(); showAuthOverlay(); throw new Error(tr('Войдите в аккаунт.','Hisobingizga kiring.'));}
             if(response.status===422) throw new Error(tr('Проверьте поля: объяснения — от 20 символов, код — от 5.','Maydonlarni tekshiring: izohlar kamida 20 belgi, kod kamida 5 belgi.'));
             const errors={
                 'Join code not found':['Код группы не найден.','Guruh kodi topilmadi.'],
@@ -51,18 +67,27 @@
         root.hidden=false; feedback.hidden=false;
         document.querySelectorAll('.nav-item').forEach(el=>el.classList.toggle('active',el.id==='learningNav'));
         document.querySelector('.header h1').textContent=tr('Учебный кабинет','O‘quv xonasi');
-        document.getElementById('learningNav').textContent=tr('Учебный кабинет','O‘quv xonasi');
+        document.querySelector('.header p').textContent=tr('Группы, задания и проверка работ','Guruhlar, topshiriqlar va ishlarni tekshirish');
+        updateNavigation();
     }
     function close() {
+        navigationId++; pendingAuth=false;
         saveDraft(); state.controller?.abort(); state.report=null;
+        root.removeAttribute('aria-busy');
         root.hidden=true; feedback.hidden=true; document.querySelector('.main > .content').style.display='';
         document.getElementById('learningNav').classList.remove('active');
         document.querySelector('.header h1').textContent=tr('Анализ кода','Kod tahlili');
+        document.querySelector('.header p').textContent=tr('Вставьте код и получите объяснение ошибок','Kodni kiriting va xatolar izohini oling');
     }
     async function open(view='home',id='') {
         saveDraft(); state.controller?.abort(); state.controller=null;
+        const navigation=++navigationId;
         message(''); activate();
-        if(!localStorage.getItem('mentor_token') && view!=='public') { showAuthOverlay(); return; }
+        if(!localStorage.getItem('mentor_token') && view!=='public') { root.removeAttribute('aria-busy'); showSignIn(); showAuthOverlay(); return; }
+        pendingAuth=false;
+        root.setAttribute('aria-busy','true');
+        show(`<section class="learning-card learning-state" role="status"><h2>${tr('Загружаем учебный кабинет…','O‘quv xonasi yuklanmoqda…')}</h2><p>${tr('Здесь будут ваши группы и задания. Бесплатный сервер после простоя может запускаться до минуты.','Bu yerda guruhlaringiz va topshiriqlaringiz bo‘ladi. Bepul server tanaffusdan so‘ng bir daqiqagacha ishga tushishi mumkin.')}</p></section>`);
+        try {
         const previous=key();
         let data;
         if(view==='home') {
@@ -74,9 +99,18 @@
         else if(view==='portfolio') { state.profile=await api('/profile'); data=await api('/portfolio'); }
         else if(view==='glossary') data=await api('/glossary');
         else if(view==='public') {state.publicSlug=id; data=await api(`/portfolios/${encodeURIComponent(id)}`,undefined,true); hideAuthOverlay();}
+        if(navigation!==navigationId) return;
         state.view=view; state.data=data;
         if(previous!==key()) state.report=null;
         render();
+        root.scrollTop=0;
+        } catch(error) {
+            if(navigation!==navigationId) return;
+            if(!pendingAuth) show(`<section class="learning-card learning-state"><h2>${view==='public'?tr('Портфолио недоступно','Portfolio mavjud emas'):tr('Не удалось загрузить кабинет','O‘quv xonasini yuklab bo‘lmadi')}</h2><p>${esc(error.message)}</p><div class="actions">${button(tr('Повторить загрузку','Qayta yuklash'),'home')}${button(tr('Вернуться к редактору','Muharrirga qaytish'),'editor')}</div></section>`);
+            message(error.message);
+        } finally {
+            if(navigation===navigationId) root.removeAttribute('aria-busy');
+        }
     }
     const back=(action,id='')=>button(tr('← Назад','← Orqaga'),action,id);
     function renderHome() {
@@ -182,6 +216,7 @@
         }
     }
     async function action(name,id) {
+        if(name==='sign-in') { showAuthOverlay(); return; }
         if(['home','group','assignment','submission','portfolio','glossary'].includes(name)) return open(name,id);
         if(name==='editor') return close();
         if(name==='profile') { state.profile=await api('/profile',{role:field('learningRole'),locale:window.MentorLocale,bio:state.profile.bio,portfolio_public:!!state.profile.public}); delete state.drafts[key()]; return open('home'); }
@@ -219,15 +254,19 @@
         finally {if(el.isConnected && !['stop'].includes(name)) el.disabled=false;}
     });
     root.addEventListener('input',event=>{if(event.target.id==='assignmentCode') renderReport();});
+    window.addEventListener('mentor-authenticated',()=>{
+        if(pendingAuth && !root.hidden && localStorage.getItem('mentor_token')) window.LearningUI.open();
+    });
+    updateNavigation();
     window.LearningUI={open:()=>open().catch(error=>message(error.message)),close};
     document.getElementById('learningNav').addEventListener('click',()=>window.LearningUI.open());
     for(const name of ['clearCode','loadHistory','showProgress','showStatistics','showSavedSnippets','showSettings']) {
         const original=window[name]; if(original) window[name]=function(...args){close(); return original.apply(this,args);};
     }
     window.addEventListener('mentor-locale',()=>{
-        document.getElementById('learningNav').textContent=tr('Учебный кабинет','O‘quv xonasi');
+        updateNavigation();
         if(!root.hidden) document.querySelector('.header h1').textContent=tr('Учебный кабинет','O‘quv xonasi');
-        if(!root.hidden && state.data && !state.controller) {saveDraft(); render();}
+        if(!root.hidden && root.getAttribute('aria-busy')!=='true' && state.data && !state.controller) {saveDraft(); render();}
     });
     window.addEventListener('pagehide',()=>state.controller?.abort());
     window.addEventListener('load',()=>{

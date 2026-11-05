@@ -720,7 +720,10 @@
             </div>
 
             <nav class="nav-items">
-                <button type="button" class="nav-item" id="learningNav">Учебный кабинет</button>
+                <button type="button" class="nav-item" id="learningNav" aria-controls="learningRoot">
+                    <i class="fas fa-graduation-cap" aria-hidden="true"></i>
+                    <span><span id="learningNavLabel">Учебный кабинет</span><small id="learningNavDescription">Группы и задания</small></span>
+                </button>
                 <div class="nav-item active" onclick="showDashboard()">
                     <i class="fas fa-chart-line"></i> Dashboard
                 </div>
@@ -999,6 +1002,7 @@ print(user)
         function hideAuthOverlay() {
             const overlay = document.getElementById('authOverlay');
             if (overlay) overlay.style.display = 'none';
+            window.dispatchEvent(new CustomEvent('mentor-authenticated'));
         }
 
         const API_URL = (() => {
