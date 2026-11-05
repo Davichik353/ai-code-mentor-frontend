@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Code Mentor - Interactive</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="learning.css">
     <style>
         * {
             margin: 0;
@@ -719,6 +720,7 @@
             </div>
 
             <nav class="nav-items">
+                <button type="button" class="nav-item" id="learningNav">Учебный кабинет</button>
                 <div class="nav-item active" onclick="showDashboard()">
                     <i class="fas fa-chart-line"></i> Dashboard
                 </div>
@@ -762,11 +764,14 @@
                     <p style="color: #8b8f9e; margin-top: 4px; font-size: 13px;">Paste your code below and get AI-powered feedback</p>
                 </div>
                 <div class="topbar-actions">
+                    <select id="localeSelect" aria-label="Язык интерфейса" onchange="setMentorLocale(this.value)"><option value="ru">Русский</option><option value="uz">O‘zbekcha</option></select>
                     <button class="theme-button" onclick="toggleTheme()" aria-label="Toggle theme">☾</button>
                     <button class="btn-primary new-analysis-button" onclick="clearCode()"><i class="fas fa-plus"></i> New Analysis</button>
                 </div>
             </div>
 
+            <div id="learningFeedback" class="learning-feedback" role="alert" hidden></div>
+            <section id="learningRoot" class="learning-panel" aria-label="Учебный кабинет" hidden></section>
             <div class="content">
                 <div class="workspace-column">
                 <!-- Code Input -->
@@ -1260,7 +1265,8 @@ def get_user(user_id):
                     body: JSON.stringify({
                         code: code,
                         filename: selectedFilename,
-                        language: document.getElementById('languageSelect').value || null
+                        language: document.getElementById('languageSelect').value || null,
+                        response_language: window.MentorLocale || 'ru'
                     })
                 });
 
@@ -1314,7 +1320,8 @@ def get_user(user_id):
             try {
                 const response = await fetch(`${API_URL}/authorship`, {
                     method: 'POST', headers: {'Content-Type': 'application/json', ...authHeaders()},
-                    body: JSON.stringify({code, filename: selectedFilename, language: document.getElementById('languageSelect').value || null})
+                    body: JSON.stringify({code, filename: selectedFilename, language: document.getElementById('languageSelect').value || null,
+                        response_language: window.MentorLocale || 'ru'})
                 });
                 if (response.status === 401) throw new Error('Войдите в аккаунт для проверки.');
                 if (!response.ok) throw new Error('Не удалось проверить код. Попробуйте ещё раз.');
@@ -1714,6 +1721,7 @@ def find_user(user_id):
         // Auth gate + backend ping on load
         window.addEventListener('load', async () => {
             applySettings();
+            if (new URLSearchParams(location.search).has('portfolio')) return;
             const token = localStorage.getItem('mentor_token');
             if (token) {
                 try {
@@ -1755,5 +1763,8 @@ def find_user(user_id):
         });
     </script>
     <script src="runner.js"></script>
+    <script src="i18n.js"></script>
+    <script src="executor.js"></script>
+    <script src="learning.js"></script>
 </body>
 </html>

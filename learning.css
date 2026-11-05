@@ -1,0 +1,34 @@
+.learning-panel { padding:24px; max-width:1200px; margin:auto; color:#eee5fa; }
+.learning-panel[hidden] { display:none; }
+.learning-panel h2 { font-size:26px; margin-bottom:12px; }
+.learning-panel h3 { font-size:19px; margin-bottom:10px; }
+.learning-panel p { margin:10px 0; line-height:1.65; }
+.learning-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr)); gap:18px; margin:16px 0; }
+.learning-card { padding:20px; background:#21132d; border:1px solid #644277; border-radius:14px; overflow-wrap:anywhere; min-width:0; }
+.learning-panel label { display:block; margin:12px 0; line-height:1.6; }
+.learning-panel input:not([type=checkbox]), .learning-panel select, .learning-panel textarea { display:block; width:100%; padding:10px; color:#f8f2ff; background:#160c20; border:1px solid #8963a0; border-radius:7px; margin:6px 0; font:inherit; }
+.learning-panel textarea { min-height:90px; height:auto; resize:vertical; }
+.learning-panel textarea.code { font:14px/1.7 monospace; min-height:200px; tab-size:4; }
+.learning-panel pre { white-space:pre-wrap; max-height:300px; overflow:auto; padding:14px; background:#100917; border-radius:8px; }
+.learning-panel .actions { display:flex; flex-wrap:wrap; gap:10px; margin:14px 0; }
+.learning-panel button { width:auto; flex:0 1 auto; }
+.learning-panel button:disabled { opacity:.5; cursor:wait; }
+.learning-panel .badge { display:inline-block; padding:4px 9px; border:1px solid #a285bb; border-radius:20px; font-size:12px; margin:4px; }
+.learning-panel .notice { border-left:4px solid #dca8ff; padding:10px 14px; background:#35213f; }
+.learning-panel .test-pass { border-color:#4ba997; }
+.learning-panel .test-fail { border-color:#d7899d; }
+.learning-panel a { color:#ddb9ff; }
+.learning-panel :focus-visible, #localeSelect:focus-visible { outline:3px solid #70dccb; outline-offset:3px; }
+.learning-panel .test-row { border-top:1px solid #644277; padding:12px 0; }
+.learning-panel summary { cursor:pointer; padding:10px 0; }
+.learning-feedback { min-height:28px; padding:8px 24px; color:#ffc5ce; }
+.light-mode .learning-panel { color:#261329; }
+.light-mode .learning-card { background:#fffaff; border-color:#a477ad; }
+.light-mode .learning-panel .notice { background:#eadcf2; }
+.light-mode .learning-panel input:not([type=checkbox]), .light-mode .learning-panel select, .light-mode .learning-panel textarea, .light-mode .learning-panel pre { background:#f7f0fa; color:#261329; }
+.light-mode .learning-panel a { color:#642479; }
+#localeSelect { background:#25132d; color:white; border:1px solid #8963a0; border-radius:7px; padding:7px; width:auto; }
+@media(max-width:768px) { .learning-panel { padding:12px; } .learning-card { padding:14px; } .topbar-actions { flex-wrap:wrap; } }
+#learningNav { width:100%; background:transparent; color:#c8b9d8; border:0; text-align:left; font:inherit; font-size:13px; }
+#learningNav.active { color:#fff; background:linear-gradient(100deg,#8b1de1,#c018da); }
+#learningNav:hover { background:#3e2154; }
