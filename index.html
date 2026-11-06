@@ -746,6 +746,7 @@
                     <i class="fas fa-cog"></i> Settings
                 </div>
             </nav>
+            <a href="data-policy.html" style="margin:10px 16px;color:#c8b9d8;font-size:12px;">Политика данных</a>
             <div class="profile-card">
                 <div class="profile-head"><span class="profile-avatar">D</span><span><b id="userName">Davichik</b><small>Student</small></span></div>
                 <p>Keep coding, keep growing! 🚀</p>
@@ -1719,7 +1720,7 @@ def find_user(user_id):
         // Auth gate + backend ping on load
         window.addEventListener('load', async () => {
             applySettings();
-            if (new URLSearchParams(location.search).has('portfolio')) return;
+            if (new URLSearchParams(location.search).has('portfolio') || window.AccountRecovery?.active) return;
             const token = localStorage.getItem('mentor_token');
             if (token) {
                 try {
@@ -1764,5 +1765,6 @@ def find_user(user_id):
     <script src="i18n.js"></script>
     <script src="executor.js"></script>
     <script src="learning.js"></script>
+    <script src="account-recovery.js"></script>
 </body>
 </html>
