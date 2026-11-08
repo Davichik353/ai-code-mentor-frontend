@@ -2,7 +2,7 @@
 (() => {
     const root=document.getElementById('learningRoot');
     const feedback=document.getElementById('learningFeedback');
-    const state={view:'home',data:null,profile:null,templates:[],drafts:{},report:null,controller:null,publicSlug:null};
+    const state={view:'home',data:null,profile:null,templates:[],filters:{catalog:{category:'all',difficulty:'all',language:'all'},assigned:{category:'all',difficulty:'all',language:'all'},glossary:{category:'all',language:'Python',query:''}},drafts:{},report:null,controller:null,publicSlug:null};
     let navigationId=0;
     let pendingAuth=false;
     const tr=(ru,uz)=>window.MentorLocale==='uz'?uz:ru;
@@ -22,7 +22,7 @@
         const values=state.drafts[key()]||{};
         for(const [id,value] of Object.entries(values)) {
             const el=document.getElementById(id); if(!el) continue;
-            if(el.type==='checkbox') el.checked=value; else el.value=value;
+            if(el.type==='checkbox') el.checked=value; else if(el.tagName!=='SELECT'||[...el.options].some(o=>o.value===value)) el.value=value;
         }
     }
     function show(html) { root.innerHTML=html; restoreDraft(); }
@@ -30,10 +30,11 @@
     function updateNavigation() {
         document.getElementById('learningNavLabel').textContent=tr('Учебный кабинет','O‘quv xonasi');
         document.getElementById('learningNavDescription').textContent=tr('Группы и задания','Guruhlar va topshiriqlar');
+        const glossary=document.getElementById('glossaryNavLabel'); if(glossary) glossary.textContent=tr('Словарь и команды','Lug‘at va buyruqlar');
     }
     function showSignIn() {
         pendingAuth=true;
-        show(`<section class="learning-card learning-state"><h2>${tr('Войдите в учебный кабинет','O‘quv xonasiga kiring')}</h2><p>${tr('После входа можно создать группу, выдать задание или присоединиться по коду преподавателя.','Kirgandan so‘ng guruh yarating, topshiriq bering yoki o‘qituvchi kodi orqali qo‘shiling.')}</p>${button(tr('Войти или зарегистрироваться','Kirish yoki ro‘yxatdan o‘tish'),'sign-in')}</section>`);
+        show(`<section class="learning-card learning-state"><h2>${tr('Войдите в учебный кабинет','O‘quv xonasiga kiring')}</h2><p>${tr('Войдите, чтобы выполнять задания преподавателя или создать свою учебную группу.','Kiring va o‘qituvchi topshiriqlarini bajaring yoki o‘z guruhingizni yarating.')}</p>${button(tr('Войти или зарегистрироваться','Kirish yoki ro‘yxatdan o‘tish'),'sign-in')}</section>`);
     }
     async function api(path,body,publicRequest=false) {
         let response;
@@ -52,6 +53,7 @@
             if(response.status===401) {localStorage.removeItem('mentor_token'); showSignIn(); showAuthOverlay(); throw new Error(tr('Войдите в аккаунт.','Hisobingizga kiring.'));}
             if(response.status===422) throw new Error(tr('Проверьте поля: объяснения — от 20 символов, код — от 5.','Maydonlarni tekshiring: izohlar kamida 20 belgi, kod kamida 5 belgi.'));
             const errors={
+                'Exercise already assigned to this group':['Это задание уже выдано группе. Выберите другое.','Bu topshiriq guruhga berilgan. Boshqasini tanlang.'],
                 'Join code not found':['Код группы не найден.','Guruh kodi topilmadi.'],
                 'Cannot approve failing tests':['Нельзя принять работу с проваленными тестами.','Testlardan o‘tmagan ishni qabul qilib bo‘lmaydi.'],
                 'Mini-defense requires a changed version of the code':['Для защиты измените исходный код по условию.','Himoya uchun kodni topshiriqqa muvofiq o‘zgartiring.'],
@@ -63,6 +65,7 @@
         return data;
     }
     function activate() {
+        window.SettingsUI?.close();
         document.querySelector('.main > .content').style.display='none';
         root.hidden=false; feedback.hidden=false;
         document.querySelectorAll('.nav-item').forEach(el=>el.classList.toggle('active',el.id==='learningNav'));
@@ -76,6 +79,7 @@
         root.removeAttribute('aria-busy');
         root.hidden=true; feedback.hidden=true; document.querySelector('.main > .content').style.display='';
         document.getElementById('learningNav').classList.remove('active');
+        document.getElementById('glossaryNav')?.classList.remove('active');
         document.querySelector('.header h1').textContent=tr('Анализ кода','Kod tahlili');
         document.querySelector('.header p').textContent=tr('Вставьте код и получите объяснение ошибок','Kodni kiriting va xatolar izohini oling');
     }
@@ -112,27 +116,55 @@
             if(navigation===navigationId) root.removeAttribute('aria-busy');
         }
     }
+    const canManage=data=>data.can_manage ?? data.is_owner;
+    const canSubmit=data=>data.can_submit ?? !data.is_owner;
+    function roleLabel() {
+        const teacher=['group','assignment','submission'].includes(state.view)?canManage(state.data):state.profile?.role==='teacher';
+        const role=document.getElementById('userRole');
+        if(role) role.textContent=teacher?tr('Преподаватель','O‘qituvchi'):tr('Ученик','O‘quvchi');
+    }
+    function categoryOptions(items, key, titleKey) {
+        const unique=new Map();
+        for(const item of items) unique.set(item[key]||(key==='difficulty'?'beginner':'basics'),local(item[titleKey])||(key==='difficulty'?tr('Новичок','Boshlovchi'):tr('Основы','Asoslar')));
+        return [...unique].map(([id,label])=>({id,label}));
+    }
+    function filterSelect(scope,key,label,options) {
+        return `<label>${esc(label)}<select id="${scope}-${key}" data-filter-scope="${scope}" data-filter-key="${key}">${[{id:'all',label:tr('Все','Barchasi')},...options].map(o=>`<option value="${esc(o.id)}" ${state.filters[scope][key]===o.id?'selected':''}>${esc(o.label)}</option>`).join('')}</select></label>`;
+    }
+    function exerciseFilters(scope,items) {
+        return `<div class="exercise-filters">${filterSelect(scope,'category',tr('Тема','Mavzu'),categoryOptions(items,'category','category_title'))}${filterSelect(scope,'difficulty',tr('Уровень','Daraja'),categoryOptions(items,'difficulty','difficulty_title'))}${filterSelect(scope,'language',tr('Язык кода','Kod tili'),[...new Set(items.map(t=>t.language))].map(id=>({id,label:id})))}</div>`;
+    }
+    function filteredExercises(items,scope) {
+        const filters=state.filters[scope];
+        return items.filter(item=>Object.entries(filters).every(([k,v])=>v==='all'||(item[k]||(k==='difficulty'?'beginner':'basics'))===v));
+    }
+    function exerciseBadges(item) {
+        return `<span class="badge">${esc(item.language)}</span><span class="badge">${esc(local(item.category_title)||tr('Основы','Asoslar'))}</span><span class="badge">${esc(local(item.difficulty_title)||tr('Новичок','Boshlovchi'))}</span>`;
+    }
     const back=(action,id='')=>button(tr('← Назад','← Orqaga'),action,id);
     function renderHome() {
         const p=state.profile;
-        return `<h2>${tr('Учебный кабинет','O‘quv xonasi')}</h2><p>${tr('Решайте задания, объясняйте решения и собирайте проверенные работы.','Topshiriqlarni yeching, yechimlarni tushuntiring va tekshirilgan ishlarni to‘plang.')}</p>
-        <div class="actions">${button(tr('Моё портфолио','Mening portfoliom'),'portfolio')}${button(tr('Словарь терминов','Atamalar lug‘ati'),'glossary')}${button(tr('Открыть редактор','Muharrirni ochish'),'editor')}</div>
-        <div class="learning-grid"><section class="learning-card"><h3>${tr('Мой режим','Mening rejimim')}</h3>
-            <p>${tr('Режим преподавателя позволяет управлять только своими группами. Это не подтверждение квалификации.','O‘qituvchi rejimi faqat o‘z guruhlaringizni boshqaradi. Bu malaka tasdig‘i emas.')}</p>
-            <label>${tr('Роль','Rol')}<select id="learningRole"><option value="learner" ${p.role==='learner'?'selected':''}>${tr('Ученик','O‘quvchi')}</option><option value="teacher" ${p.role==='teacher'?'selected':''}>${tr('Преподаватель','O‘qituvchi')}</option></select></label>
+        return `<h2>${tr('Учебный кабинет','O‘quv xonasi')}</h2><p>${tr('Получайте задания в группе преподавателя или создайте свою группу для обучения.','O‘qituvchi guruhida topshiriq oling yoki o‘qitish uchun o‘z guruhingizni yarating.')}</p>
+        <div class="actions">${button(tr('Моё портфолио','Mening portfoliom'),'portfolio')}${button(tr('Словарь и команды','Lug‘at va buyruqlar'),'glossary')}${button(tr('Открыть редактор','Muharrirni ochish'),'editor')}</div>
+        <div class="learning-grid"><section class="learning-card"><h3>${tr('Режим кабинета','Xona rejimi')}</h3>
+            <p>${tr('Преподаватель управляет только созданными им группами. В чужой группе участник остаётся учеником независимо от выбранного режима.','O‘qituvchi faqat o‘zi yaratgan guruhlarni boshqaradi. Boshqa guruhda tanlangan rejimdan qat’i nazar ishtirokchi o‘quvchi bo‘lib qoladi.')}</p>
+            <label>${tr('Режим','Rejim')}<select id="learningRole"><option value="learner" ${p.role==='learner'?'selected':''}>${tr('Ученик','O‘quvchi')}</option><option value="teacher" ${p.role==='teacher'?'selected':''}>${tr('Преподаватель — моя группа','O‘qituvchi — o‘z guruhim')}</option></select></label>
             ${button(tr('Сохранить режим','Rejimni saqlash'),'profile')}</section>
-        <section class="learning-card"><h3>${tr('Вступить в группу','Guruhga qo‘shilish')}</h3><label>${tr('Код от преподавателя','O‘qituvchi bergan kod')}<input id="joinCode" maxlength="64" autocomplete="off"></label>${button(tr('Присоединиться','Qo‘shilish'),'join')}</section>
-        ${p.role==='teacher'?`<section class="learning-card"><h3>${tr('Создать группу','Guruh yaratish')}</h3><label>${tr('Название','Nomi')}<input id="groupTitle" maxlength="120"></label><label>${tr('Описание','Tavsif')}<textarea id="groupDescription" maxlength="1000"></textarea></label>${button(tr('Создать','Yaratish'),'create-group')}</section>`:''}</div>
-        <h3>${tr('Мои группы','Mening guruhlarim')}</h3><div class="learning-grid">${state.data.groups.length?state.data.groups.map(g=>`<section class="learning-card"><h3>${esc(g.title)}</h3><p>${esc(g.description)}</p><span class="badge">${g.is_owner?tr('Вы преподаватель','Siz o‘qituvchisiz'):tr('Вы участник','Siz ishtirokchisiz')}</span><p>${tr('Учеников','O‘quvchilar')}: ${g.member_count}</p>${button(tr('Открыть группу','Guruhni ochish'),'group',g.id)}</section>`).join(''):`<p>${tr('Групп пока нет. Создайте группу или введите код преподавателя.','Hali guruhlar yo‘q. Guruh yarating yoki o‘qituvchi kodini kiriting.')}</p>`}</div>`;
+        <section class="learning-card"><h3>${tr('Вступить как ученик','O‘quvchi sifatida qo‘shilish')}</h3><p>${tr('Введите код преподавателя. Задания в этой группе выдаёт только её создатель.','O‘qituvchi kodini kiriting. Bu guruhda topshiriqlarni faqat guruh yaratuvchisi beradi.')}</p><label>${tr('Код от преподавателя','O‘qituvchi bergan kod')}<input id="joinCode" maxlength="64" autocomplete="off"></label>${button(tr('Присоединиться','Qo‘shilish'),'join')}</section>
+        ${p.role==='teacher'?`<section class="learning-card"><h3>${tr('Создать свою группу','O‘z guruhini yaratish')}</h3><label>${tr('Название группы','Guruh nomi')}<input id="groupTitle" maxlength="120"></label><label>${tr('Описание','Tavsif')}<textarea id="groupDescription" maxlength="1000"></textarea></label>${button(tr('Создать группу','Guruh yaratish'),'create-group')}</section>`:''}</div>
+        <h3>${tr('Мои группы','Mening guruhlarim')}</h3><div class="learning-grid">${state.data.groups.length?state.data.groups.map(g=>`<section class="learning-card"><h3>${esc(g.title)}</h3><p>${esc(g.description)}</p><span class="badge">${canManage(g)?tr('Вы преподаватель этой группы','Siz bu guruh o‘qituvchisisiz'):tr('Вы ученик этой группы','Siz bu guruh o‘quvchisisiz')}</span><p>${tr('Учеников','O‘quvchilar')}: ${g.member_count}</p>${button(tr('Открыть группу','Guruhni ochish'),'group',g.id)}</section>`).join(''):`<p>${tr('Групп пока нет. Вступите по коду преподавателя. Для создания своей группы выберите режим преподавателя.','Hali guruhlar yo‘q. O‘qituvchi kodi bilan qo‘shiling. O‘z guruhingizni yaratish uchun o‘qituvchi rejimini tanlang.')}</p>`}</div>`;
     }
     function renderGroup() {
         const g=state.data;
+        const templates=filteredExercises(state.templates,'catalog');
+        const assignments=filteredExercises(g.assignments,'assigned');
         const assignmentName=id=>local(g.assignments.find(a=>a.id===id)?.title)||id;
-        return `${back('home')}<h2>${esc(g.title)}</h2><p>${esc(g.description)}</p>
-        ${g.is_owner?`<section class="learning-card"><h3>${tr('Приглашение','Taklif')}</h3><p>${tr('Передайте ученикам этот код. Не публикуйте его в открытом доступе.','Bu kodni o‘quvchilarga bering. Uni ochiq joyda e’lon qilmang.')}</p><pre id="groupJoinCode">${esc(g.join_code)}</pre>
-        <h3>${tr('Выдать задание','Topshiriq berish')}</h3><label>${tr('Задание','Topshiriq')}<select id="templateChoice">${state.templates.map(t=>`<option value="${esc(t.id)}">${esc(local(t.title))} · ${esc(t.language)}</option>`).join('')}</select></label>${button(tr('Добавить в группу','Guruhga qo‘shish'),'assign',g.id)}</section>`:''}
-        <h3 style="margin-top:18px">${tr('Задания','Topshiriqlar')}</h3><div class="learning-grid">${g.assignments.map(a=>`<section class="learning-card"><h3>${esc(local(a.title))}</h3><p>${esc(a.language)}</p>${button(tr('Открыть задание','Topshiriqni ochish'),'assignment',a.id)}</section>`).join('')||`<p>${tr('Преподаватель ещё не выдал задания.','O‘qituvchi hali topshiriq bermagan.')}</p>`}</div>
-        ${g.is_owner?`<section class="learning-card"><h3>${tr('Обзор группы','Guruh holati')}</h3><p>${tr('Участников / сдали работу / принято последних работ / всего попыток','Ishtirokchilar / ish yuborganlar / qabul qilingan oxirgi ishlar / jami urinishlar')}: <strong>${g.members.length} / ${g.summary.learners_submitted} / ${g.summary.approved} / ${g.summary.attempts}</strong></p>
+        return `${back('home')}<h2>${esc(g.title)}</h2><span class="badge">${canManage(g)?tr('Преподаватель этой группы','Bu guruh o‘qituvchisi'):tr('Ученик этой группы','Bu guruh o‘quvchisi')}</span><p>${esc(g.description)}</p>
+        ${canManage(g)?`<section class="learning-card"><h3>${tr('Пригласить учеников','O‘quvchilarni taklif qilish')}</h3><p>${tr('Передайте ученикам код. Вступившие по нему участники не могут выдавать или менять задания.','Kodni o‘quvchilarga bering. Kod orqali kirganlar topshiriq bera olmaydi va o‘zgartira olmaydi.')}</p><pre id="groupJoinCode">${esc(g.join_code)}</pre>
+        <h3>${tr('Выдать задание','Topshiriq berish')}</h3>${exerciseFilters('catalog',state.templates)}<p>${tr('Подходящих заданий','Mos topshiriqlar')}: <strong id="catalogCount">${templates.length}</strong> / ${state.templates.length}</p>
+        <label>${tr('Задание','Topshiriq')}<select id="templateChoice" ${templates.length?'':'disabled'}>${templates.length?templates.map(t=>`<option value="${esc(t.id)}">${esc(local(t.title))} · ${esc(t.language)}</option>`).join(''):`<option>${tr('Измените фильтры','Filtrlarni o‘zgartiring')}</option>`}</select></label>${button(tr('Выдать группе','Guruhga berish'),'assign',g.id,templates.length?'':'disabled')}</section>`:`<p class="notice">${tr('Задания выдаёт преподаватель этой группы. Ниже — ваши задания и редактор решения.','Topshiriqlarni bu guruh o‘qituvchisi beradi. Quyida topshiriqlaringiz va yechim muharriri.')}</p>`}
+        <h3 style="margin-top:18px">${tr('Задания группы','Guruh topshiriqlari')}</h3>${g.assignments.length?exerciseFilters('assigned',g.assignments):''}<div class="learning-grid" id="assignedExercises">${assignments.map(a=>`<section class="learning-card"><h3>${esc(local(a.title))}</h3><p>${exerciseBadges(a)}</p>${button(tr('Открыть задание','Topshiriqni ochish'),'assignment',a.id)}</section>`).join('')||`<p>${g.assignments.length?tr('Нет заданий по выбранным фильтрам.','Tanlangan filtrlar bo‘yicha topshiriq yo‘q.'):tr('Преподаватель ещё не выдал задания.','O‘qituvchi hali topshiriq bermagan.')}</p>`}</div>
+        ${canManage(g)?`<section class="learning-card"><h3>${tr('Обзор группы','Guruh holati')}</h3><p>${tr('Участников / сдали работу / принято последних работ / всего попыток','Ishtirokchilar / ish yuborganlar / qabul qilingan oxirgi ishlar / jami urinishlar')}: <strong>${g.members.length} / ${g.summary.learners_submitted} / ${g.summary.approved} / ${g.summary.attempts}</strong></p>
         <p>${g.members.map(m=>esc(m.display_name||tr('Ученик','O‘quvchi'))).join(', ')||tr('Пока нет учеников','Hali o‘quvchilar yo‘q')}</p>
         <h3>${tr('Частые затруднения — по последним отчётам','Ko‘p uchragan qiyinchiliklar — oxirgi hisobotlar bo‘yicha')}</h3>
         ${g.summary.common_failures.map(f=>`<p>${esc(assignmentName(f.assignment_id))} · ${tr('тест','test')} ${f.case}: ${f.learners} ${tr('учеников не прошли','o‘quvchi o‘ta olmadi')}</p>`).join('')||`<p>${tr('Нет проваленных тестов в последних отчётах.','Oxirgi hisobotlarda muvaffaqiyatsiz testlar yo‘q.')}</p>`}
@@ -140,23 +172,25 @@
     }
     function renderAssignment() {
         const a=state.data;
-        return `${back('group',a.group_id)}<h2>${esc(local(a.title))}</h2><span class="badge">${esc(a.language)}</span><p>${esc(local(a.prompt))}</p>
-        ${notice()}<div class="learning-grid"><section class="learning-card"><h3>${tr('Исправь сам','O‘zingiz yeching')}</h3><p>${tr('Сначала попробуйте сами. Подсказки открываются по очереди; пример решения — после вашего объяснения.','Avval o‘zingiz urinib ko‘ring. Maslahatlar ketma-ket ochiladi; namuna yechim esa izohingizdan keyin.')}</p>
+        return `${back('group',a.group_id)}<h2>${esc(local(a.title))}</h2><p>${exerciseBadges(a)}</p><p>${esc(local(a.prompt))}</p>
+        ${!canSubmit(a)?`<p class="notice">${tr('Просмотр своего задания. Можно написать код и запустить тесты; отправка работы самому себе недоступна.','O‘z topshirig‘ingizni ko‘rish. Kod yozib testlarni bajaring; ishni o‘zingizga yuborib bo‘lmaydi.')}</p>`:''}
+        <div class="assignment-workspace"><section class="learning-card assignment-editor"><h3>${tr('Редактор решения','Yechim muharriri')}</h3><label for="assignmentCode">${tr('Ваш код','Sizning kodingiz')}</label><textarea class="code" id="assignmentCode" spellcheck="false" maxlength="10000" rows="12">${esc(a.starter_code)}</textarea>
+        <div class="actions">${button(tr('Запустить тесты','Testlarni ishga tushirish'),'test',a.id,'id="assignmentTestButton"')}${button(tr('Остановить','To‘xtatish'),'stop','', 'id="assignmentStopButton" disabled')}</div>
+        <p id="assignmentRunStatus" role="status" aria-live="polite"></p><div id="assignmentTestResults"></div></section>
+        <aside class="learning-card"><h3>${tr('Подсказки к решению','Yechimga maslahatlar')}</h3><p>${tr('Сначала попробуйте сами. Подсказки открываются по очереди; пример решения — после вашего объяснения.','Avval o‘zingiz urinib ko‘ring. Maslahatlar ketma-ket ochiladi; namuna yechim esa izohingizdan keyin.')}</p>
         <div id="learningHints">${a.hints.map((h,i)=>`<p>${i+1}. ${esc(local(h))}</p>`).join('')}</div>
         ${a.is_owner?'':button(tr('Следующая подсказка','Keyingi maslahat'),'hint',a.id,`id="hintButton" ${a.hints.length>=a.hint_count?'disabled':''}`)}
-        <details><summary>${tr('Нужен пример решения?','Namuna yechim kerakmi?')}</summary><label>${tr('Что вы уже пробовали? Не менее 20 символов.','Nimani sinab ko‘rdingiz? Kamida 20 belgi.')}<textarea id="solutionReflection" maxlength="3000"></textarea></label>${button(tr('Показать пример','Namunani ko‘rsatish'),'solution',a.id,`id="solutionButton" ${!a.is_owner&&a.hints.length<a.hint_count?'disabled':''}`)}<pre id="learningSolution" hidden></pre></details></section>
-        <section class="learning-card"><h3>${tr('Проверочные примеры','Tekshiruv misollari')}</h3>${a.tests.map((t,i)=>`<details><summary>${tr('Тест','Test')} ${i+1}</summary><p>${tr('Ввод','Kiritish')}</p><pre>${esc(t.stdin)}</pre><p>${tr('Ожидаемый вывод','Kutilgan natija')}</p><pre>${esc(t.expected_stdout)}</pre></details>`).join('')}</section></div>
-        ${!a.is_owner?`<section class="learning-card"><label>${tr('Ваш код','Sizning kodingiz')}<textarea class="code" id="assignmentCode" spellcheck="false" maxlength="10000">${esc(a.starter_code)}</textarea></label>
-        <div class="actions">${button(tr('Запустить тесты','Testlarni ishga tushirish'),'test',a.id,'id="assignmentTestButton"')}${button(tr('Остановить','To‘xtatish'),'stop','', 'id="assignmentStopButton" disabled')}</div>
-        <p id="assignmentRunStatus" role="status" aria-live="polite"></p><div id="assignmentTestResults"></div>
-        <h3>${tr('Мини-защита','Kichik himoya')}</h3><ul>${a.defense_questions.map(q=>`<li>${esc(local(q))}</li>`).join('')}</ul>
+        <details><summary>${tr('Нужен пример решения?','Namuna yechim kerakmi?')}</summary><label>${tr('Что вы уже пробовали? Не менее 20 символов.','Nimani sinab ko‘rdingiz? Kamida 20 belgi.')}<textarea id="solutionReflection" maxlength="3000"></textarea></label>${button(tr('Показать пример','Namunani ko‘rsatish'),'solution',a.id,`id="solutionButton" ${!a.is_owner&&a.hints.length<a.hint_count?'disabled':''}`)}<pre id="learningSolution" hidden></pre></details>
+        <h3>${tr('Проверочные примеры','Tekshiruv misollari')}</h3>${a.tests.map((t,i)=>`<details><summary>${tr('Тест','Test')} ${i+1}</summary><p>${tr('Ввод','Kiritish')}</p><pre>${esc(t.stdin)}</pre><p>${tr('Ожидаемый вывод','Kutilgan natija')}</p><pre>${esc(t.expected_stdout)}</pre></details>`).join('')}
+        ${button(tr('Открыть словарь','Lug‘atni ochish'),'glossary')}</aside></div>
+        ${canSubmit(a)?`<section class="learning-card"><h3>${tr('Мини-защита','Kichik himoya')}</h3><ul>${a.defense_questions.map(q=>`<li>${esc(local(q))}</li>`).join('')}</ul>
         <label>${tr('Объяснение решения и граничного случая (от 20 символов)','Yechim va chegaraviy holat izohi (kamida 20 belgi)')}<textarea id="defenseExplanation" maxlength="3000"></textarea></label>
         <p>${esc(local(a.change))}</p><label>${tr('Изменённый код для защиты','Himoya uchun o‘zgartirilgan kod')}<textarea class="code" id="changedCode" spellcheck="false" maxlength="10000"></textarea></label>
         <label>${tr('Проверочный ввод для изменённого кода','O‘zgartirilgan kod uchun kiritish')}<textarea id="changedInput" maxlength="5000"></textarea></label>
         ${button(tr('Проверить изменённый код','O‘zgartirilgan kodni sinash'),'run-change',a.id,'id="changeRunButton"')}<pre id="changedOutput" hidden></pre>
         <label>${tr('Что и почему изменили (от 20 символов)','Nima va nima uchun o‘zgardi (kamida 20 belgi)')}<textarea id="changeExplanation" maxlength="3000"></textarea></label>
         ${button(tr('Отправить преподавателю','O‘qituvchiga yuborish'),'submit',a.id,'id="assignmentSubmitButton" disabled')}</section>
-        <h3 style="margin-top:18px">${tr('Мои попытки','Mening urinishlarim')}</h3>${a.submissions.map(s=>`<section class="learning-card"><p>${esc(status(s.status))}</p><p>${esc(s.feedback)}</p>${button(tr('Открыть попытку','Urinishni ochish'),'submission',s.id)}</section>`).join('')||`<p>${tr('Попыток пока нет.','Hali urinishlar yo‘q.')}</p>`}`:''}`;
+        <h3 style="margin-top:18px">${tr('Мои попытки','Mening urinishlarim')}</h3>${a.submissions.map(s=>`<section class="learning-card"><p>${esc(status(s.status))}</p><p>${esc(s.feedback)}</p>${button(tr('Открыть попытку','Urinishni ochish'),'submission',s.id)}</section>`).join('')||`<p>${tr('Попыток пока нет.','Hali urinishlar yo‘q.')}</p>`}`:''}${notice()}`;
     }
     function renderSubmission() {
         const s=state.data;
@@ -164,7 +198,7 @@
         <section class="learning-card"><h3>${tr('Исходное решение','Asosiy yechim')}</h3><pre>${esc(s.code)}</pre><p>${esc(s.explanation)}</p>
         <h3>${tr('Мини-защита','Kichik himoya')}</h3><p>${esc(local(s.change))}</p><pre>${esc(s.changed_code)}</pre><p>${esc(s.change_explanation)}</p>
         <h3>${tr('Отчёт тестов','Test hisoboti')}</h3>${s.results.map((r,i)=>`<details><summary>${tr('Тест','Test')} ${i+1}: ${r.passed?tr('пройден','o‘tdi'):tr('не пройден','o‘tmadi')}</summary><p>${tr('Ожидалось','Kutilgan')}</p><pre>${esc(s.tests[i].expected_stdout)}</pre><p>${tr('Получено / ошибка','Olingan natija / xato')}</p><pre>${esc(r.error||r.stdout)}</pre></details>`).join('')}
-        <p>${esc(s.feedback)}</p>${s.is_owner?`<p>${tr('Проверьте объяснение, изменённый код и понимание ученика перед принятием.','Qabul qilishdan oldin izoh, o‘zgartirilgan kod va o‘quvchining tushunganini tekshiring.')}</p><label>${tr('Комментарий преподавателя (от 20 символов)','O‘qituvchi izohi (kamida 20 belgi)')}<textarea id="reviewFeedback" maxlength="3000"></textarea></label><div class="actions">${button(tr('Принять работу','Ishni qabul qilish'),'approve',s.id,s.tests_passed?'':'disabled')}${button(tr('Отправить на доработку','Qayta ishlashga yuborish'),'revise',s.id)}</div>`:''}</section>`;
+        <p>${esc(s.feedback)}</p>${canManage(s)?`<p>${tr('Проверьте объяснение, изменённый код и понимание ученика перед принятием.','Qabul qilishdan oldin izoh, o‘zgartirilgan kod va o‘quvchining tushunganini tekshiring.')}</p><label>${tr('Комментарий преподавателя (от 20 символов)','O‘qituvchi izohi (kamida 20 belgi)')}<textarea id="reviewFeedback" maxlength="3000"></textarea></label><div class="actions">${button(tr('Принять работу','Ishni qabul qilish'),'approve',s.id,s.tests_passed?'':'disabled')}${button(tr('Отправить на доработку','Qayta ishlashga yuborish'),'revise',s.id)}</div>`:''}</section>`;
     }
     function renderPortfolio() {
         const p=state.data, pub=state.view==='public';
@@ -173,19 +207,44 @@
         ${!pub?`<section class="learning-card"><label>${tr('О себе — будет видно по публичной ссылке','O‘zingiz haqingizda — ochiq havolada ko‘rinadi')}<textarea id="portfolioBio" maxlength="500">${esc(p.bio)}</textarea></label><label><input type="checkbox" id="portfolioPublic" ${p.public?'checked':''}> ${tr('Разрешить просмотр по ссылке','Havola orqali ko‘rishga ruxsat berish')}</label><p>${tr('Публикуются имя, описание и названия принятых заданий. Код, почта и ответы защиты остаются закрытыми. Ссылку можно отключить.','Ism, tavsif va qabul qilingan topshiriq nomlari ko‘rinadi. Kod, pochta va himoya javoblari yopiq qoladi. Havolani o‘chirish mumkin.')}</p>${button(tr('Сохранить настройки','Sozlamalarni saqlash'),'publish-portfolio')}<p id="portfolioLink">${p.public?`<a href="${esc(url.href)}" target="_blank" rel="noopener">${esc(url.href)}</a>`:tr('Публичная ссылка выключена.','Ochiq havola o‘chirilgan.')}</p></section>`:''}
         <div class="learning-grid">${p.projects.map(project=>`<section class="learning-card"><h3>${esc(local(project.title))}</h3><span class="badge">${esc(project.language)}</span><p>${tr('Проверено преподавателем','O‘qituvchi tekshirgan')}</p><p>${esc(new Date(project.reviewed_at).toLocaleDateString(window.MentorLocale==='uz'?'uz-UZ':'ru-RU'))}</p></section>`).join('')||`<p>${tr('После принятия преподавателем здесь появятся ваши работы.','O‘qituvchi qabul qilgach, ishlar shu yerda paydo bo‘ladi.')}</p>`}</div>`;
     }
+    function glossaryMatches() {
+        const f=state.filters.glossary, query=f.query.trim().toLocaleLowerCase();
+        return state.data.filter(item=>(f.category==='all'||item.category===f.category)&&(!query||[item.term,local(item.title),item.ru,item.uz,...Object.values(item.examples||{}).map(e=>e.code)].join(' ').toLocaleLowerCase().includes(query)));
+    }
+    function glossaryCards() {
+        const language=state.filters.glossary.language;
+        return glossaryMatches().map(item=>{
+            const example=item.examples?.[language];
+            return `<article class="learning-card glossary-card"><h3>${esc(local(item.title)||item.term)}</h3><p><code>${esc(item.term)}</code> <span class="badge">${esc(local(item.category_title)||tr('Основы','Asoslar'))}</span></p><p>${esc(item[window.MentorLocale]||item.ru)}</p>${item.purpose?`<p><strong>${tr('Для чего','Nima uchun')}:</strong> ${esc(local(item.purpose))}</p>`:''}${example?`<h4>${esc(language)}</h4><pre><code>${esc(example.code)}</code></pre><p>${esc(local(example.explanation))}</p>`:`<p>${tr('Для этого языка отдельный пример не требуется.','Bu til uchun alohida misol kerak emas.')}</p>`}</article>`;
+        }).join('')||`<p>${tr('Ничего не найдено. Попробуйте другой термин или категорию.','Hech narsa topilmadi. Boshqa atama yoki toifani tanlang.')}</p>`;
+    }
+    function updateGlossaryResults() {
+        const grid=document.getElementById('glossaryResults'); if(!grid) return;
+        grid.innerHTML=glossaryCards();
+        document.getElementById('glossaryCount').textContent=glossaryMatches().length;
+    }
+    function renderGlossary() {
+        const f=state.filters.glossary;
+        return `${back('home')}<h2>${tr('Словарь и команды','Lug‘at va buyruqlar')}</h2><p>${tr('Что означает термин, для чего нужна команда и как она работает в коде.','Atama nimani anglatadi, buyruq nima uchun kerak va kodda qanday ishlaydi.')}</p>
+        <section class="learning-card"><div class="exercise-filters"><label>${tr('Поиск по слову или команде','So‘z yoki buyruq bo‘yicha qidirish')}<input type="search" id="glossarySearch" value="${esc(f.query)}" placeholder="${tr('input, цикл, список…','input, sikl, ro‘yxat…')}"></label>${filterSelect('glossary','category',tr('Категория','Toifa'),categoryOptions(state.data,'category','category_title'))}<label>${tr('Примеры кода','Kod misollari')}<select id="glossary-language" data-filter-scope="glossary" data-filter-key="language">${['Python','JavaScript'].map(language=>`<option ${f.language===language?'selected':''}>${language}</option>`).join('')}</select></label></div><p>${tr('Найдено терминов','Topilgan atamalar')}: <strong id="glossaryCount">${glossaryMatches().length}</strong> / ${state.data.length}</p></section>
+        <div class="learning-grid" id="glossaryResults">${glossaryCards()}</div>`;
+    }
     function render() {
+        roleLabel();
+        document.querySelectorAll('.nav-item').forEach(el=>el.classList.toggle('active',el.id===(state.view==='glossary'?'glossaryNav':'learningNav')));
+        document.querySelector('.header h1').textContent=state.view==='glossary'?tr('Словарь и команды','Lug‘at va buyruqlar'):tr('Учебный кабинет','O‘quv xonasi');
         if(state.view==='home') show(renderHome());
         else if(state.view==='group') show(renderGroup());
         else if(state.view==='assignment') {show(renderAssignment()); renderReport();}
         else if(state.view==='submission') show(renderSubmission());
         else if(state.view==='portfolio'||state.view==='public') show(renderPortfolio());
-        else if(state.view==='glossary') show(`${back('home')}<h2>${tr('Словарь терминов','Atamalar lug‘ati')}</h2><div class="learning-grid">${state.data.map(item=>`<section class="learning-card"><h3>${esc(item.term)}</h3><p>${esc(item[window.MentorLocale])}</p></section>`).join('')}</div>`);
+        else if(state.view==='glossary') show(renderGlossary());
     }
     function renderReport() {
         const el=document.getElementById('assignmentTestResults'); if(!el) return;
         const report=state.report;
         const valid=report && report.assignment===state.data.id && report.code===field('assignmentCode');
-        document.getElementById('assignmentSubmitButton').disabled=!valid;
+        const submit=document.getElementById('assignmentSubmitButton'); if(submit) submit.disabled=!valid;
         el.innerHTML=valid?report.results.map((r,i)=>`<section class="learning-card ${r.passed?'test-pass':'test-fail'}"><h3>${tr('Тест','Test')} ${i+1}: ${r.passed?'✓':'✗'}</h3><pre>${esc(r.error||r.stdout||tr('(пустой вывод)','(bo‘sh natija)'))}</pre></section>`).join(''):'';
     }
     async function runTests() {
@@ -206,7 +265,7 @@
                 results.push({...result,passed:!result.error&&!result.truncated&&result.stdout.trim()===a.tests[i].expected_stdout.trim()});
             }
             state.report={assignment:a.id,code,results};
-            document.getElementById('assignmentRunStatus').textContent=tr(`Пройдено ${results.filter(r=>r.passed).length} из ${results.length}. Можно отправить отчёт и защиту преподавателю.`,`Jami ${results.length} testdan ${results.filter(r=>r.passed).length} tasi o‘tdi. Hisobot va himoyani o‘qituvchiga yuborish mumkin.`);
+            document.getElementById('assignmentRunStatus').textContent=tr(`Пройдено ${results.filter(r=>r.passed).length} из ${results.length}.`,`Jami ${results.length} testdan ${results.filter(r=>r.passed).length} tasi o‘tdi.`);
             renderReport();
         } finally {
             if(state.controller===controller) state.controller=null;
@@ -253,13 +312,23 @@
         try {await action(name,el.dataset.id);} catch(error) {message(error.message||tr('Ошибка соединения.','Ulanish xatosi.'));}
         finally {if(el.isConnected && !['stop'].includes(name)) el.disabled=false;}
     });
-    root.addEventListener('input',event=>{if(event.target.id==='assignmentCode') renderReport();});
+    root.addEventListener('change',event=>{
+        const el=event.target;
+        if(!el.dataset.filterScope) return;
+        state.filters[el.dataset.filterScope][el.dataset.filterKey]=el.value;
+        if(el.dataset.filterScope==='glossary') updateGlossaryResults(); else {saveDraft(); render();}
+    });
+    root.addEventListener('input',event=>{
+        if(event.target.id==='assignmentCode') renderReport();
+        if(event.target.id==='glossarySearch') {state.filters.glossary.query=event.target.value;updateGlossaryResults();}
+    });
     window.addEventListener('mentor-authenticated',()=>{
         if(pendingAuth && !root.hidden && localStorage.getItem('mentor_token')) window.LearningUI.open();
     });
     updateNavigation();
     window.LearningUI={open:()=>open().catch(error=>message(error.message)),close};
     document.getElementById('learningNav').addEventListener('click',()=>window.LearningUI.open());
+    document.getElementById('glossaryNav')?.addEventListener('click',()=>open('glossary').catch(error=>message(error.message)));
     for(const name of ['clearCode','loadHistory','showProgress','showStatistics','showSavedSnippets','showSettings']) {
         const original=window[name]; if(original) window[name]=function(...args){close(); return original.apply(this,args);};
     }

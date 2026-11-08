@@ -37,3 +37,14 @@
 .learning-panel .learning-state h2 { font-size:23px; }
 #learningNav.active { color:#fff; background:linear-gradient(100deg,#8b1de1,#c018da); }
 #learningNav:hover { background:#3e2154; }
+
+.exercise-filters { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; align-items:end; }
+.assignment-workspace { display:grid; grid-template-columns:minmax(0,1.5fr) minmax(280px,1fr); gap:18px; margin:18px 0; align-items:start; }
+.assignment-editor textarea.code { min-height:300px; }
+.learning-card + .learning-card { margin-top:0; }
+@media(max-width:900px) { .assignment-workspace { grid-template-columns:1fr; } }
+@media(max-width:600px) { .exercise-filters { grid-template-columns:1fr; gap:0; } }
+#glossaryNav { width:100%; background:transparent; border:0; text-align:left; font:inherit; }
+#glossaryNav.active { color:#fff; background:linear-gradient(100deg,#8b1de1,#c018da); }
+#glossaryNav:hover { background:#3e2154; }
+.glossary-card pre { font-size:var(--mentor-code-font-size,14px); line-height:1.7; }

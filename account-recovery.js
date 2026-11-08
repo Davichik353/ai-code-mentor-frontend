@@ -7,7 +7,7 @@
     const panel=document.createElement('section');
     panel.id='recoveryPanel';panel.hidden=true;
     panel.innerHTML='<h2 id="recoveryTitle"></h2><p id="recoveryHelp"></p><form id="recoveryForm"><input id="recoveryEmail" type="email" maxlength="254" autocomplete="email"><input id="recoveryPassword" type="password" minlength="10" maxlength="256" autocomplete="new-password"><button class="btn-primary" id="recoverySubmit" type="submit"></button></form><p id="recoveryMessage" role="status"></p><button type="button" class="btn-secondary" id="recoveryBack"></button>';
-    window.AccountRecovery={get active(){return !panel.hidden;}};
+    window.AccountRecovery={get active(){return !panel.hidden;},open(email){token=null;open();if(email)document.getElementById("recoveryEmail").value=email;}};
     const forgot=document.createElement('button');forgot.type='button';forgot.className='auth-switch';forgot.id='forgotPassword';
     forgot.style.cssText='background:none;border:0;color:#dcb1ff;width:100%;margin-top:12px;cursor:pointer';
     box.append(forgot,panel);

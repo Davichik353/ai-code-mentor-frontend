@@ -6,6 +6,7 @@
     <title>AI Code Mentor - Interactive</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="learning.css">
+    <link rel="stylesheet" href="settings.css">
     <style>
         * {
             margin: 0;
@@ -67,15 +68,7 @@
             line-height: 1.2;
         }
 
-        .logo-text h2::after {
-            content: 'Learn. Improve. Grow.';
-            display: block;
-            color: rgba(220, 200, 229, 0.7);
-            font-size: 10px;
-            font-weight: 500;
-            margin-top: 2px;
-            letter-spacing: 0.01em;
-        }
+
 
         .nav-items {
             display: flex;
@@ -582,7 +575,7 @@
         .logo { padding: 0 8px; margin-bottom: 32px; }
         .logo-icon { width: 38px; height: 38px; background: linear-gradient(135deg, #f532b8, #7d1fe1); box-shadow: 0 8px 24px rgba(225, 35, 181, .28); }
         .logo-text h2 { font-size: 16px; }
-        .logo-text:after { content: 'Learn. Improve. Grow.'; display: block; color: var(--muted); font-size: 10px; margin-top: 2px; }
+        .logo-text:after { content: attr(data-tagline); display: block; color: var(--muted); font-size: 10px; margin-top: 2px; }
         .nav-items { gap: 6px; }
         .nav-item { padding: 11px 13px; color: #c0b1cb; }
         .nav-item.active { background: linear-gradient(100deg, #771bc9, #a81be1); box-shadow: 0 8px 22px rgba(128, 24, 207, .25); }
@@ -714,7 +707,7 @@
                 <div class="logo-icon">
                     <i class="fas fa-brain"></i>
                 </div>
-                <div class="logo-text">
+                <div class="logo-text" data-tagline="Учись. Пиши. Понимай.">
                     <h2>AI Code Mentor</h2>
                 </div>
             </div>
@@ -742,13 +735,14 @@
                 <div class="nav-item" onclick="showSavedSnippets()">
                     <i class="fas fa-bookmark"></i> Saved Snippets
                 </div>
-                <div class="nav-item" onclick="showSettings()">
+                <button type="button" class="nav-item" id="glossaryNav"><i class="fas fa-book" aria-hidden="true"></i><span id="glossaryNavLabel">Словарь и команды</span></button>
+                <div class="nav-item" id="settingsNav" onclick="showSettings()">
                     <i class="fas fa-cog"></i> Settings
                 </div>
             </nav>
             <a href="data-policy.html" style="margin:10px 16px;color:#c8b9d8;font-size:12px;">Политика данных</a>
             <div class="profile-card">
-                <div class="profile-head"><span class="profile-avatar">D</span><span><b id="userName">Davichik</b><small>Student</small></span></div>
+                <div class="profile-head"><span class="profile-avatar">D</span><span><b id="userName">Davichik</b><small id="userRole">Ученик</small></span></div>
                 <p>Keep coding, keep growing! 🚀</p>
                 <div class="level-row"><span id="userLevel">Level -</span><span id="userXp">0 / 0 XP</span></div>
                 <div class="xp-track"><span></span></div>
@@ -773,6 +767,7 @@
 
             <div id="learningFeedback" class="learning-feedback" role="alert" hidden></div>
             <section id="learningRoot" class="learning-panel" aria-label="Учебный кабинет" hidden></section>
+            <section id="settingsRoot" class="settings-page" aria-label="Настройки" hidden></section>
             <div class="content">
                 <div class="workspace-column">
                 <!-- Code Input -->
@@ -844,36 +839,7 @@ print(user)
                 <!-- Results -->
                 <div class="card results-card">
                     <h3 class="card-title">✨ Analysis Results</h3>
-                    <div id="resultsContainer">
-                        <div class="result-card critical">
-                            <div class="result-header">
-                                <span class="result-badge badge-critical">Critical (2)</span>
-                            </div>
-                            <h4 class="result-title">SQL Injection Vulnerability</h4>
-                            <p class="result-text">User input is used in a SQL query without sanitization.</p>
-                        </div>
-                        <div class="result-card improvement">
-                            <div class="result-header">
-                                <span class="result-badge badge-improvement">Improvement (3)</span>
-                            </div>
-                            <h4 class="result-title">No Input Validation</h4>
-                            <p class="result-text">User input is used directly without validating data types or boundaries.</p>
-                        </div>
-                        <div class="result-card learning">
-                            <div class="result-header">
-                                <span class="result-badge badge-learning">Learning (2)</span>
-                            </div>
-                            <h4 class="result-title">Parameterized Queries</h4>
-                            <p class="result-text">Use parameterized queries to improve data safety and reduce injection risk.</p>
-                        </div>
-                        <div class="result-card good">
-                            <div class="result-header">
-                                <span class="result-badge badge-good">Good (4)</span>
-                            </div>
-                            <h4 class="result-title">Function Structure</h4>
-                            <p class="result-text">Code organization is clear and functions are used appropriately.</p>
-                        </div>
-                    </div>
+                    <div id="resultsContainer"><div class="empty-state"><p>Start by analyzing your code.</p></div></div>
                 </div>
 
                 <div class="card progress-card">
@@ -882,8 +848,8 @@ print(user)
                         <div class="progress-chart" aria-label="Progress chart">
                         </div>
                         <div class="progress-summary">
-                            <strong id="progressAverage">68</strong><small>Average Score</small>
-                            <b id="progressCount">24</b><small>Analyses</small>
+                            <strong id="progressAverage">0</strong><small>Average Score</small>
+                            <b id="progressCount">0</b><small>Analyses</small>
                             <button class="btn-primary" onclick="showProgress()">View Progress →</button>
                         </div>
                     </div>
@@ -894,20 +860,20 @@ print(user)
                     <div class="rail-card score-card">
                         <div class="rail-title">Overall Score</div>
                         <div class="score-ring">
-                            <strong id="railScore">62</strong>
+                            <strong id="railScore">—</strong>
                             <small>/ 100</small>
                         </div>
-                        <p id="railFeedback">Your code is good, but there's room for improvement!</p>
+                        <p id="railFeedback">Start by analyzing your code.</p>
                         <div class="score-breakdown">
-                            <span><b id="railCritical">2</b><em>Critical</em></span>
-                            <span><b id="railImprovement">3</b><em>Improvement</em></span>
-                            <span><b id="railLearning">2</b><em>Learning</em></span>
-                            <span><b id="railGood">4</b><em>Good</em></span>
+                            <span><b id="railCritical">0</b><em>Critical</em></span>
+                            <span><b id="railImprovement">0</b><em>Improvement</em></span>
+                            <span><b id="railLearning">0</b><em>Learning</em></span>
+                            <span><b id="railGood">0</b><em>Good</em></span>
                         </div>
                     </div>
                     <div class="rail-card mentor-card">
                         <div class="rail-title">Mentor Mode <span class="step-pill">Step 1 of 3</span></div>
-                        <div id="railHint" class="rail-hint">Заметил ли ты, что ты напрямую вставляешь user_input в SQL-запрос? Подумай об безопасности данных.</div>
+                        <div id="railHint" class="rail-hint">Analyze code first to unlock mentor hints.</div>
                         <div class="hint-actions"><button class="btn-secondary" onclick="changeHint(-1)">← Previous Hint</button><button class="btn-primary" onclick="changeHint(1)">Next Hint →</button></div>
                         <small class="hint-footer">💡 Hints help you find the solution yourself!</small>
                     </div>
@@ -1024,14 +990,16 @@ print(user)
         }
 
         function getSettings() {
-            return { theme: 'dark', defaultLanguage: '', autoSave: false, ...readStoredJson('mentor_settings', {}) };
+            return { theme: 'dark', defaultLanguage: '', autoSave: false, fontSize:14, ...readStoredJson('mentor_settings', {}) };
         }
 
         function applySettings() {
             const settings = getSettings();
             document.body.classList.toggle('light-mode', settings.theme === 'light');
             const language = document.getElementById('languageSelect');
-            if (language && settings.defaultLanguage) language.value = settings.defaultLanguage;
+            if (language) language.value = settings.defaultLanguage || '';
+            const fontSize=[14,16,18,20].includes(Number(settings.fontSize))?Number(settings.fontSize):14;
+            document.documentElement.style.setProperty('--mentor-code-font-size', fontSize+'px');
         }
 
         function toggleTheme() {
@@ -1538,66 +1506,10 @@ def get_user(user_id):
         }
 
         function showDashboard() { location.reload(); }
-        async function showSettings() {
-            const settings = getSettings();
-            const response = await fetch(`${API_URL}/auth/me`, { headers: authHeaders() });
-            if (!response.ok) { showError('Unable to load account settings.'); return; }
-            const account = await response.json();
-            const registered = account.created_at ? new Date(account.created_at).toLocaleDateString() : 'Unknown';
-            document.getElementById('resultsContainer').innerHTML = `<div class="empty-state">
-                <div class="empty-icon">⚙️</div><h3 class="card-title">Settings</h3>
-                <div class="account-details">
-                    <div class="account-detail"><span>Name</span><span>${escapeHtml(account.display_name || 'Not set')}</span></div>
-                    <div class="account-detail"><span>Email</span><span>${escapeHtml(account.email)}</span></div>
-                    <div class="account-detail"><span>Registered</span><span>${escapeHtml(registered)}</span></div>
-                </div>
-                <div class="settings-form">
-                    <label class="settings-field">Default analysis language
-                        <select id="settingsLanguage" class="language-select"><option value="">Auto-detect language</option><option>Python</option><option>JavaScript</option><option>TypeScript</option><option>Java</option><option>C++</option><option>C#</option><option>Go</option><option>Rust</option><option>PHP</option><option>Ruby</option><option>SQL</option><option>HTML</option><option>CSS</option><option>Other</option></select>
-                    </label>
-                    <label class="settings-checkbox"><input id="settingsAutoSave" type="checkbox" ${settings.autoSave ? 'checked' : ''}> Save analyzed code to snippets automatically</label>
-                </div>
-                <div class="settings-actions"><button class="btn-primary" onclick="saveSettings()">Save settings</button><button class="btn-secondary" onclick="exportAccountData()">Export history</button><button class="btn-secondary" onclick="logout()">Sign out</button><button class="btn-secondary danger-button" onclick="deleteAccount()">Delete account</button></div>
-            </div>`;
-            document.getElementById('settingsLanguage').value = settings.defaultLanguage || '';
-        }
-
-        async function exportAccountData() {
-            try {
-                const response = await fetch(`${API_URL}/history?limit=50`, { headers: authHeaders() });
-                const data = await response.json();
-                if (!response.ok) throw new Error(data.detail || 'Unable to export history');
-                const blob = new Blob([JSON.stringify({ exported_at: new Date().toISOString(), analyses: data.analyses || [] }, null, 2)], { type: 'application/json' });
-                const link = document.createElement('a');
-                link.href = URL.createObjectURL(blob);
-                link.download = 'ai-code-mentor-history.json';
-                link.click();
-                URL.revokeObjectURL(link.href);
-            } catch (error) { showError(error.message); }
-        }
-
-        async function deleteAccount() {
-            if (!confirm('Delete your account and all saved analyses? This cannot be undone.')) return;
-            try {
-                const response = await fetch(`${API_URL}/auth/account`, { method: 'DELETE', headers: authHeaders() });
-                const data = await response.json();
-                if (!response.ok) throw new Error(data.detail || 'Unable to delete account');
-                localStorage.removeItem('mentor_token');
-                localStorage.removeItem('mentor_saved_snippets');
-                localStorage.removeItem('mentor_saved_snippet');
-                location.reload();
-            } catch (error) { showError(error.message); }
-        }
-
-        function saveSettings() {
-            const settings = getSettings();
-            settings.defaultLanguage = document.getElementById('settingsLanguage').value;
-            settings.autoSave = document.getElementById('settingsAutoSave').checked;
-            localStorage.setItem('mentor_settings', JSON.stringify(settings));
-            const language = document.getElementById('languageSelect');
-            if (language) language.value = settings.defaultLanguage;
-            document.getElementById('resultsContainer').innerHTML = '<div class="empty-state"><div class="empty-icon">✅</div><p>Settings saved.</p></div>';
-        }
+        function showSettings() { return window.SettingsUI.open(); }
+        function saveSettings() { return window.SettingsUI.save(); }
+        function exportAccountData() { return window.SettingsUI.exportHistory(); }
+        function deleteAccount() { return window.SettingsUI.deleteAccount(); }
 
         function changeHint(direction) {
             if (!currentHints.length) {
@@ -1764,6 +1676,7 @@ def find_user(user_id):
     <script src="runner.js"></script>
     <script src="i18n.js"></script>
     <script src="executor.js"></script>
+    <script src="settings.js"></script>
     <script src="learning.js"></script>
     <script src="account-recovery.js"></script>
 </body>
