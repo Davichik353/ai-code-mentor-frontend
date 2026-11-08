@@ -58,6 +58,16 @@ const crypto=require('node:crypto');
   assert.match(await s.locator('.glossary-card pre').first().textContent(),/function/);
   await s.selectOption('#localeSelect','uz');assert.match(await s.locator('#learningRoot h2').textContent(),/Lug‘at/);
   await s.setViewportSize({width:390,height:844});assert.equal(await s.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+  await s.selectOption('#localeSelect','ru');
+  await s.click('#learningNav');await s.waitForSelector('[data-action="group"]');await s.click('[data-action="group"]');
+  await s.waitForSelector('[data-action="leave-group"]');
+  s.once('dialog',d=>d.dismiss());await s.click('[data-action="leave-group"]');
+  assert.equal(await s.locator('[data-action="leave-group"]').count(),1);
+  s.once('dialog',d=>d.accept());await s.click('[data-action="leave-group"]');
+  await s.waitForSelector('#joinCode');
+  assert.equal(await s.locator('[data-action="group"]').count(),0);
+  await s.fill('#joinCode',joinCode);await s.click('[data-action="join"]');
+  await s.waitForSelector('[data-action="leave-group"]');
   assert.deepEqual(errors,[]);
   console.log('PASS: owner editor, categorized catalog, duplicate prevention, joined learner authorization, glossary search/examples/RU-UZ/mobile');
  } finally {

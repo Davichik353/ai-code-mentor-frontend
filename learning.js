@@ -160,6 +160,7 @@
         const assignments=filteredExercises(g.assignments,'assigned');
         const assignmentName=id=>local(g.assignments.find(a=>a.id===id)?.title)||id;
         return `${back('home')}<h2>${esc(g.title)}</h2><span class="badge">${canManage(g)?tr('Преподаватель этой группы','Bu guruh o‘qituvchisi'):tr('Ученик этой группы','Bu guruh o‘quvchisi')}</span><p>${esc(g.description)}</p>
+        ${canManage(g)?'':button(tr('Выйти из группы','Guruhdan chiqish'),'leave-group',g.id)}
         ${canManage(g)?`<section class="learning-card"><h3>${tr('Пригласить учеников','O‘quvchilarni taklif qilish')}</h3><p>${tr('Передайте ученикам код. Вступившие по нему участники не могут выдавать или менять задания.','Kodni o‘quvchilarga bering. Kod orqali kirganlar topshiriq bera olmaydi va o‘zgartira olmaydi.')}</p><pre id="groupJoinCode">${esc(g.join_code)}</pre>
         <h3>${tr('Выдать задание','Topshiriq berish')}</h3>${exerciseFilters('catalog',state.templates)}<p>${tr('Подходящих заданий','Mos topshiriqlar')}: <strong id="catalogCount">${templates.length}</strong> / ${state.templates.length}</p>
         <label>${tr('Задание','Topshiriq')}<select id="templateChoice" ${templates.length?'':'disabled'}>${templates.length?templates.map(t=>`<option value="${esc(t.id)}">${esc(local(t.title))} · ${esc(t.language)}</option>`).join(''):`<option>${tr('Измените фильтры','Filtrlarni o‘zgartiring')}</option>`}</select></label>${button(tr('Выдать группе','Guruhga berish'),'assign',g.id,templates.length?'':'disabled')}</section>`:`<p class="notice">${tr('Задания выдаёт преподаватель этой группы. Ниже — ваши задания и редактор решения.','Topshiriqlarni bu guruh o‘qituvchisi beradi. Quyida topshiriqlaringiz va yechim muharriri.')}</p>`}
@@ -281,6 +282,12 @@
         if(name==='profile') { state.profile=await api('/profile',{role:field('learningRole'),locale:window.MentorLocale,bio:state.profile.bio,portfolio_public:!!state.profile.public}); delete state.drafts[key()]; return open('home'); }
         if(name==='create-group') { const group=await api('/groups',{title:field('groupTitle'),description:field('groupDescription')}); return open('group',group.id); }
         if(name==='join') { const group=await api('/groups/join',{code:field('joinCode').trim()}); return open('group',group.id); }
+        if(name==='leave-group') {
+            if(!window.confirm(tr('Выйти из группы? Отправленные работы останутся у преподавателя. Вернуться можно по коду приглашения.','Guruhdan chiqasizmi? Yuborilgan ishlar o‘qituvchida qoladi. Taklif kodi orqali qaytishingiz mumkin.'))) return;
+            await api(`/groups/${id}/leave`,{});
+            state.report=null;
+            return open('home');
+        }
         if(name==='assign') { await api(`/groups/${id}/assignments`,{template_id:field('templateChoice')}); return open('group',id); }
         if(name==='hint') { const data=await api(`/assignments/${id}/hints`,{}); state.data.hints=data.hints; saveDraft(); render(); return; }
         if(name==='solution') { const data=await api(`/assignments/${id}/solution`,{reflection:field('solutionReflection')}); const el=document.getElementById('learningSolution'); el.hidden=false; el.textContent=data.solution; return; }
