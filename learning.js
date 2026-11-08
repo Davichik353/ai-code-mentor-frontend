@@ -54,6 +54,7 @@
             if(response.status===422) throw new Error(tr('Проверьте поля: объяснения — от 20 символов, код — от 5.','Maydonlarni tekshiring: izohlar kamida 20 belgi, kod kamida 5 belgi.'));
             const errors={
                 'Exercise already assigned to this group':['Это задание уже выдано группе. Выберите другое.','Bu topshiriq guruhga berilgan. Boshqasini tanlang.'],
+                'Group is archived':['Группа в архиве. Преподаватель может её восстановить.','Guruh arxivda. O‘qituvchi uni tiklashi mumkin.'],
                 'Join code not found':['Код группы не найден.','Guruh kodi topilmadi.'],
                 'Cannot approve failing tests':['Нельзя принять работу с проваленными тестами.','Testlardan o‘tmagan ishni qabul qilib bo‘lmaydi.'],
                 'Mini-defense requires a changed version of the code':['Для защиты измените исходный код по условию.','Himoya uchun kodni topshiriqqa muvofiq o‘zgartiring.'],
@@ -142,6 +143,7 @@
         return `<span class="badge">${esc(item.language)}</span><span class="badge">${esc(local(item.category_title)||tr('Основы','Asoslar'))}</span><span class="badge">${esc(local(item.difficulty_title)||tr('Новичок','Boshlovchi'))}</span>`;
     }
     const back=(action,id='')=>button(tr('← Назад','← Orqaga'),action,id);
+    function groupCard(g) { return `<section class="learning-card"><h3>${esc(g.title)}</h3><p>${esc(g.description)}</p><span class="badge">${canManage(g)?tr('Вы преподаватель этой группы','Siz bu guruh o‘qituvchisisiz'):tr('Вы ученик этой группы','Siz bu guruh o‘quvchisisiz')}</span><p>${tr('Учеников','O‘quvchilar')}: ${g.member_count}</p>${button(tr('Открыть группу','Guruhni ochish'),'group',g.id)}</section>`; }
     function renderHome() {
         const p=state.profile;
         return `<h2>${tr('Учебный кабинет','O‘quv xonasi')}</h2><p>${tr('Получайте задания в группе преподавателя или создайте свою группу для обучения.','O‘qituvchi guruhida topshiriq oling yoki o‘qitish uchun o‘z guruhingizni yarating.')}</p>
@@ -152,7 +154,9 @@
             ${button(tr('Сохранить режим','Rejimni saqlash'),'profile')}</section>
         <section class="learning-card"><h3>${tr('Вступить как ученик','O‘quvchi sifatida qo‘shilish')}</h3><p>${tr('Введите код преподавателя. Задания в этой группе выдаёт только её создатель.','O‘qituvchi kodini kiriting. Bu guruhda topshiriqlarni faqat guruh yaratuvchisi beradi.')}</p><label>${tr('Код от преподавателя','O‘qituvchi bergan kod')}<input id="joinCode" maxlength="64" autocomplete="off"></label>${button(tr('Присоединиться','Qo‘shilish'),'join')}</section>
         ${p.role==='teacher'?`<section class="learning-card"><h3>${tr('Создать свою группу','O‘z guruhini yaratish')}</h3><label>${tr('Название группы','Guruh nomi')}<input id="groupTitle" maxlength="120"></label><label>${tr('Описание','Tavsif')}<textarea id="groupDescription" maxlength="1000"></textarea></label>${button(tr('Создать группу','Guruh yaratish'),'create-group')}</section>`:''}</div>
-        <h3>${tr('Мои группы','Mening guruhlarim')}</h3><div class="learning-grid">${state.data.groups.length?state.data.groups.map(g=>`<section class="learning-card"><h3>${esc(g.title)}</h3><p>${esc(g.description)}</p><span class="badge">${canManage(g)?tr('Вы преподаватель этой группы','Siz bu guruh o‘qituvchisisiz'):tr('Вы ученик этой группы','Siz bu guruh o‘quvchisisiz')}</span><p>${tr('Учеников','O‘quvchilar')}: ${g.member_count}</p>${button(tr('Открыть группу','Guruhni ochish'),'group',g.id)}</section>`).join(''):`<p>${tr('Групп пока нет. Вступите по коду преподавателя. Для создания своей группы выберите режим преподавателя.','Hali guruhlar yo‘q. O‘qituvchi kodi bilan qo‘shiling. O‘z guruhingizni yaratish uchun o‘qituvchi rejimini tanlang.')}</p>`}</div>`;
+        <h3>${tr('Мои группы','Mening guruhlarim')}</h3><div class="learning-grid" id="activeGroups">${state.data.groups.filter(g=>!g.archived).map(groupCard).join('')||tr('Активных групп пока нет.','Hozircha faol guruhlar yo‘q.')}</div>
+        <details id="archivedGroups"><summary>${tr('Архив групп','Guruhlar arxivi')} (${state.data.groups.filter(g=>g.archived).length})</summary><div class="learning-grid">${state.data.groups.filter(g=>g.archived).map(groupCard).join('')||tr('Архив пуст.','Arxiv bo‘sh.')}</div></details>`;
+
     }
     function renderGroup() {
         const g=state.data;
@@ -160,8 +164,10 @@
         const assignments=filteredExercises(g.assignments,'assigned');
         const assignmentName=id=>local(g.assignments.find(a=>a.id===id)?.title)||id;
         return `${back('home')}<h2>${esc(g.title)}</h2><span class="badge">${canManage(g)?tr('Преподаватель этой группы','Bu guruh o‘qituvchisi'):tr('Ученик этой группы','Bu guruh o‘quvchisi')}</span><p>${esc(g.description)}</p>
+        ${g.archived?`<p class="notice">${tr('Группа в архиве. Задания и работы сохранены. Вступление и отправка работ закрыты.','Guruh arxivda. Topshiriqlar va ishlar saqlangan. Qo‘shilish va ish yuborish yopilgan.')}</p>`:''}
+        ${canManage(g)?button(g.archived?tr('Восстановить группу','Guruhni tiklash'):tr('Архивировать группу','Guruhni arxivlash'),g.archived?'restore-group':'archive-group',g.id):''}
         ${canManage(g)?'':button(tr('Выйти из группы','Guruhdan chiqish'),'leave-group',g.id)}
-        ${canManage(g)?`<section class="learning-card"><h3>${tr('Пригласить учеников','O‘quvchilarni taklif qilish')}</h3><p>${tr('Передайте ученикам код. Вступившие по нему участники не могут выдавать или менять задания.','Kodni o‘quvchilarga bering. Kod orqali kirganlar topshiriq bera olmaydi va o‘zgartira olmaydi.')}</p><pre id="groupJoinCode">${esc(g.join_code)}</pre>
+        ${canManage(g)&&!g.archived?`<section class="learning-card"><h3>${tr('Пригласить учеников','O‘quvchilarni taklif qilish')}</h3><p>${tr('Передайте ученикам код. Вступившие по нему участники не могут выдавать или менять задания.','Kodni o‘quvchilarga bering. Kod orqali kirganlar topshiriq bera olmaydi va o‘zgartira olmaydi.')}</p><pre id="groupJoinCode">${esc(g.join_code)}</pre>
         <h3>${tr('Выдать задание','Topshiriq berish')}</h3>${exerciseFilters('catalog',state.templates)}<p>${tr('Подходящих заданий','Mos topshiriqlar')}: <strong id="catalogCount">${templates.length}</strong> / ${state.templates.length}</p>
         <label>${tr('Задание','Topshiriq')}<select id="templateChoice" ${templates.length?'':'disabled'}>${templates.length?templates.map(t=>`<option value="${esc(t.id)}">${esc(local(t.title))} · ${esc(t.language)}</option>`).join(''):`<option>${tr('Измените фильтры','Filtrlarni o‘zgartiring')}</option>`}</select></label>${button(tr('Выдать группе','Guruhga berish'),'assign',g.id,templates.length?'':'disabled')}</section>`:`<p class="notice">${tr('Задания выдаёт преподаватель этой группы. Ниже — ваши задания и редактор решения.','Topshiriqlarni bu guruh o‘qituvchisi beradi. Quyida topshiriqlaringiz va yechim muharriri.')}</p>`}
         <h3 style="margin-top:18px">${tr('Задания группы','Guruh topshiriqlari')}</h3>${g.assignments.length?exerciseFilters('assigned',g.assignments):''}<div class="learning-grid" id="assignedExercises">${assignments.map(a=>`<section class="learning-card"><h3>${esc(local(a.title))}</h3><p>${exerciseBadges(a)}</p>${button(tr('Открыть задание','Topshiriqni ochish'),'assignment',a.id)}</section>`).join('')||`<p>${g.assignments.length?tr('Нет заданий по выбранным фильтрам.','Tanlangan filtrlar bo‘yicha topshiriq yo‘q.'):tr('Преподаватель ещё не выдал задания.','O‘qituvchi hali topshiriq bermagan.')}</p>`}</div>
@@ -173,8 +179,8 @@
     }
     function renderAssignment() {
         const a=state.data;
-        return `${back('group',a.group_id)}<h2>${esc(local(a.title))}</h2><p>${exerciseBadges(a)}</p><p>${esc(local(a.prompt))}</p>
-        ${!canSubmit(a)?`<p class="notice">${tr('Просмотр своего задания. Можно написать код и запустить тесты; отправка работы самому себе недоступна.','O‘z topshirig‘ingizni ko‘rish. Kod yozib testlarni bajaring; ishni o‘zingizga yuborib bo‘lmaydi.')}</p>`:''}
+        return `${a.archived?`<p class="notice">${tr('Группа в архиве. Отправка новых работ закрыта.','Guruh arxivda. Yangi ish yuborish yopilgan.')}</p>`:''}${back('group',a.group_id)}<h2>${esc(local(a.title))}</h2><p>${exerciseBadges(a)}</p><p>${esc(local(a.prompt))}</p>
+        ${a.is_owner?`<p class="notice">${tr('Просмотр своего задания. Можно написать код и запустить тесты; отправка работы самому себе недоступна.','O‘z topshirig‘ingizni ko‘rish. Kod yozib testlarni bajaring; ishni o‘zingizga yuborib bo‘lmaydi.')}</p>`:''}
         <div class="assignment-workspace"><section class="learning-card assignment-editor"><h3>${tr('Редактор решения','Yechim muharriri')}</h3><label for="assignmentCode">${tr('Ваш код','Sizning kodingiz')}</label><textarea class="code" id="assignmentCode" spellcheck="false" maxlength="10000" rows="12">${esc(a.starter_code)}</textarea>
         <div class="actions">${button(tr('Запустить тесты','Testlarni ishga tushirish'),'test',a.id,'id="assignmentTestButton"')}${button(tr('Остановить','To‘xtatish'),'stop','', 'id="assignmentStopButton" disabled')}</div>
         <p id="assignmentRunStatus" role="status" aria-live="polite"></p><div id="assignmentTestResults"></div></section>
@@ -191,7 +197,7 @@
         ${button(tr('Проверить изменённый код','O‘zgartirilgan kodni sinash'),'run-change',a.id,'id="changeRunButton"')}<pre id="changedOutput" hidden></pre>
         <label>${tr('Что и почему изменили (от 20 символов)','Nima va nima uchun o‘zgardi (kamida 20 belgi)')}<textarea id="changeExplanation" maxlength="3000"></textarea></label>
         ${button(tr('Отправить преподавателю','O‘qituvchiga yuborish'),'submit',a.id,'id="assignmentSubmitButton" disabled')}</section>
-        <h3 style="margin-top:18px">${tr('Мои попытки','Mening urinishlarim')}</h3>${a.submissions.map(s=>`<section class="learning-card"><p>${esc(status(s.status))}</p><p>${esc(s.feedback)}</p>${button(tr('Открыть попытку','Urinishni ochish'),'submission',s.id)}</section>`).join('')||`<p>${tr('Попыток пока нет.','Hali urinishlar yo‘q.')}</p>`}`:''}${notice()}`;
+        `:''}${!a.is_owner?`<h3 style="margin-top:18px">${tr('Мои попытки','Mening urinishlarim')}</h3>${a.submissions.map(s=>`<section class="learning-card"><p>${esc(status(s.status))}</p><p>${esc(s.feedback)}</p>${button(tr('Открыть попытку','Urinishni ochish'),'submission',s.id)}</section>`).join('')||`<p>${tr('Попыток пока нет.','Hali urinishlar yo‘q.')}</p>`}`:''}${notice()}`;
     }
     function renderSubmission() {
         const s=state.data;
@@ -282,6 +288,14 @@
         if(name==='profile') { state.profile=await api('/profile',{role:field('learningRole'),locale:window.MentorLocale,bio:state.profile.bio,portfolio_public:!!state.profile.public}); delete state.drafts[key()]; return open('home'); }
         if(name==='create-group') { const group=await api('/groups',{title:field('groupTitle'),description:field('groupDescription')}); return open('group',group.id); }
         if(name==='join') { const group=await api('/groups/join',{code:field('joinCode').trim()}); return open('group',group.id); }
+        if(name==='archive-group'||name==='restore-group') {
+            const archive=name==='archive-group';
+            if(!window.confirm(archive
+                ?tr('Архивировать группу? Задания и работы сохранятся. Новые участники и отправка работ будут закрыты. Группу можно восстановить из архива.','Guruh arxivlansinmi? Topshiriqlar va ishlar saqlanadi. Yangi a’zolar va ish yuborish yopiladi. Guruhni arxivdan tiklash mumkin.')
+                :tr('Восстановить группу? Вступление и отправка работ снова станут доступны.','Guruh tiklansinmi? Qo‘shilish va ish yuborish yana ochiladi.'))) return;
+            await api(`/groups/${id}/${archive?'archive':'restore'}`,{});
+            return open('home');
+        }
         if(name==='leave-group') {
             if(!window.confirm(tr('Выйти из группы? Отправленные работы останутся у преподавателя. Вернуться можно по коду приглашения.','Guruhdan chiqasizmi? Yuborilgan ishlar o‘qituvchida qoladi. Taklif kodi orqali qaytishingiz mumkin.'))) return;
             await api(`/groups/${id}/leave`,{});
