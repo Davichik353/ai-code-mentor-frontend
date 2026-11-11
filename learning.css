@@ -65,3 +65,25 @@
 @keyframes learning-spin { to { transform:rotate(360deg); } }
 @keyframes learning-shimmer { to { background-position:-200% 0; } }
 @media(prefers-reduced-motion:reduce) { .learning-spinner,.learning-skeleton span { animation:none; } }
+
+/* Mentor mascot: one synchronized jump and rope turn per cycle. */
+.mentor-loader { display:block; width:190px; height:180px; margin:0 auto 8px; overflow:visible; }
+.mentor-shadow { fill:#9a71b3; opacity:.24; transform-origin:100px 164px; animation:mentor-shadow .95s ease-in-out infinite; }
+.mentor-jumper { animation:mentor-jump .95s ease-in-out infinite; }
+.mentor-rope { fill:none; stroke:#c376e8; stroke-width:3; stroke-linecap:round; transform-origin:100px 91px; }
+.mentor-rope-front { animation:mentor-rope .95s linear infinite; }
+.mentor-rope-back { animation:mentor-rope .95s linear infinite; opacity:.45; }
+.mentor-limbs { fill:none; stroke:#b687e6; stroke-width:9; stroke-linecap:round; stroke-linejoin:round; }
+.mentor-body { fill:#a46bdb; stroke:#dcbbfa; stroke-width:2; }
+.mentor-head { fill:#eadbff; stroke:#c398ea; stroke-width:2; }
+.mentor-face { fill:#36244e; }
+.mentor-eyes,.mentor-smile { fill:none; stroke:#aaf5dc; stroke-width:3; stroke-linecap:round; }
+.mentor-code { fill:none; stroke:#fff; stroke-width:3; stroke-linecap:round; stroke-linejoin:round; }
+.mentor-antenna { stroke:#b687e6; stroke-width:4; }
+.mentor-spark { fill:#91eaca; }
+.mentor-shoes { fill:none; stroke:#eadbff; stroke-width:9; stroke-linecap:round; }
+.mentor-grips { stroke:#91eaca; stroke-width:6; stroke-linecap:round; }
+@keyframes mentor-jump { 0%,100% { transform:translateY(0); } 45%,55% { transform:translateY(-17px); } }
+@keyframes mentor-shadow { 0%,100% { transform:scaleX(1); opacity:.28; } 50% { transform:scaleX(.72); opacity:.13; } }
+@keyframes mentor-rope { from { transform:rotateX(0deg); } to { transform:rotateX(360deg); } }
+@media(prefers-reduced-motion:reduce) { .mentor-jumper,.mentor-shadow,.mentor-rope { animation:none; } }

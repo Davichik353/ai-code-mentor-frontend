@@ -108,7 +108,23 @@
         if(!localStorage.getItem('mentor_token') && view!=='public') { root.removeAttribute('aria-busy'); showSignIn(); showAuthOverlay(); return; }
         pendingAuth=false;
         root.setAttribute('aria-busy','true');
-        show(`<section class="learning-card learning-state learning-loading" role="status" aria-live="polite"><span class="learning-spinner" aria-hidden="true"></span><h2>${tr('Загружаем кабинет','Xona yuklanmoqda')}</h2><p>${tr('Получаем ваши группы и задания…','Guruhlar va topshiriqlar olinmoqda…')}</p><div class="learning-skeleton" aria-hidden="true"><span></span><span></span><span></span></div></section>`);
+        show(`<section class="learning-card learning-state learning-loading" role="status" aria-live="polite"><svg class="mentor-loader" viewBox="0 0 200 190" aria-hidden="true" focusable="false">
+            <ellipse class="mentor-shadow" cx="100" cy="164" rx="30" ry="6"/>
+            <g class="mentor-jumper">
+              <path class="mentor-rope mentor-rope-back" d="M48 91 C0 0 200 0 152 91"/>
+              <path class="mentor-limbs" d="M80 85 L62 99 L48 91 M120 85 L138 99 L152 91 M88 122 L85 145 M112 122 L115 145"/>
+              <rect class="mentor-body" x="76" y="78" width="48" height="48" rx="17"/>
+              <path class="mentor-code" d="M94 94 L87 100 L94 106 M106 94 L113 100 L106 106"/>
+              <path class="mentor-antenna" d="M100 44 L100 32"/><circle class="mentor-spark" cx="100" cy="28" r="5"/>
+              <rect class="mentor-head" x="67" y="43" width="66" height="44" rx="17"/>
+              <rect class="mentor-face" x="75" y="51" width="50" height="27" rx="11"/>
+              <path class="mentor-eyes" d="M84 62 Q88 56 92 62 M108 62 Q112 56 116 62"/>
+              <path class="mentor-smile" d="M96 69 Q100 73 104 69"/>
+              <path class="mentor-shoes" d="M77 146 L90 146 M110 146 L123 146"/>
+              <path class="mentor-rope mentor-rope-front" d="M48 91 C0 179 200 179 152 91"/>
+              <path class="mentor-grips" d="M44 87 L52 95 M148 95 L156 87"/>
+            </g>
+        </svg><h2>${tr('Загружаем кабинет','Xona yuklanmoqda')}</h2><p>${tr('Получаем ваши группы и задания…','Guruhlar va topshiriqlar olinmoqda…')}</p><div class="learning-skeleton" aria-hidden="true"><span></span><span></span><span></span></div></section>`);
         const slowTimer=setTimeout(()=>{
             if(navigation===navigationId && root.getAttribute('aria-busy')==='true') {
                 const text=root.querySelector('.learning-loading p');
