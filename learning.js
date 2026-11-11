@@ -3,6 +3,7 @@
     const root=document.getElementById('learningRoot');
     const feedback=document.getElementById('learningFeedback');
     const state={view:'home',data:null,profile:null,templates:[],filters:{catalog:{category:'all',difficulty:'all',language:'all'},assigned:{category:'all',difficulty:'all',language:'all'},glossary:{category:'all',language:'Python',query:''}},drafts:{},report:null,controller:null,publicSlug:null};
+    let loadedAccount='';
     let navigationId=0;
     let pendingAuth=false;
     const tr=(ru,uz)=>window.MentorLocale==='uz'?uz:ru;
@@ -11,15 +12,31 @@
     const button=(label,action,id='',extra='')=>`<button type="button" class="btn-primary" data-action="${action}" data-id="${esc(id)}" ${extra}>${esc(label)}</button>`;
     const status=value=>({pending_review:tr('Ожидает проверки','Tekshiruv kutilmoqda'),approved:tr('Принято преподавателем','O‘qituvchi qabul qildi'),needs_revision:tr('Нужна доработка','Qayta ishlash kerak')})[value]||value;
     const notice=()=>`<p class="notice">${tr('Тесты выполняются в браузере. Это непроверенный отчёт ученика: преподаватель проверяет код и мини-защиту перед принятием работы.','Testlar brauzerda bajariladi. Bu o‘quvchining tasdiqlanmagan hisoboti: ishni qabul qilishdan oldin o‘qituvchi kod va kichik himoyani tekshiradi.')}</p>`;
-    const key=()=>`${state.view}:${state.data?.id||''}`;
+    function accountId() {
+        try { const part=localStorage.getItem('mentor_token').split('.')[1]; return JSON.parse(atob(part.replace(/-/g,'+').replace(/_/g,'/'))).sub||''; } catch { return ''; }
+    }
+    const key=()=>`${loadedAccount}:${state.view}:${state.data?.id||''}`;
+    function persistAssignment() {
+        if(state.view!=='assignment'||root.hidden||loadedAccount!==accountId()||!accountId()||!document.getElementById('assignmentCode')) return;
+        saveDraft();
+        const el=document.getElementById('draftStatus');
+        try {
+            localStorage.setItem('mentor-assignment:'+key(),JSON.stringify(state.drafts[key()]));
+            if(el) el.textContent=tr('Черновик сохранён в этом браузере. Преподавателю он ещё не отправлен.','Qoralama shu brauzerda saqlandi. O‘qituvchiga hali yuborilmadi.');
+        } catch { if(el) el.textContent=tr('Не удалось сохранить черновик. Скопируйте код перед закрытием.','Qoralama saqlanmadi. Yopishdan oldin kodni nusxalang.'); }
+    }
     const field=id=>document.getElementById(id)?.value||'';
     function saveDraft() {
-        if(root.hidden) return;
+        if(root.hidden||loadedAccount!==accountId()) return;
         const values={}; root.querySelectorAll('input[id],textarea[id],select[id]').forEach(el=>values[el.id]=el.type==='checkbox'?el.checked:el.value);
         state.drafts[key()]=values;
     }
     function restoreDraft() {
-        const values=state.drafts[key()]||{};
+        let stored={};
+        if(state.view==='assignment'&&accountId()) {
+            try { stored=JSON.parse(localStorage.getItem('mentor-assignment:'+key())||'{}'); } catch {}
+        }
+        const values=state.drafts[key()]||stored||{};
         for(const [id,value] of Object.entries(values)) {
             const el=document.getElementById(id); if(!el) continue;
             if(el.type==='checkbox') el.checked=value; else if(el.tagName!=='SELECT'||[...el.options].some(o=>o.value===value)) el.value=value;
@@ -76,7 +93,7 @@
     }
     function close() {
         navigationId++; pendingAuth=false;
-        saveDraft(); state.controller?.abort(); state.report=null;
+        persistAssignment(); saveDraft(); state.controller?.abort(); state.report=null;
         root.removeAttribute('aria-busy');
         root.hidden=true; feedback.hidden=true; document.querySelector('.main > .content').style.display='';
         document.getElementById('learningNav').classList.remove('active');
@@ -85,7 +102,7 @@
         document.querySelector('.header p').textContent=tr('Вставьте код и получите объяснение ошибок','Kodni kiriting va xatolar izohini oling');
     }
     async function open(view='home',id='') {
-        saveDraft(); state.controller?.abort(); state.controller=null;
+        persistAssignment(); saveDraft(); state.controller?.abort(); state.controller=null;
         const navigation=++navigationId;
         message(''); activate();
         if(!localStorage.getItem('mentor_token') && view!=='public') { root.removeAttribute('aria-busy'); showSignIn(); showAuthOverlay(); return; }
@@ -105,6 +122,7 @@
         else if(view==='glossary') data=await api('/glossary');
         else if(view==='public') {state.publicSlug=id; data=await api(`/portfolios/${encodeURIComponent(id)}`,undefined,true); hideAuthOverlay();}
         if(navigation!==navigationId) return;
+        loadedAccount=accountId();
         state.view=view; state.data=data;
         if(previous!==key()) state.report=null;
         render();
@@ -158,12 +176,24 @@
         <details id="archivedGroups"><summary>${tr('Архив групп','Guruhlar arxivi')} (${state.data.groups.filter(g=>g.archived).length})</summary><div class="learning-grid">${state.data.groups.filter(g=>g.archived).map(groupCard).join('')||tr('Архив пуст.','Arxiv bo‘sh.')}</div></details>`;
 
     }
+    function renderJournal(g) {
+        const latest=new Map();
+        for(const work of g.submissions) { const k=work.user_id+':'+work.assignment_id; if(!latest.has(k)) latest.set(k,work); }
+        const pending=[...latest.values()].filter(w=>w.status==='pending_review').length;
+        return `<section class="learning-card classroom-journal"><h3>${tr('Журнал преподавателя','O‘qituvchi jurnali')}</h3>
+        <p>${tr('Учеников','O‘quvchilar')}: <strong>${g.members.length}</strong> · ${tr('Заданий','Topshiriqlar')}: <strong>${g.assignments.length}</strong> · ${tr('На проверке','Tekshiruvda')}: <strong>${pending}</strong></p>
+        ${button(tr('Обновить журнал','Jurnalni yangilash'),'group',g.id)}
+        <p>${tr('Показана последняя отправленная попытка. «Не отправлено» не означает, что ученик не начал решать.','Oxirgi yuborilgan urinish ko‘rsatilgan. «Yuborilmagan» o‘quvchi hali boshlamaganini anglatmaydi.')}</p>
+        ${!g.members.length?`<p>${tr('Пока нет учеников. Передайте им код приглашения ниже.','Hali o‘quvchilar yo‘q. Quyidagi taklif kodini ularga bering.')}</p>`:!g.assignments.length?`<p>${tr('Выдайте первое задание группе ниже.','Quyida guruhga birinchi topshiriqni bering.')}</p>`:
+        `<div class="journal-scroll" tabindex="0" aria-label="${tr('Журнал группы','Guruh jurnali')}"><table><thead><tr><th scope="col">${tr('Ученик','O‘quvchi')}</th>${g.assignments.map(a=>`<th scope="col">${esc(local(a.title))}<br><small>${esc(a.language)}</small></th>`).join('')}</tr></thead><tbody>${g.members.map(m=>`<tr><th scope="row">${esc(m.display_name||tr('Ученик','O‘quvchi'))}</th>${g.assignments.map(a=>{const w=latest.get(m.id+':'+a.id);return `<td>${w?`${button(status(w.status),'submission',w.id)}<p>${w.tests_passed?tr('Все тесты пройдены','Barcha testlar o‘tdi'):tr('Есть ошибки в тестах','Testlarda xatolar bor')}</p>`:tr('Не отправлено','Yuborilmagan')}</td>`;}).join('')}</tr>`).join('')}</tbody></table></div>`}</section>`;
+    }
     function renderGroup() {
         const g=state.data;
         const templates=filteredExercises(state.templates,'catalog');
         const assignments=filteredExercises(g.assignments,'assigned');
         const assignmentName=id=>local(g.assignments.find(a=>a.id===id)?.title)||id;
         return `${back('home')}<h2>${esc(g.title)}</h2><span class="badge">${canManage(g)?tr('Преподаватель этой группы','Bu guruh o‘qituvchisi'):tr('Ученик этой группы','Bu guruh o‘quvchisi')}</span><p>${esc(g.description)}</p>
+        ${canManage(g)?renderJournal(g):''}
         ${g.archived?`<p class="notice">${tr('Группа в архиве. Задания и работы сохранены. Вступление и отправка работ закрыты.','Guruh arxivda. Topshiriqlar va ishlar saqlangan. Qo‘shilish va ish yuborish yopilgan.')}</p>`:''}
         ${canManage(g)?button(g.archived?tr('Восстановить группу','Guruhni tiklash'):tr('Архивировать группу','Guruhni arxivlash'),g.archived?'restore-group':'archive-group',g.id):''}
         ${canManage(g)?'':button(tr('Выйти из группы','Guruhdan chiqish'),'leave-group',g.id)}
@@ -181,9 +211,9 @@
         const a=state.data;
         return `${a.archived?`<p class="notice">${tr('Группа в архиве. Отправка новых работ закрыта.','Guruh arxivda. Yangi ish yuborish yopilgan.')}</p>`:''}${back('group',a.group_id)}<h2>${esc(local(a.title))}</h2><p>${exerciseBadges(a)}</p><p>${esc(local(a.prompt))}</p>
         ${a.is_owner?`<p class="notice">${tr('Просмотр своего задания. Можно написать код и запустить тесты; отправка работы самому себе недоступна.','O‘z topshirig‘ingizni ko‘rish. Kod yozib testlarni bajaring; ishni o‘zingizga yuborib bo‘lmaydi.')}</p>`:''}
-        <div class="assignment-workspace"><section class="learning-card assignment-editor"><h3>${tr('Редактор решения','Yechim muharriri')}</h3><label for="assignmentCode">${tr('Ваш код','Sizning kodingiz')}</label><textarea class="code" id="assignmentCode" spellcheck="false" maxlength="10000" rows="12">${esc(a.starter_code)}</textarea>
+        <p class="notice">${tr('1. Напишите код → 2. Запустите тесты → 3. Объясните решение → 4. Отправьте преподавателю.','1. Kod yozing → 2. Testlarni bajaring → 3. Yechimni tushuntiring → 4. O‘qituvchiga yuboring.')}</p><div class="assignment-workspace"><section class="learning-card assignment-editor"><h3>${tr('Редактор решения','Yechim muharriri')}</h3><label for="assignmentCode">${tr('Ваш код','Sizning kodingiz')}</label><textarea class="code" id="assignmentCode" spellcheck="false" maxlength="10000" rows="12">${esc(a.starter_code)}</textarea>
         <div class="actions">${button(tr('Запустить тесты','Testlarni ishga tushirish'),'test',a.id,'id="assignmentTestButton"')}${button(tr('Остановить','To‘xtatish'),'stop','', 'id="assignmentStopButton" disabled')}</div>
-        <p id="assignmentRunStatus" role="status" aria-live="polite"></p><div id="assignmentTestResults"></div></section>
+        <p id="draftStatus" role="status">${tr('Черновик сохраняется в этом браузере при вводе.','Qoralama yozish davomida shu brauzerda saqlanadi.')}</p><p id="assignmentRunStatus" role="status" aria-live="polite"></p><div id="assignmentTestResults"></div></section>
         <aside class="learning-card"><h3>${tr('Подсказки к решению','Yechimga maslahatlar')}</h3><p>${tr('Сначала попробуйте сами. Подсказки открываются по очереди; пример решения — после вашего объяснения.','Avval o‘zingiz urinib ko‘ring. Maslahatlar ketma-ket ochiladi; namuna yechim esa izohingizdan keyin.')}</p>
         <div id="learningHints">${a.hints.map((h,i)=>`<p>${i+1}. ${esc(local(h))}</p>`).join('')}</div>
         ${a.is_owner?'':button(tr('Следующая подсказка','Keyingi maslahat'),'hint',a.id,`id="hintButton" ${a.hints.length>=a.hint_count?'disabled':''}`)}
@@ -340,6 +370,7 @@
         if(el.dataset.filterScope==='glossary') updateGlossaryResults(); else {saveDraft(); render();}
     });
     root.addEventListener('input',event=>{
+        if(state.view==='assignment') persistAssignment();
         if(event.target.id==='assignmentCode') renderReport();
         if(event.target.id==='glossarySearch') {state.filters.glossary.query=event.target.value;updateGlossaryResults();}
     });
@@ -358,7 +389,7 @@
         if(!root.hidden) document.querySelector('.header h1').textContent=tr('Учебный кабинет','O‘quv xonasi');
         if(!root.hidden && root.getAttribute('aria-busy')!=='true' && state.data && !state.controller) {saveDraft(); render();}
     });
-    window.addEventListener('pagehide',()=>state.controller?.abort());
+    window.addEventListener('pagehide',()=>{persistAssignment();state.controller?.abort();});
     window.addEventListener('load',()=>{
         const slug=new URLSearchParams(location.search).get('portfolio');
         if(slug) open('public',slug).catch(error=>{hideAuthOverlay();activate();show(`<h2>${tr('Портфолио недоступно','Portfolio mavjud emas')}</h2>`);message(error.message);});

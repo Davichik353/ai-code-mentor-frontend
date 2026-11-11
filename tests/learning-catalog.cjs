@@ -50,6 +50,26 @@ const crypto=require('node:crypto');
   await s.click('[data-action="assignment"]');await s.waitForSelector('#assignmentCode');
   assert.equal(await s.locator('#assignmentSubmitButton').count(),1);
   await s.fill('#assignmentCode','console.log(42);');
+  assert.match(await s.locator('#draftStatus').textContent(),/сохранён/);
+  await s.reload();await s.click('#learningNav');await s.waitForSelector('#activeGroups [data-action="group"]');
+  await s.click('#activeGroups [data-action="group"]');await s.waitForSelector('[data-action="assignment"]');
+  await s.click('[data-action="assignment"]');await s.waitForSelector('#assignmentCode');
+  assert.equal(await s.locator('#assignmentCode').inputValue(),'console.log(42);');
+  await t.click('#learningNav');await t.waitForSelector('#activeGroups [data-action="group"]');
+  await t.click('#activeGroups [data-action="group"]');await t.waitForSelector('.classroom-journal');
+  assert.match(await t.locator('.classroom-journal').textContent(),/Ученик/);
+  assert.match(await t.locator('.classroom-journal').textContent(),/Не отправлено/);
+  const gd=await (await student.context.request.get('http://localhost:8000/learning/groups/'+groups[0].id,{headers:{Authorization:'Bearer '+student.token}})).json();
+  const ad=await (await student.context.request.get('http://localhost:8000/learning/assignments/'+gd.assignments[0].id,{headers:{Authorization:'Bearer '+student.token}})).json();
+  const submitted=await student.context.request.post('http://localhost:8000/learning/assignments/'+ad.id+'/submissions',{headers:{Authorization:'Bearer '+student.token},data:{code:'console.log(42);',results:ad.tests.map(()=>({stdout:'wrong',error:null})),explanation:'Проверяем отображение отправленной работы в журнале.',changed_code:'console.log(43);',change_explanation:'Проверяем изменённый код и передачу объяснения учителю.'}});
+  assert.equal(submitted.status(),201);
+  await t.click('.classroom-journal [data-action="group"]');
+  await t.waitForSelector('.classroom-journal [data-action="submission"]');
+  assert.match(await t.locator('.classroom-journal').textContent(),/Есть ошибки в тестах/);
+  await t.click('.classroom-journal [data-action="submission"]');
+  await t.waitForFunction(()=>document.querySelector('#learningRoot').textContent.includes('Исходное решение'));
+
+
   await s.click('#glossaryNav');await s.waitForSelector('#glossarySearch');
   assert.equal(await s.locator('.glossary-card').count(),43);
   await s.fill('#glossarySearch','несуществующийтерминxyz');assert.equal(await s.locator('#glossaryCount').textContent(),'0');
