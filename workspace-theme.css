@@ -101,3 +101,7 @@ body:not(.light-mode) #languageSelect.language-select { background:#211532; colo
 #editorFileLabel { width:170px; max-width:100%; min-width:60px; background:transparent; color:inherit; border:1px solid transparent; border-radius:4px; font:inherit; padding:5px; }
 #editorFileLabel:hover,#editorFileLabel:focus { border-color:var(--border); outline-offset:2px; }
 .light-mode #editorLanguageIcon { background:#eaeae6; }
+
+.xp-help { margin-top:10px; font-size:11px; color:var(--muted); }
+.xp-help summary { cursor:pointer; }
+.profile-card .xp-help p { margin:8px 0; font-size:11px; line-height:1.5; }

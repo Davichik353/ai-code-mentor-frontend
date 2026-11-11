@@ -3,6 +3,10 @@ window.MentorLocale = localStorage.getItem('mentor_locale') === 'uz' ? 'uz' : 'r
 // Only application-owned strings are translated here. User code and AI explanations
 // remain untouched; the model receives its response language in the API request.
 const uiTranslations = {
+'Как получить XP':['Как получить XP','XP qanday olinadi'],
+'+10 XP — за каждый сохранённый AI-анализ кода.':['+10 XP — за каждый сохранённый AI-анализ кода.','Har bir saqlangan AI kod tahlili uchun +10 XP.'],
+'Каждые 1000 XP — новый уровень. После перехода шкала начинается заново, общий опыт сохраняется.':['Каждые 1000 XP — новый уровень. После перехода шкала начинается заново, общий опыт сохраняется.','Har 1000 XP — yangi daraja. O‘tgandan so‘ng shkala qayta boshlanadi, jami tajriba saqlanadi.'],
+'Запуск тестов, сохранение кода и подсказки пока не дают XP. Оценка кода не влияет на опыт.':['Запуск тестов, сохранение кода и подсказки пока не дают XP. Оценка кода не влияет на опыт.','Testlarni bajarish, kodni saqlash va maslahatlar hozircha XP bermaydi. Kod bahosi tajribaga ta’sir qilmaydi.'],
 'Имя файла':['Имя файла','Fayl nomi'],
 'Изменить имя файла':['Изменить имя файла','Fayl nomini o‘zgartirish'],
 'Сохранить код':['Сохранить код','Kodni saqlash'],
