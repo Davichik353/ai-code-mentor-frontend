@@ -87,3 +87,12 @@ body.light-mode { --bg:#fff; --panel:#fff; --panel-soft:#f7f7f5; --border:#e9e9e
 .hint-actions button:disabled { opacity:.45; cursor:default; }
 .light-mode .rail-hint { background:#fafaf8; border-color:#e5e5e2; color:#575650; }
 .light-mode .rail-hint .mentor-guide { border-color:#e5e5e2; }
+body:not(.light-mode) #languageSelect.language-select { background:#211532; color:#eee5fa; border-color:#4f365e; color-scheme:dark; }
+.editor-actions { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+.editor-actions .save-editor { display:inline-flex; align-items:center; gap:7px; width:auto; padding:6px 10px; border:1px solid #5e456e; border-radius:5px; background:transparent; color:#e7daf0; font-size:12px; font-weight:500; box-shadow:none; }
+.light-mode .editor-actions .save-editor { color:#575650; border-color:#dededb; background:#fff; }
+.editor-actions .save-editor:hover { background:#ffffff0c; }
+.light-mode .editor-actions .save-editor:hover { background:#f1f1ee; }
+.editor-save-status { font-size:12px; line-height:1.5; color:var(--muted); margin:6px 0; }
+.editor-save-status:empty { display:none; }
+@media(max-width:500px) { .editor-toolbar { flex-wrap:wrap; gap:10px; } }

@@ -798,7 +798,7 @@
                 <!-- Code Input -->
                 <div class="card code-card">
                     <div class="code-editor">
-                        <div class="editor-toolbar"><span class="editor-file"><i class="fab fa-python"></i> <span id="editorFileLabel">main.py</span></span><button class="clear-editor" onclick="clearCode()">Очистить</button></div>
+                        <div class="editor-toolbar"><span class="editor-file"><i class="fab fa-python"></i> <span id="editorFileLabel">main.py</span></span><div class="editor-actions"><button type="button" id="saveEditorCode" class="save-editor" onclick="saveCodeFromEditor()"><i class="far fa-bookmark" aria-hidden="true"></i> <span>Сохранить код</span></button><button class="clear-editor" onclick="clearCode()">Очистить</button></div></div><p id="editorSaveStatus" class="editor-save-status" role="status" aria-live="polite"></p>
                         <label class="editor-label">Введите код или загрузите файл:</label>
                         <select id="languageSelect" class="language-select" aria-label="Язык анализа">
                             <option value="">Определить язык автоматически</option>
@@ -1622,6 +1622,19 @@ def get_user(user_id):
             document.getElementById('resultsContainer').innerHTML = `<div class="empty-state"><div class="empty-icon">🔖</div><p>${snippets.length ? 'Your saved code snippets' : 'No saved snippets yet.'}</p><div class="snippet-actions"><button class="btn-primary" onclick="saveCurrentSnippet()">Save current code</button></div></div>${cards}`;
         }
 
+        function saveCodeFromEditor() {
+            const status = document.getElementById('editorSaveStatus');
+            if (!document.getElementById('codeInput').value.trim()) {
+                status.textContent = 'Введите код перед сохранением.';
+                return;
+            }
+            try {
+                saveSnippetData(false);
+                status.textContent = 'Сохранено в этом браузере. Откройте «Сохранённый код» в меню.';
+            } catch (_) {
+                status.textContent = 'Не удалось сохранить. Скопируйте код в файл.';
+            }
+        }
         function saveCurrentSnippet() {
             const code = document.getElementById('codeInput').value.trim();
             if (!code) { showError('Enter code before saving a snippet.'); return; }

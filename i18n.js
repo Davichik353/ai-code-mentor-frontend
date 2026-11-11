@@ -3,6 +3,10 @@ window.MentorLocale = localStorage.getItem('mentor_locale') === 'uz' ? 'uz' : 'r
 // Only application-owned strings are translated here. User code and AI explanations
 // remain untouched; the model receives its response language in the API request.
 const uiTranslations = {
+'Сохранить код':['Сохранить код','Kodni saqlash'],
+'Введите код перед сохранением.':['Введите код перед сохранением.','Saqlashdan oldin kod kiriting.'],
+'Сохранено в этом браузере. Откройте «Сохранённый код» в меню.':['Сохранено в этом браузере. Откройте «Сохранённый код» в меню.','Shu brauzerda saqlandi. Menyudan «Saqlangan kod»ni oching.'],
+'Не удалось сохранить. Скопируйте код в файл.':['Не удалось сохранить. Скопируйте код в файл.','Saqlab bo‘lmadi. Kodni faylga nusxalang.'],
 'Язык анализа':['Язык анализа','Tahlil tili'],
 "Назад в приложение":["Назад в приложение", "Ilovaga qaytish"],
 "Проблема":["Проблема", "Muammo"],
