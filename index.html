@@ -742,7 +742,7 @@
             </nav>
             <a href="data-policy.html" style="margin:10px 16px;color:#c8b9d8;font-size:12px;">Политика данных</a>
             <div class="profile-card">
-                <div class="profile-head"><span class="profile-avatar">D</span><span><b id="userName">Davichik</b><small id="userRole">Ученик</small></span></div>
+                <div class="profile-head"><span class="profile-avatar" aria-hidden="true">?</span><span><b id="userName">Гость</b><small id="userRole">Ученик</small></span></div>
                 <p>Keep coding, keep growing! 🚀</p>
                 <div class="level-row"><span id="userLevel">Level -</span><span id="userXp">0 / 0 XP</span></div>
                 <div class="xp-track"><span></span></div>
@@ -1016,8 +1016,9 @@ print(user)
 
         function updateProfile(user) {
             if (!user) return;
-            document.getElementById('userEmail').textContent = user.display_name || user.email || 'Not signed in';
-            document.getElementById('userName').textContent = user.display_name || user.email?.split('@')[0] || 'Student';
+            document.getElementById('userEmail').textContent = user.email || 'Not signed in';
+            document.getElementById('userName').textContent = user.display_name || user.email?.split('@')[0] || 'Пользователь';
+            document.querySelector('.profile-avatar').textContent = Array.from(document.getElementById('userName').textContent.trim())[0]?.toLocaleUpperCase() || '?';
             if (user.level == null) return;
             const xpCurrent = user.xp_current || 0;
             const xpNeeded = user.xp_needed || 1;
@@ -1090,8 +1091,7 @@ print(user)
                     localStorage.setItem('mentor_token', data.access_token);
                     hideAuthOverlay();
                     const user = data.user || { display_name: email.split('@')[0], email };
-                    document.getElementById('userEmail').textContent = (user.display_name || user.email) || email;
-                    document.getElementById('userName').textContent = user.display_name || email.split('@')[0];
+                    updateProfile(user);
                     if (user.level) {
                         document.querySelector('.level-row span:first-child').textContent = `Level ${user.level}`;
                         document.querySelector('.level-row span:last-child').textContent = `${user.xp_current || 0} / ${user.xp_needed || 1000} XP`;
@@ -1111,8 +1111,7 @@ print(user)
                     localStorage.setItem('mentor_token', data.access_token);
                     hideAuthOverlay();
                     const user = data.user || {};
-                    document.getElementById('userEmail').textContent = user.display_name || user.email;
-                    document.getElementById('userName').textContent = user.display_name || user.email.split('@')[0];
+                    updateProfile(user);
                     if (user.level) {
                         document.querySelector('.level-row span:first-child').textContent = `Level ${user.level}`;
                         document.querySelector('.level-row span:last-child').textContent = `${user.xp_current || 0} / ${user.xp_needed || 1000} XP`;
@@ -1140,7 +1139,7 @@ print(user)
                 if (!response.ok) { document.getElementById('authError').textContent = data.detail || 'Verification failed'; document.getElementById('authError').style.display = 'block'; return; }
                 localStorage.setItem('mentor_token', data.access_token);
                 hideAuthOverlay();
-                document.getElementById('userEmail').textContent = data.user.display_name || data.user.email;
+                updateProfile(data.user);
             } catch (e) {
                 document.getElementById('authError').textContent = e.message || 'Network error'; document.getElementById('authError').style.display = 'block';
             } finally {
@@ -1640,8 +1639,7 @@ def find_user(user_id):
                     if (me.ok) {
                         const data = await me.json();
                         hideAuthOverlay();
-                        document.getElementById('userEmail').textContent = data.display_name || data.email;
-                        document.getElementById('userName').textContent = data.display_name || data.email.split('@')[0];
+                        updateProfile(data);
                         if (data.level) {
                             document.querySelector('.level-row span:first-child').textContent = `Level ${data.level}`;
                             document.querySelector('.level-row span:last-child').textContent = `${data.xp_current || 0} / ${data.xp_needed || 1000} XP`;

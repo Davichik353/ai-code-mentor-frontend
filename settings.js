@@ -76,7 +76,7 @@
             const d=state.draft;
             if(d.name.trim()!==(state.account.display_name||'')){
                 state.account=await request('/auth/profile',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({display_name:d.name.trim()||null})});
-                document.getElementById('userName').textContent=state.account.display_name||state.account.email.split('@')[0];
+                updateProfile(state.account);
                 document.getElementById('userEmail').textContent=state.account.email;
             }
             localStorage.setItem('mentor_settings',JSON.stringify({...getSettings(),theme:d.theme,defaultLanguage:d.defaultLanguage,autoSave:d.autoSave,fontSize:Number(d.fontSize)}));
