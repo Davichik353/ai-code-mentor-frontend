@@ -3,6 +3,7 @@ window.MentorLocale = localStorage.getItem('mentor_locale') === 'uz' ? 'uz' : 'r
 // Only application-owned strings are translated here. User code and AI explanations
 // remain untouched; the model receives its response language in the API request.
 const uiTranslations = {
+'Язык анализа':['Язык анализа','Tahlil tili'],
 "Назад в приложение":["Назад в приложение", "Ilovaga qaytish"],
 "Проблема":["Проблема", "Muammo"],
 "Решение":["Решение", "Yechim"],
