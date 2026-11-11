@@ -1,0 +1,75 @@
+/* Quiet, document-oriented light workspace. Dark preference remains available. */
+body.light-mode { --bg:#fff; --panel:#fff; --panel-soft:#f7f7f5; --border:#e9e9e7; --muted:#73726e; --pink:#2877b7; --purple:#2877b7; background:#fff; color:#37352f; }
+.light-mode .main,.light-mode .header { background:#fff; }
+.light-mode .sidebar { background:#f7f7f5; border-color:#e9e9e7; box-shadow:none; padding:22px 12px 14px; }
+.light-mode .logo { margin-bottom:28px; }
+.light-mode .logo-icon { background:#37352f; box-shadow:none; border-radius:8px; width:32px; height:32px; }
+.light-mode .logo-text h2 { color:#37352f; font-size:15px; }
+.light-mode .logo-text:after { color:#787774; }
+.light-mode .nav-item,.light-mode #learningNav,.light-mode #glossaryNav { background:transparent; color:#62615c; border:0; box-shadow:none; border-radius:6px; font-size:13px; padding:10px 12px; }
+.light-mode .nav-item:hover,.light-mode #learningNav:hover,.light-mode #glossaryNav:hover { background:#eeedea; color:#37352f; }
+.light-mode .nav-item.active,.light-mode #learningNav.active,.light-mode #glossaryNav.active { background:#eae9e5; color:#242320; box-shadow:none; }
+.light-mode #learningNav > i { color:#62615c; font-size:17px; }
+.light-mode #learningNavDescription { color:#787774; font-size:11px; }
+.light-mode .sidebar > a { color:#787774 !important; font-size:11px !important; }
+.light-mode .header { padding:18px 28px; border-color:#efefed; }
+.light-mode .header h1 { color:#37352f; font-size:16px; font-weight:600; }
+.light-mode .header p { color:#787774; font-size:12px; }
+.light-mode .btn-primary,.light-mode .learning-panel button { background:#2877b7; color:#fff; box-shadow:none; border:1px solid #2877b7; border-radius:6px; font-size:13px; padding:9px 13px; font-weight:500; }
+.light-mode .btn-primary:hover,.light-mode .learning-panel button:hover { background:#20659e; transform:none; box-shadow:none; }
+.light-mode .btn-secondary { background:#fff; color:#575650; border:1px solid #dededb; border-radius:6px; box-shadow:none; }
+.light-mode .btn-secondary:hover { background:#f3f3f0; box-shadow:none; transform:none; }
+.light-mode .theme-button,.light-mode #localeSelect { background:#fff; color:#62615c; border-color:#dededb; border-radius:6px; font-size:12px; }
+.light-mode .profile-card { background:transparent; color:#37352f; border:0; border-top:1px solid #e3e3df; border-radius:0; padding:16px 8px 0; }
+.light-mode .profile-avatar { background:#e8e7e2; color:#575650; border-radius:7px; width:32px; height:32px; font-size:16px; }
+.light-mode .profile-card p,.light-mode .profile-card small,.light-mode .profile-email,.light-mode .level-row { color:#787774; }
+.light-mode .xp-track { background:#e6e5e0; height:4px; }
+.light-mode .xp-track span { background:#8aaba4; }
+.light-mode .learning-panel { color:#37352f; padding:36px 40px; max-width:1160px; font-size:14px; }
+.light-mode .learning-panel h2 { font-size:30px; letter-spacing:-.7px; font-weight:700; margin:8px 0 16px; }
+.light-mode .learning-panel h3 { font-size:17px; letter-spacing:-.2px; font-weight:600; }
+.light-mode .learning-panel p { color:#6b6a65; font-size:14px; }
+.light-mode .learning-card { background:#fff; border:1px solid #e5e5e2; border-radius:8px; padding:22px; box-shadow:none; }
+.light-mode .learning-grid { gap:16px; margin:22px 0; }
+.light-mode .learning-panel input:not([type=checkbox]),.light-mode .learning-panel select,.light-mode .learning-panel textarea { background:#fff; color:#37352f; border:1px solid #dcdcd8; border-radius:5px; font-size:14px; }
+.light-mode .learning-panel pre { background:#f7f7f5; color:#37352f; border-radius:5px; }
+.light-mode .learning-panel .badge { background:#f2f2ef; border:0; color:#62615c; border-radius:4px; padding:4px 8px; font-size:11px; }
+.light-mode .learning-panel .notice { background:#f7f7f5; border-left:3px solid #bdbdb6; border-radius:3px; color:#62615c; font-size:13px; }
+.light-mode .learning-panel a,.light-mode .settings-page a { color:#2877b7; }
+.light-mode .learning-panel .test-pass { border-color:#7aa98d; }
+.light-mode .learning-panel .test-fail { border-color:#d4938a; }
+.light-mode .learning-feedback { color:#a13c31; }
+.light-mode .journal-scroll th,.light-mode .journal-scroll td { border-color:#e9e9e5; font-size:13px; }
+.light-mode .journal-scroll th { background:#f7f7f5; font-weight:500; }
+.light-mode .learning-panel .test-row { border-color:#e9e9e5; }
+.light-mode .learning-panel :focus-visible,.light-mode :focus-visible { outline:2px solid #2877b7; outline-offset:3px; }
+.light-mode .card,.light-mode .rail-card,.light-mode .settings-card,.light-mode .execution-panel { background:#fff; border-color:#e5e5e2; border-radius:8px; box-shadow:none; color:#37352f; }
+.light-mode .card-title,.light-mode .settings-page { color:#37352f; }
+.light-mode .settings-page p,.light-mode .settings-page .settings-help { color:#73726e; }
+.light-mode .settings-page input:not([type=checkbox]),.light-mode .settings-page select { background:#fff; color:#37352f; border-color:#dcdcd8; }
+.light-mode .editor-toolbar { background:#f7f7f5; border-color:#e9e9e5; }
+.light-mode .editor-file { color:#575650; }
+.light-mode textarea,.light-mode .language-select { background:#fff; color:#37352f; border-color:#dededb; }
+.light-mode .execution-panel { --panel:#fff; --bg:#f7f7f5; --border:#e5e5e2; --muted:#73726e; }
+.light-mode .execution-actions .btn-secondary { color:#575650; }
+.light-mode .result-card { background:#f7f7f5; color:#37352f; }
+.light-mode .auth-overlay { background:rgba(245,245,242,.93); }
+.light-mode .auth-box { background:#fff; color:#37352f; border:1px solid #e5e5e2; border-radius:12px; box-shadow:0 12px 40px #37352f0c; }
+.light-mode .auth-box input { background:#fff; color:#37352f; border-color:#dededb; }
+.light-mode .learning-loading { border:0; background:#fafaf8; }
+.light-mode .learning-skeleton span { background:linear-gradient(90deg,#eeeee9,#e2e2dc,#eeeee9); background-size:200% 100%; }
+@media(max-width:768px) { .light-mode .learning-panel { padding:22px 16px; } .light-mode .header { padding:14px 16px; } .light-mode .learning-panel h2 { font-size:25px; } .light-mode .learning-card { padding:16px; } }
+.light-mode .learning-panel > .actions button,.light-mode .learning-panel > button[data-action],.light-mode .classroom-journal > button { background:#fff; color:#62615c; border-color:#dededb; }
+.light-mode .learning-panel > .actions button:hover,.light-mode .learning-panel > button[data-action]:hover { background:#f7f7f5; }
+.light-mode #activeGroups .learning-card { border-left:3px solid #a8bdb5; }
+.light-mode #archivedGroups { border-top:1px solid #e9e9e5; margin-top:24px; color:#787774; }
+@media(max-width:768px) {
+ .light-mode .sidebar { width:100%; padding:12px 16px; overflow:visible; }
+ .light-mode .logo { margin:0 0 10px; }
+ .light-mode .logo-text:after,.light-mode #learningNavDescription,.light-mode .sidebar > a,.light-mode .sidebar .profile-card { display:none; }
+ .light-mode .nav-items { display:flex; flex-direction:row; overflow-x:auto; gap:4px; padding-bottom:4px; }
+ .light-mode .nav-item,.light-mode #learningNav,.light-mode #glossaryNav { flex:0 0 auto; width:auto; white-space:nowrap; padding:8px 10px; font-size:12px; }
+ .light-mode .header { gap:12px; flex-wrap:wrap; }
+ .light-mode .header h1 { font-size:15px; }
+ .light-mode .topbar-actions { gap:6px; }
+}

@@ -722,8 +722,9 @@
         .light-mode #executionLanguage { background:#fff; color:#261329; border-color:var(--border); }
         @media(max-width:700px) { .execution-grid { grid-template-columns:1fr; gap:20px; } .execution-panel { padding:16px; } }
     </style>
+    <link rel="stylesheet" href="workspace-theme.css">
 </head>
-<body>
+<body class="light-mode">
     <div class="container">
         <!-- Sidebar -->
         <div class="sidebar">
@@ -1023,7 +1024,7 @@ print(user)
         }
 
         function getSettings() {
-            return { theme: 'dark', defaultLanguage: '', autoSave: false, fontSize:14, ...readStoredJson('mentor_settings', {}) };
+            return { theme: 'light', defaultLanguage: '', autoSave: false, fontSize:14, ...readStoredJson('mentor_settings', {}) };
         }
 
         function applySettings() {
