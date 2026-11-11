@@ -697,6 +697,30 @@
         @media (max-width: 1050px) { .content { grid-template-columns: minmax(0, 1fr); } .right-rail { display: grid; grid-template-columns: repeat(3, 1fr); } .results-card #resultsContainer { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
         @media (max-width: 768px) { .topbar { align-items: flex-start; gap: 10px; } .new-analysis-button { font-size: 0; } .new-analysis-button i { font-size: 13px; } .right-rail { display: flex; } .content { padding: 12px; } .sidebar { width: 100%; } .results-card #resultsContainer { grid-template-columns: 1fr; } .progress-body { gap: 12px; } .progress-chart { gap: 4px; } .progress-summary { width: 92px; } }
         @media (max-width: 460px) { .topbar-actions { gap: 6px; } .new-analysis-button { padding: 9px 11px; } .button-group { gap: 7px; } .button-group button { flex: 1 1 130px; } .progress-body { align-items: stretch; flex-direction: column; } .progress-summary { width: 100%; grid-template-columns: 1fr 1fr; align-items: center; } .progress-summary button { grid-column: 1 / -1; } }
+
+        .execution-panel { margin-top:16px; padding:20px; border:1px solid var(--border); border-radius:16px; background:var(--panel); }
+        .execution-heading { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:20px; }
+        .execution-heading h3 { margin:0; font-size:18px; }
+        .execution-heading span { font-size:11px; color:var(--muted); border:1px solid var(--border); border-radius:6px; padding:4px 8px; }
+        .execution-grid { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.3fr); gap:24px; }
+        .execution-controls { display:flex; flex-direction:column; gap:8px; min-width:0; }
+        .execution-controls label,.execution-result h4 { font-size:13px; font-weight:600; margin:0; }
+        .execution-controls #executionLanguage { width:100%; margin:0 0 8px; padding:10px 12px; height:42px; font-size:14px; border-radius:8px; }
+        .execution-controls #executionInput { width:100%; min-height:90px; height:90px; margin:0; padding:12px; border:1px solid var(--border); border-radius:8px; resize:vertical; }
+        .execution-controls small { color:var(--muted); font-size:11px; line-height:1.5; }
+        .execution-actions { display:flex; flex-wrap:wrap; gap:8px; margin-top:8px; }
+        .execution-actions button { flex:1 1 auto; width:auto; padding:10px 12px; font-size:12px; }
+        .execution-actions button:disabled { opacity:.45; cursor:not-allowed; }
+        .execution-result { display:flex; flex-direction:column; gap:10px; min-width:0; }
+        #executionOutput { flex:1; white-space:pre-wrap; overflow-wrap:anywhere; overflow:auto; max-height:300px; min-height:150px; margin:0; padding:14px; background:var(--bg); color:inherit; border:1px solid var(--border); border-radius:10px; font:13px/1.6 monospace; }
+        #executionStatus { margin:0; font-size:12px; color:var(--muted); }
+        .execution-help { margin-top:18px; padding-top:14px; border-top:1px solid var(--border); font-size:12px; color:var(--muted); }
+        .execution-help summary { cursor:pointer; width:fit-content; }
+        .execution-help p { margin:10px 0 0; line-height:1.6; }
+        .light-mode .execution-panel { --panel:#fffaff; --bg:#f8f4fb; --border:#e4cce7; --muted:#76647e; }
+        .light-mode .execution-actions .btn-secondary { color:#72208d; }
+        .light-mode #executionLanguage { background:#fff; color:#261329; border-color:var(--border); }
+        @media(max-width:700px) { .execution-grid { grid-template-columns:1fr; gap:20px; } .execution-panel { padding:16px; } }
     </style>
 </head>
 <body>
@@ -809,19 +833,27 @@ print(user)
                         </div>
                     </div>
 
-                    <section class="result-card" aria-label="Запуск кода" style="margin-top:16px">
-                        <h3>Запуск кода</h3>
-                        <p style="margin:8px 0">Код выполняется в вашем браузере. Python и JavaScript: без серверных файлов и установки пакетов. Для Python при каждом запуске загружается runtime с CDN; встроенная библиотека доступна частично. Лимит выполнения — 10 секунд.</p>
-                        <label for="executionLanguage">Язык запуска</label>
-                        <select id="executionLanguage" class="language-select"><option>Python</option><option>JavaScript</option></select>
-                        <label for="executionInput">Ввод для input() / prompt() — по одной строке</label>
-                        <textarea id="executionInput" rows="2" style="min-height:60px;height:60px" placeholder="Например: 42"></textarea>
-                        <div class="button-group" style="margin:8px 0">
-                            <button class="btn-primary" id="runCodeButton" onclick="runCode()">▶ Запустить · Ctrl+Enter</button>
-                            <button class="btn-secondary" id="stopCodeButton" onclick="stopCode()" disabled>■ Остановить</button>
+                    <section class="execution-panel" aria-labelledby="executionTitle">
+                        <header class="execution-heading"><h3 id="executionTitle">Запуск кода</h3><span>Ctrl + Enter</span></header>
+                        <div class="execution-grid">
+                            <div class="execution-controls">
+                                <label for="executionLanguage">Язык запуска</label>
+                                <select id="executionLanguage" class="language-select"><option>Python</option><option>JavaScript</option></select>
+                                <label for="executionInput">Входные данные</label>
+                                <textarea id="executionInput" rows="3" placeholder="Например: 42" aria-describedby="executionInputHelp"></textarea>
+                                <small id="executionInputHelp">Для input() / prompt() — по одной строке.</small>
+                                <div class="execution-actions">
+                                    <button class="btn-primary" id="runCodeButton" onclick="runCode()">▶ Запустить</button>
+                                    <button class="btn-secondary" id="stopCodeButton" onclick="stopCode()" disabled>■ Остановить</button>
+                                </div>
+                            </div>
+                            <div class="execution-result">
+                                <h4>Вывод программы</h4>
+                                <pre id="executionOutput" aria-label="Вывод программы"></pre>
+                                <p id="executionStatus" role="status" aria-live="polite">Готово к запуску.</p>
+                            </div>
                         </div>
-                        <p id="executionStatus" role="status" aria-live="polite">Готово к запуску.</p>
-                        <pre id="executionOutput" aria-label="Вывод программы" style="white-space:pre-wrap;overflow:auto;max-height:300px;min-height:60px;padding:12px;background:#0d0b16;border-radius:8px"></pre>
+                        <details class="execution-help"><summary>Как работает запуск</summary><p>Код выполняется в вашем браузере. Python и JavaScript: без серверных файлов и установки пакетов. Для Python при каждом запуске загружается runtime с CDN; встроенная библиотека доступна частично. Лимит выполнения — 10 секунд.</p></details>
                     </section>
 
                     <!-- Quick Examples -->
