@@ -798,9 +798,9 @@
                 <!-- Code Input -->
                 <div class="card code-card">
                     <div class="code-editor">
-                        <div class="editor-toolbar"><span class="editor-file"><i class="fab fa-python"></i> <span id="editorFileLabel">main.py</span></span><div class="editor-actions"><button type="button" id="saveEditorCode" class="save-editor" onclick="saveCodeFromEditor()"><i class="far fa-bookmark" aria-hidden="true"></i> <span>Сохранить код</span></button><button class="clear-editor" onclick="clearCode()">Очистить</button></div></div><p id="editorSaveStatus" class="editor-save-status" role="status" aria-live="polite"></p>
+                        <div class="editor-toolbar"><span class="editor-file"><span id="editorLanguageIcon" aria-hidden="true">Py</span> <input id="editorFileLabel" value="main.py" aria-label="Имя файла" title="Изменить имя файла" maxlength="120" spellcheck="false" onchange="renameEditorFile()"></span><div class="editor-actions"><button type="button" id="saveEditorCode" class="save-editor" onclick="saveCodeFromEditor()"><i class="far fa-bookmark" aria-hidden="true"></i> <span>Сохранить код</span></button><button class="clear-editor" onclick="clearCode()">Очистить</button></div></div><p id="editorSaveStatus" class="editor-save-status" role="status" aria-live="polite"></p>
                         <label class="editor-label">Введите код или загрузите файл:</label>
-                        <select id="languageSelect" class="language-select" aria-label="Язык анализа">
+                        <select id="languageSelect" onchange="changeEditorLanguage()" class="language-select" aria-label="Язык анализа">
                             <option value="">Определить язык автоматически</option>
                             <option>Python</option><option>JavaScript</option><option>TypeScript</option>
                             <option>Java</option><option>C++</option><option>C#</option><option>Go</option>
@@ -1014,6 +1014,12 @@ print(user)
             return 'https://ai-code-mentor-backend-z80q.onrender.com';
         })();
         let authMode = 'register';
+        const editorLanguages = {
+            Python:['py','Py'], JavaScript:['js','JS'], TypeScript:['ts','TS'],
+            Java:['java','Java'], 'C++':['cpp','C++'], 'C#':['cs','C#'], Go:['go','Go'],
+            Rust:['rs','Rs'], PHP:['php','PHP'], Ruby:['rb','Rb'], SQL:['sql','SQL'],
+            HTML:['html','<>'], CSS:['css','#']
+        };
         let selectedFilename = 'main.py';
         let currentHints = [];
         let currentHintIndex = 0;
@@ -1031,7 +1037,7 @@ print(user)
             const settings = getSettings();
             document.body.classList.toggle('light-mode', settings.theme === 'light');
             const language = document.getElementById('languageSelect');
-            if (language) language.value = settings.defaultLanguage || '';
+            if (language) { language.value = settings.defaultLanguage || ''; changeEditorLanguage(); }
             const fontSize=[14,16,18,20].includes(Number(settings.fontSize))?Number(settings.fontSize):14;
             document.documentElement.style.setProperty('--mentor-code-font-size', fontSize+'px');
         }
@@ -1187,8 +1193,8 @@ print(user)
 
         async function loadFile(event) {
             const file = event.target.files[0]; if (!file) return;
-            selectedFilename = file.name; document.getElementById('fileName').textContent = file.name;
-            document.getElementById('editorFileLabel').textContent = file.name;
+            selectedFilename = file.name; document.getElementById('languageSelect').value = filenameLanguage(); document.getElementById('fileName').textContent = file.name;
+            syncEditorFile();
             try { document.getElementById('codeInput').value = await file.text(); }
             catch (e) { showError('This file cannot be read as text. Binary files are accepted, but upload a text source file for analysis.'); }
         }
@@ -1229,10 +1235,35 @@ def get_user(user_id):
     return cursor.fetchone()`;
         }
 
+        function filenameLanguage() {
+            const extension = selectedFilename.split('.').pop().toLowerCase();
+            return Object.keys(editorLanguages).find(name => editorLanguages[name][0] === extension) || '';
+        }
+        function syncEditorFile() {
+            document.getElementById('editorFileLabel').value = selectedFilename;
+            const language = document.getElementById('languageSelect').value || filenameLanguage();
+            document.getElementById('editorLanguageIcon').textContent = editorLanguages[language]?.[1] || '</>';
+            document.getElementById('fileName').textContent = selectedFilename;
+        }
+        function changeEditorLanguage() {
+            const language = document.getElementById('languageSelect').value;
+            const extension = editorLanguages[language]?.[0];
+            if (extension) selectedFilename = (selectedFilename.replace(/\.[^.]+$/, '') || 'main') + '.' + extension;
+            syncEditorFile();
+        }
+        function renameEditorFile() {
+            const name = document.getElementById('editorFileLabel').value.trim().replace(/[\\/\x00-\x1f]/g, '').slice(0,120);
+            if (name && name !== '.' && name !== '..') {
+                selectedFilename = name;
+                document.getElementById('languageSelect').value = filenameLanguage();
+            }
+            syncEditorFile();
+        }
+
         function clearCode() {
             document.getElementById('codeInput').value = '';
             selectedFilename = 'main.py';
-            document.getElementById('editorFileLabel').textContent = 'main.py';
+            changeEditorLanguage();
             document.getElementById('resultsContainer').innerHTML = `
                 <div class="empty-state">
                     <div class="empty-icon">📋</div>
@@ -1491,8 +1522,9 @@ def get_user(user_id):
                 const data = await response.json();
                 if (!response.ok) throw new Error(data.detail || 'Unable to open analysis');
                 selectedFilename = data.filename || 'analysis.txt';
+                document.getElementById('languageSelect').value = filenameLanguage();
                 document.getElementById('fileName').textContent = selectedFilename;
-                document.getElementById('editorFileLabel').textContent = selectedFilename;
+                syncEditorFile();
                 document.getElementById('codeInput').value = data.code || '';
                 displayResults({ feedback: data.feedback || {}, score: data.score || 0, summary: data.feedback?.summary || '' });
                 document.querySelector('.code-card')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -1658,7 +1690,7 @@ def get_user(user_id):
             document.getElementById('codeInput').value = saved.code || '';
             document.getElementById('languageSelect').value = saved.language === 'Auto-detect' ? '' : (saved.language || '');
             document.getElementById('fileName').textContent = selectedFilename;
-            document.getElementById('editorFileLabel').textContent = saved.filename;
+            syncEditorFile();
         }
 
         function deleteSnippet(snippetId) {
@@ -1679,6 +1711,7 @@ def get_user(user_id):
             closeInvestorDemo();
             document.getElementById('languageSelect').value = 'Python';
             selectedFilename = 'investor-demo.py';
+            syncEditorFile();
             document.getElementById('fileName').textContent = selectedFilename;
             document.getElementById('codeInput').value = `import sqlite3
 
