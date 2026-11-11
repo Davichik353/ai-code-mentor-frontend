@@ -36,7 +36,7 @@ const assert=require('node:assert/strict');
   for(const locale of ['uz','ru','uz','ru']) {
    await page.selectOption('#localeSelect',locale);
    await page.waitForFunction(locale=>document.documentElement.lang===locale,locale);
-   await page.waitForFunction(locale=>document.querySelector('.step-pill').textContent.includes(locale==='ru'?'Шаг 2 из 5':'5 bosqichdan 2-si'),locale);
+   await page.waitForFunction(locale=>document.querySelector('.step-pill').textContent.includes(locale==='ru'?'Шаг 1 из 2':'2 bosqichdan 1-si'),locale);
    assert.equal(await page.locator('#railFeedback').textContent(),'Good');
    assert.equal(await page.locator('#resultsContainer .result-text').textContent(),'Critical');
    assert.equal(await page.locator('#executionOutput').textContent(),'Critical');

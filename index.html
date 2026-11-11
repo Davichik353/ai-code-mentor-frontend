@@ -1364,9 +1364,7 @@ def get_user(user_id):
             document.getElementById('railLearning').textContent = learningCount;
             document.getElementById('railGood').textContent = goodCount;
             document.getElementById('railFeedback').textContent = data.summary || getScoreFeedback(data.score);
-            if (data.mentor_hints && data.mentor_hints.length) {
-                document.getElementById('railHint').textContent = data.mentor_hints[0].hint;
-            }
+            renderMentorHint();
 
             // Score
             html += `
@@ -1545,14 +1543,30 @@ def get_user(user_id):
         function exportAccountData() { return window.SettingsUI.exportHistory(); }
         function deleteAccount() { return window.SettingsUI.deleteAccount(); }
 
+        function renderMentorHint() {
+            const hint = currentHints[currentHintIndex];
+            const box = document.getElementById('railHint');
+            box.replaceChildren();
+            const observation = document.createElement('p');
+            observation.textContent = hint?.hint || (window.MentorLocale === 'uz' ? 'Bu tahlil uchun aniq maslahatlar yo‘q. Tahlil natijalarini ko‘ring.' : 'Для этого анализа нет конкретных подсказок. Посмотрите результаты анализа.');
+            box.append(observation);
+            if (hint?.guide) {
+                const guide = document.createElement('p');
+                guide.className = 'mentor-guide';
+                guide.textContent = hint.guide;
+                box.append(guide);
+            }
+            document.querySelector('.step-pill').textContent = `Step ${hint ? currentHintIndex + 1 : 0} of ${currentHints.length}`;
+            document.querySelector('[onclick="changeHint(-1)"]').disabled = currentHintIndex <= 0;
+            document.querySelector('[onclick="changeHint(1)"]').disabled = currentHintIndex >= currentHints.length - 1;
+        }
         function changeHint(direction) {
             if (!currentHints.length) {
                 document.getElementById('railHint').textContent = 'Analyze code first to unlock mentor hints.';
                 return;
             }
-            currentHintIndex = (currentHintIndex + direction + currentHints.length) % currentHints.length;
-            document.getElementById('railHint').textContent = currentHints[currentHintIndex].hint;
-            document.querySelector('.step-pill').textContent = `Step ${currentHintIndex + 1} of ${currentHints.length}`;
+            currentHintIndex = Math.max(0, Math.min(currentHints.length - 1, currentHintIndex + direction));
+            renderMentorHint();
         }
 
         async function showProgress() {

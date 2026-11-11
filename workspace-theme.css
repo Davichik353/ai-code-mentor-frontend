@@ -81,3 +81,9 @@ body.light-mode { --bg:#fff; --panel:#fff; --panel-soft:#f7f7f5; --border:#e9e9e
  box-shadow:none; cursor:pointer;
 }
 #languageSelect.language-select:focus-visible { outline:2px solid #2877b7; outline-offset:2px; }
+
+.rail-hint p { margin:0; line-height:1.65; }
+.rail-hint .mentor-guide { margin-top:12px; padding-top:12px; border-top:1px solid #d9c9df; }
+.hint-actions button:disabled { opacity:.45; cursor:default; }
+.light-mode .rail-hint { background:#fafaf8; border-color:#e5e5e2; color:#575650; }
+.light-mode .rail-hint .mentor-guide { border-color:#e5e5e2; }
