@@ -742,36 +742,36 @@
                     <span><span id="learningNavLabel">Учебный кабинет</span><small id="learningNavDescription">Группы и задания</small></span>
                 </button>
                 <div class="nav-item active" onclick="showDashboard()">
-                    <i class="fas fa-chart-line"></i> Dashboard
+                    <i class="fas fa-chart-line"></i> Обзор
                 </div>
                 <div class="nav-item" onclick="clearCode()">
-                    <i class="fas fa-plus"></i> New Analysis
+                    <i class="fas fa-plus"></i> Новый анализ
                 </div>
                 <div class="nav-item" onclick="loadHistory()">
-                    <i class="fas fa-history"></i> History
+                    <i class="fas fa-history"></i> История
                 </div>
                 <div class="nav-item" onclick="showProgress()">
-                    <i class="fas fa-chart-bar"></i> Progress
+                    <i class="fas fa-chart-bar"></i> Прогресс
                 </div>
                 <div class="nav-item" onclick="showStatistics()">
-                    <i class="fas fa-chart-pie"></i> Statistics
+                    <i class="fas fa-chart-pie"></i> Статистика
                 </div>
                 <div class="nav-item" onclick="showSavedSnippets()">
-                    <i class="fas fa-bookmark"></i> Saved Snippets
+                    <i class="fas fa-bookmark"></i> Сохранённый код
                 </div>
                 <button type="button" class="nav-item" id="glossaryNav"><i class="fas fa-book" aria-hidden="true"></i><span id="glossaryNavLabel">Словарь и команды</span></button>
                 <div class="nav-item" id="settingsNav" onclick="showSettings()">
-                    <i class="fas fa-cog"></i> Settings
+                    <i class="fas fa-cog"></i> Настройки
                 </div>
             </nav>
             <a href="data-policy.html" style="margin:10px 16px;color:#c8b9d8;font-size:12px;">Политика данных</a>
-            <div class="profile-card">
+            <div class="profile-card" hidden>
                 <div class="profile-head"><span class="profile-avatar" aria-hidden="true">?</span><span><b id="userName">Гость</b><small id="userRole">Ученик</small></span></div>
-                <p>Keep coding, keep growing! 🚀</p>
-                <div class="level-row"><span id="userLevel">Level -</span><span id="userXp">0 / 0 XP</span></div>
+                <p>Практикуйся и развивайся! 🚀</p>
+                <div class="level-row"><span id="userLevel">Уровень —</span><span id="userXp">—</span></div>
                 <div class="xp-track"><span></span></div>
-                <span id="userEmail" class="profile-email">Not signed in</span>
-                <button class="btn-secondary" style="margin-top:8px;width:100%;" onclick="logout()">Sign out</button>
+                <span id="userEmail" class="profile-email">Вход не выполнен</span>
+                <button class="btn-secondary" style="margin-top:8px;width:100%;" onclick="logout()">Выйти</button>
             </div>
         </div>
 
@@ -779,13 +779,13 @@
         <div class="main">
             <div class="header topbar">
                 <div>
-                    <h1>New Code Analysis</h1>
-                    <p style="color: #8b8f9e; margin-top: 4px; font-size: 13px;">Paste your code below and get AI-powered feedback</p>
+                    <h1>Анализ кода</h1>
+                    <p style="color: #8b8f9e; margin-top: 4px; font-size: 13px;">Вставьте код и получите объяснение ошибок</p>
                 </div>
                 <div class="topbar-actions">
                     <select id="localeSelect" aria-label="Язык интерфейса" onchange="setMentorLocale(this.value)"><option value="ru">Русский</option><option value="uz">O‘zbekcha</option></select>
                     <button class="theme-button" onclick="toggleTheme()" aria-label="Toggle theme">☾</button>
-                    <button class="btn-primary new-analysis-button" onclick="clearCode()"><i class="fas fa-plus"></i> New Analysis</button>
+                    <button class="btn-primary new-analysis-button" onclick="clearCode()"><i class="fas fa-plus"></i> Новый анализ</button>
                 </div>
             </div>
 
@@ -797,14 +797,14 @@
                 <!-- Code Input -->
                 <div class="card code-card">
                     <div class="code-editor">
-                        <div class="editor-toolbar"><span class="editor-file"><i class="fab fa-python"></i> <span id="editorFileLabel">main.py</span></span><button class="clear-editor" onclick="clearCode()">Clear</button></div>
-                        <label class="editor-label">Paste code or upload any file:</label>
+                        <div class="editor-toolbar"><span class="editor-file"><i class="fab fa-python"></i> <span id="editorFileLabel">main.py</span></span><button class="clear-editor" onclick="clearCode()">Очистить</button></div>
+                        <label class="editor-label">Введите код или загрузите файл:</label>
                         <select id="languageSelect" class="language-select">
-                            <option value="">Auto-detect language</option>
+                            <option value="">Определить язык автоматически</option>
                             <option>Python</option><option>JavaScript</option><option>TypeScript</option>
                             <option>Java</option><option>C++</option><option>C#</option><option>Go</option>
                             <option>Rust</option><option>PHP</option><option>Ruby</option><option>SQL</option>
-                            <option>HTML</option><option>CSS</option><option>Other</option>
+                            <option>HTML</option><option>CSS</option><option>Другой</option>
                         </select>
                         <textarea id="codeInput">def get_user(user_id):
     query = "SELECT * FROM users WHERE id = %s"
@@ -818,17 +818,17 @@ user = get_user(user_input)
 print(user)
 </textarea>
                         <div class="file-row">
-                            <label class="file-upload" for="fileInput"><i class="fas fa-upload"></i> Upload File</label>
+                            <label class="file-upload" for="fileInput"><i class="fas fa-upload"></i> Загрузить файл</label>
                             <input id="fileInput" type="file" onchange="loadFile(event)">
-                            <span id="fileName" style="font-size:11px;color:#8b8f9e;">No file selected</span>
+                            <span id="fileName" style="font-size:11px;color:#8b8f9e;">Файл не выбран</span>
                         </div>
                         <div class="button-group">
                             <button class="btn-primary" id="analyzeButton" onclick="analyzeCode()">
-                                <i class="fas fa-wand-magic-sparkles"></i> Analyze Code
+                                <i class="fas fa-wand-magic-sparkles"></i> Анализировать
                             </button>
                             <button class="btn-primary" id="authorshipButton" onclick="checkAuthorship()">Проверить признаки AI</button>
                             <button class="btn-secondary" onclick="clearCode()">
-                                <i class="fas fa-trash"></i> Clear
+                                <i class="fas fa-trash"></i> Очистить
                             </button>
                         </div>
                     </div>
@@ -858,31 +858,31 @@ print(user)
 
                     <!-- Quick Examples -->
                     <div style="margin-top: 24px;">
-                        <h3 style="font-size: 12px; color: #8b8f9e; margin-bottom: 8px;">📚 Examples:</h3>
+                        <h3 style="font-size: 12px; color: #8b8f9e; margin-bottom: 8px;">📚 Примеры:</h3>
                         <button class="btn-secondary" style="width: 100%; margin-bottom: 6px; text-align: left;" onclick="loadExample1()">
-                            Bad Loop Example
+                            Ошибка в цикле
                         </button>
                         <button class="btn-secondary" style="width: 100%; text-align: left;" onclick="loadExample2()">
-                            SQL Injection Risk
+                            Риск SQL-инъекции
                         </button>
                     </div>
                 </div>
 
                 <!-- Results -->
                 <div class="card results-card">
-                    <h3 class="card-title">✨ Analysis Results</h3>
-                    <div id="resultsContainer"><div class="empty-state"><p>Start by analyzing your code.</p></div></div>
+                    <h3 class="card-title">✨ Результаты анализа</h3>
+                    <div id="resultsContainer"><div class="empty-state"><p>Вставьте код и нажмите «Анализировать».</p></div></div>
                 </div>
 
                 <div class="card progress-card">
-                    <div class="progress-heading"><h3 class="card-title">Your Progress</h3><span>Average Score</span></div>
+                    <div class="progress-heading"><h3 class="card-title">Ваш прогресс</h3><span>Средняя оценка</span></div>
                     <div class="progress-body">
                         <div class="progress-chart" aria-label="Progress chart">
                         </div>
                         <div class="progress-summary">
-                            <strong id="progressAverage">0</strong><small>Average Score</small>
-                            <b id="progressCount">0</b><small>Analyses</small>
-                            <button class="btn-primary" onclick="showProgress()">View Progress →</button>
+                            <strong id="progressAverage">0</strong><small>Средняя оценка</small>
+                            <b id="progressCount">0</b><small>Анализы</small>
+                            <button class="btn-primary" onclick="showProgress()">Посмотреть прогресс →</button>
                         </div>
                     </div>
                 </div>
@@ -890,28 +890,28 @@ print(user)
 
                 <aside class="right-rail">
                     <div class="rail-card score-card">
-                        <div class="rail-title">Overall Score</div>
+                        <div class="rail-title">Оценка кода</div>
                         <div class="score-ring">
                             <strong id="railScore">—</strong>
                             <small>/ 100</small>
                         </div>
-                        <p id="railFeedback">Start by analyzing your code.</p>
+                        <p id="railFeedback">Вставьте код и нажмите «Анализировать».</p>
                         <div class="score-breakdown">
-                            <span><b id="railCritical">0</b><em>Critical</em></span>
-                            <span><b id="railImprovement">0</b><em>Improvement</em></span>
-                            <span><b id="railLearning">0</b><em>Learning</em></span>
-                            <span><b id="railGood">0</b><em>Good</em></span>
+                            <span><b id="railCritical">0</b><em>Ошибки</em></span>
+                            <span><b id="railImprovement">0</b><em>Улучшения</em></span>
+                            <span><b id="railLearning">0</b><em>Обучение</em></span>
+                            <span><b id="railGood">0</b><em>Удачные решения</em></span>
                         </div>
                     </div>
                     <div class="rail-card mentor-card">
-                        <div class="rail-title">Mentor Mode <span class="step-pill">Step 1 of 3</span></div>
-                        <div id="railHint" class="rail-hint">Analyze code first to unlock mentor hints.</div>
-                        <div class="hint-actions"><button class="btn-secondary" onclick="changeHint(-1)">← Previous Hint</button><button class="btn-primary" onclick="changeHint(1)">Next Hint →</button></div>
-                        <small class="hint-footer">💡 Hints help you find the solution yourself!</small>
+                        <div class="rail-title">Режим наставника <span class="step-pill">Step 1 of 3</span></div>
+                        <div id="railHint" class="rail-hint">Сначала проанализируйте код, чтобы получить подсказки.</div>
+                        <div class="hint-actions"><button class="btn-secondary" onclick="changeHint(-1)">← Предыдущая подсказка</button><button class="btn-primary" onclick="changeHint(1)">Следующая подсказка →</button></div>
+                        <small class="hint-footer">💡 Подсказки помогают найти решение самостоятельно.</small>
                     </div>
                     <div class="rail-card recent-card">
-                        <div class="rail-title">Recent Analyses <button class="view-all" onclick="loadHistory()">View all</button></div>
-                        <div class="recent-item"><div><small>Loading your analyses...</small></div></div>
+                        <div class="rail-title">Последние анализы <button class="view-all" onclick="loadHistory()">Все</button></div>
+                        <div class="recent-item"><div><small>Загрузка истории…</small></div></div>
                     </div>
                 </aside>
             </div>
@@ -925,58 +925,59 @@ print(user)
             </button>
             <div class="investor-hero">
                 <h2>AI Code Mentor</h2>
-                <p>Интерактивный AI-наставник, который помогает разработчику быстро найти ошибку, понять причину и изучить решение через релевантные материалы.</p>
+                <p>Помощник преподавателя для практики программирования в школах и учебных центрах: задания группам, подсказки ученикам и проверка отправленных работ.</p>
             </div>
             <div class="investor-grid">
-                <div class="investor-stat"><strong>Любой язык</strong><span>Поддержка популярных языков программирования</span></div>
-                <div class="investor-stat"><strong>3 шага</strong><span>Ошибка → объяснение → следующий шаг обучения</span></div>
-                <div class="investor-stat"><strong>24/7</strong><span>Самообслуживание без ожидания ментора</span></div>
+                <div class="investor-stat"><strong>Python и JavaScript</strong><span>Выполнение кода в браузере</span></div>
+                <div class="investor-stat"><strong>Группа и преподаватель</strong><span>Задание → решение → проверка</span></div>
+                <div class="investor-stat"><strong>Русский и узбекский</strong><span>Интерфейс на двух языках</span></div>
             </div>
             <div class="investor-columns">
                 <div class="card">
                     <h3 class="card-title">Проблема</h3>
                     <ul class="investor-list">
-                        <li>Новички видят ошибку, но не понимают её причину.</li>
-                        <li>Поиск решения занимает много времени.</li>
-                        <li>Обычные AI-ответы часто дают готовый код вместо обучения.</li>
+                        <li>Ученики видят ошибку, но не всегда понимают её причину.</li>
+                        <li>Преподавателю нужно проверять решения всей группы.</li>
+                        <li>Готовый ответ сам по себе не подтверждает понимание ученика.</li>
                     </ul>
                 </div>
                 <div class="card">
                     <h3 class="card-title">Решение</h3>
                     <ul class="investor-list">
-                        <li>Анализирует код и находит критические проблемы.</li>
-                        <li>Объясняет «почему», а не только «что исправить».</li>
-                        <li>Даёт пошаговые подсказки и ссылки на YouTube-обучение.</li>
+                        <li>Преподаватель выдаёт задания своей группе.</li>
+                        <li>Ученик пишет код, запускает тесты и получает подсказки.</li>
+                        <li>Преподаватель видит отправленные работы и результаты тестов.</li>
                     </ul>
                 </div>
                 <div class="card">
                     <h3 class="card-title">Бизнес-модель</h3>
                     <ul class="investor-list">
-                        <li>Freemium для начинающих разработчиков.</li>
-                        <li>Pro-подписка для расширенных анализов и истории.</li>
-                        <li>B2B-лицензии для учебных центров и команд.</li>
+                        <li>Планируемая модель — подписка для школ и учебных центров.</li>
+                        <li>Стоимость зависит от числа учеников и лимита AI-анализов.</li>
+                        <li>Тариф и себестоимость предстоит проверить на пилоте.</li>
                     </ul>
                 </div>
                 <div class="card">
                     <h3 class="card-title">Следующий этап</h3>
                     <ul class="investor-list">
-                        <li>Собрать первые интервью и retention-метрики.</li>
-                        <li>Добавить командные кабинеты и отчёты прогресса.</li>
-                        <li>Интегрировать GitHub/GitLab и IDE-плагин.</li>
+                        <li>Провести пилот с преподавателем и учебной группой.</li>
+                        <li>Измерить время проверки, повторные попытки и затраты на AI.</li>
+                        <li>Результаты реального пилота пока не подтверждены.</li>
                     </ul>
                 </div>
             </div>
+            <p class="investor-limits">Тесты выполняются в браузере; преподаватель проверяет код и объяснение ученика. AI может ошибаться. Для Python нужен доступ к CDN; запуск ограничен 10 секундами. Доступность зависит от сети и сервера.</p>
             <div class="button-group" style="max-width:420px;margin:22px auto 0;">
-                <button class="btn-primary" onclick="startInvestorDemo()">Запустить live-demo</button>
-                <button class="btn-secondary" onclick="window.print()">Печать pitch</button>
+                <button class="btn-primary" onclick="startInvestorDemo()">Открыть демонстрацию</button>
+                <button class="btn-secondary" onclick="window.print()">Печать презентации</button>
             </div>
         </div>
     </section>
 
     <div id="authOverlay" class="auth-overlay">
         <div class="auth-box">
-            <h2 id="authTitle">Create your account</h2>
-            <p id="authSubtitle">Registration is required before using the mentor.</p>
+            <h2 id="authTitle">Создайте аккаунт</h2>
+            <p id="authSubtitle">Для работы с наставником войдите или создайте аккаунт.</p>
             <input id="authName" placeholder="Display name (optional)">
             <input id="authEmail" type="email" placeholder="Email">
             <div class="password-input-wrap">
@@ -986,8 +987,8 @@ print(user)
                 </button>
             </div>
             <input id="authCode" inputmode="text" maxlength="64" placeholder="Email verification code" style="display:none">
-            <button class="btn-primary" style="width:100%;" onclick="submitAuth()" id="authSubmit">Register</button>
-            <div class="auth-switch" onclick="toggleAuthMode()" id="authSwitch">Already have an account? Sign in</div>
+            <button class="btn-primary" style="width:100%;" onclick="submitAuth()" id="authSubmit">Регистрация</button>
+            <div class="auth-switch" onclick="toggleAuthMode()" id="authSwitch">Уже есть аккаунт? Войти</div>
             <div id="authError" class="error-message" style="display:none;margin-top:12px;"></div>
         </div>
     </div>
@@ -1048,7 +1049,8 @@ print(user)
 
         function updateProfile(user) {
             if (!user) return;
-            document.getElementById('userEmail').textContent = user.email || 'Not signed in';
+            document.querySelector('.profile-card').hidden = false;
+            document.getElementById('userEmail').textContent = user.email || '';
             document.getElementById('userName').textContent = user.display_name || user.email?.split('@')[0] || 'Пользователь';
             document.querySelector('.profile-avatar').textContent = Array.from(document.getElementById('userName').textContent.trim())[0]?.toLocaleUpperCase() || '?';
             if (user.level == null) return;

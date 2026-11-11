@@ -63,6 +63,21 @@ const assert=require('node:assert/strict');
   await page.selectOption('#localeSelect','ru');
   await page.waitForFunction(()=>document.querySelector('#resultsContainer .error-message').textContent.includes('Неверная почта или пароль'));
   assert.deepEqual(errors,[]);
+  const guest=await browser.newPage();
+  await guest.route('https://**/*',r=>r.abort());
+  await guest.goto('http://127.0.0.1:8080');
+  assert.equal(await guest.locator('.profile-card').isVisible(),false);
+  assert.equal(await guest.locator('#authTitle').textContent(),'Создайте аккаунт');
+  for(const locale of ['uz','ru']) {
+   await guest.evaluate(locale=>setMentorLocale(locale),locale);
+   await guest.waitForFunction(locale=>document.documentElement.lang===locale,locale);
+   assert.equal(await guest.locator('#authTitle').textContent(),locale==='ru'?'Создайте аккаунт':'Hisob yarating');
+   const pitch=await guest.locator('#investorPanel').textContent();
+   assert.doesNotMatch(pitch,/Freemium|24\/7|Любой язык|YouTube/);
+   assert.match(pitch,locale==='ru'?/школах и учебных центрах/:/Maktab va o‘quv markazlarida/);
+   if(locale==='uz') assert.doesNotMatch(pitch,/[А-Яа-яЁё]/);
+  }
+  await guest.close();
   console.log('PASS: RU/UZ shell, score labels, dynamic step/level, hints, snippets, progress/statistics and auth errors; model content/code preserved.');
  } finally {await browser.close();}
 })().catch(e=>{console.error(e);process.exitCode=1});
