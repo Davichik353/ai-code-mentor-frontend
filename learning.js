@@ -108,14 +108,23 @@
         if(!localStorage.getItem('mentor_token') && view!=='public') { root.removeAttribute('aria-busy'); showSignIn(); showAuthOverlay(); return; }
         pendingAuth=false;
         root.setAttribute('aria-busy','true');
-        show(`<section class="learning-card learning-state" role="status"><h2>${tr('Загружаем учебный кабинет…','O‘quv xonasi yuklanmoqda…')}</h2><p>${tr('Здесь будут ваши группы и задания. Бесплатный сервер после простоя может запускаться до минуты.','Bu yerda guruhlaringiz va topshiriqlaringiz bo‘ladi. Bepul server tanaffusdan so‘ng bir daqiqagacha ishga tushishi mumkin.')}</p></section>`);
+        show(`<section class="learning-card learning-state learning-loading" role="status" aria-live="polite"><span class="learning-spinner" aria-hidden="true"></span><h2>${tr('Загружаем кабинет','Xona yuklanmoqda')}</h2><p>${tr('Получаем ваши группы и задания…','Guruhlar va topshiriqlar olinmoqda…')}</p><div class="learning-skeleton" aria-hidden="true"><span></span><span></span><span></span></div></section>`);
+        const slowTimer=setTimeout(()=>{
+            if(navigation===navigationId && root.getAttribute('aria-busy')==='true') {
+                const text=root.querySelector('.learning-loading p');
+                if(text) text.textContent=tr('Сервер отвечает дольше обычного. Подождите немного…','Server odatdagidan sekinroq javob bermoqda. Biroz kuting…');
+            }
+        },10000);
         try {
         const previous=key();
         let data;
         if(view==='home') {
-            const [profile,groups,templates]=await Promise.all([api('/profile'),api('/groups'),api('/templates')]);
-            state.profile=profile; state.templates=templates; data={groups};
-        } else if(view==='group') data=await api(`/groups/${encodeURIComponent(id)}`);
+            const [profile,groups]=await Promise.all([api('/profile'),api('/groups')]);
+            state.profile=profile; data={groups};
+        } else if(view==='group') {
+            data=await api(`/groups/${encodeURIComponent(id)}`);
+            if(canManage(data)&&!state.templates.length) state.templates=await api('/templates');
+        }
         else if(view==='assignment') data=await api(`/assignments/${encodeURIComponent(id)}`);
         else if(view==='submission') data=await api(`/submissions/${encodeURIComponent(id)}`);
         else if(view==='portfolio') { state.profile=await api('/profile'); data=await api('/portfolio'); }
@@ -132,6 +141,7 @@
             if(!pendingAuth) show(`<section class="learning-card learning-state"><h2>${view==='public'?tr('Портфолио недоступно','Portfolio mavjud emas'):tr('Не удалось загрузить кабинет','O‘quv xonasini yuklab bo‘lmadi')}</h2><p>${esc(error.message)}</p><div class="actions">${button(tr('Повторить загрузку','Qayta yuklash'),'home')}${button(tr('Вернуться к редактору','Muharrirga qaytish'),'editor')}</div></section>`);
             message(error.message);
         } finally {
+            clearTimeout(slowTimer);
             if(navigation===navigationId) root.removeAttribute('aria-busy');
         }
     }

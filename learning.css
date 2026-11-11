@@ -55,3 +55,13 @@
 .journal-scroll th,.journal-scroll td { padding:14px; border:1px solid #846695; text-align:left; min-width:180px; }
 .journal-scroll td p { font-size:13px; margin-top:8px; }
 .journal-scroll th { font-weight:700; }
+
+.learning-loading { text-align:center; padding:32px; }
+.learning-spinner { display:block; width:38px; height:38px; margin:0 auto 18px; border:3px solid #b398c640; border-top-color:#c961ed; border-radius:50%; animation:learning-spin .85s linear infinite; }
+.learning-skeleton { display:grid; gap:12px; margin-top:24px; }
+.learning-skeleton span { display:block; height:16px; border-radius:8px; background:linear-gradient(90deg,#9b76b218,#c592dd45,#9b76b218); background-size:200% 100%; animation:learning-shimmer 1.6s ease-in-out infinite; }
+.learning-skeleton span:nth-child(2) { width:80%; }
+.learning-skeleton span:nth-child(3) { width:60%; }
+@keyframes learning-spin { to { transform:rotate(360deg); } }
+@keyframes learning-shimmer { to { background-position:-200% 0; } }
+@media(prefers-reduced-motion:reduce) { .learning-spinner,.learning-skeleton span { animation:none; } }
