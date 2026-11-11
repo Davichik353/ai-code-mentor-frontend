@@ -17,7 +17,7 @@
     function render(){
         const d=state.draft,a=state.account;
         if(!d||!a)return;
-        const date=new Date(a.created_at);
+        const date=parseServerDate(a.created_at);
         const registered=Number.isNaN(date.getTime())?'—':date.toLocaleDateString(window.MentorLocale==='uz'?'uz-UZ':'ru-RU');
         root.innerHTML=`<form id="accountSettingsForm"><div class="settings-page-intro"><h2>${tr('Настройте кабинет под себя','Kabinetni o‘zingizga moslang')}</h2><p>${tr('Имя сохраняется в аккаунте. Параметры интерфейса и редактора — в этом браузере.','Ism hisobda saqlanadi. Interfeys va muharrir sozlamalari shu brauzerda saqlanadi.')}</p></div>
         <div class="settings-grid"><section class="settings-card"><h3>${tr('Профиль','Profil')}</h3>

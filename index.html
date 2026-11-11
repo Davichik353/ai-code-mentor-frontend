@@ -1454,8 +1454,15 @@ def get_user(user_id):
             }
         }
 
+        // Legacy server timestamps were stored in UTC without an offset.
+        function parseServerDate(timestamp) {
+            if (typeof timestamp === 'string' && /^\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}:\d{2}(?:\.\d+)?$/.test(timestamp.trim())) {
+                timestamp = timestamp.trim().replace(' ', 'T') + 'Z';
+            }
+            return new Date(timestamp);
+        }
         function formatHistoryTime(timestamp) {
-            const date = new Date(timestamp);
+            const date = parseServerDate(timestamp);
             if (Number.isNaN(date.getTime())) return 'Recently';
             const seconds = Math.max(0, Math.floor((Date.now() - date.getTime()) / 1000));
             if (seconds < 60) return 'Just now';
