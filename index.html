@@ -833,17 +833,12 @@
                                 <select id="executionLanguage" class="language-select"><option>Python</option><option>JavaScript</option></select>
                         <div class="editor-toolbar"><span class="editor-file"><span id="editorLanguageIcon" aria-hidden="true">Py</span> <input id="editorFileLabel" value="main.py" aria-label="Имя файла" title="Изменить имя файла" maxlength="120" spellcheck="false" onchange="renameEditorFile()"></span><div class="editor-actions"><button type="button" id="saveEditorCode" class="save-editor" onclick="saveCodeFromEditor()"><i class="far fa-bookmark" aria-hidden="true"></i> <span>Сохранить код</span></button><button class="clear-editor" onclick="clearCode()">Очистить</button></div></div><p id="editorSaveStatus" class="editor-save-status" role="status" aria-live="polite"></p>
                                 <label for="codeInput">Код программы — пишите здесь</label>
-                        <textarea id="codeInput">def get_user(user_id):
-    query = "SELECT * FROM users WHERE id = %s"
-    conn = sqlite3.connect("db.sqlite3")
-    cursor = conn.cursor()
-    cursor.execute(query, (user_id,))
-    return cursor.fetchone()
+                        <textarea id="codeInput">def capitalize(text):
+    return text.title()
 
-user_input = input("Enter user id: ")
-user = get_user(user_input)
-print(user)
-</textarea>
+print(capitalize("shop"))
+print(capitalize("python programming"))
+print(capitalize("how are you!"))</textarea>
                                 <label for="executionInput">Данные для input() — не код</label>
                                 <textarea id="executionInput" rows="3" placeholder="Например: 42" aria-describedby="executionInputHelp"></textarea>
                                 <small id="executionInputHelp">Только ответы программе, например 42 или имя. Если input() нет — оставьте пустым.</small>
