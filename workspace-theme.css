@@ -105,3 +105,8 @@ body:not(.light-mode) #languageSelect.language-select { background:#211532; colo
 .xp-help { margin-top:10px; font-size:11px; color:var(--muted); }
 .xp-help summary { cursor:pointer; }
 .profile-card .xp-help p { margin:8px 0; font-size:11px; line-height:1.5; }
+
+.execution-controls #codeInput { display:block; width:100%; height:330px; min-height:240px; padding:14px; font-family:monospace; font-size:var(--mentor-code-font-size,14px); line-height:1.6; resize:vertical; }
+.execution-controls #executionInput { height:64px; min-height:64px; }
+.execution-grid { grid-template-columns:minmax(0,1.25fr) minmax(0,1fr); }
+@media(max-width:700px) { .execution-grid { grid-template-columns:1fr; } }

@@ -799,7 +799,7 @@
                 <!-- Code Input -->
                 <div class="card code-card">
                     <div class="code-editor">
-                        <div class="editor-toolbar"><span class="editor-file"><span id="editorLanguageIcon" aria-hidden="true">Py</span> <input id="editorFileLabel" value="main.py" aria-label="Имя файла" title="Изменить имя файла" maxlength="120" spellcheck="false" onchange="renameEditorFile()"></span><div class="editor-actions"><button type="button" id="saveEditorCode" class="save-editor" onclick="saveCodeFromEditor()"><i class="far fa-bookmark" aria-hidden="true"></i> <span>Сохранить код</span></button><button class="clear-editor" onclick="clearCode()">Очистить</button></div></div><p id="editorSaveStatus" class="editor-save-status" role="status" aria-live="polite"></p>
+
                         <label class="editor-label">Введите код или загрузите файл:</label>
                         <select id="languageSelect" onchange="changeEditorLanguage()" class="language-select" aria-label="Язык анализа">
                             <option value="">Определить язык автоматически</option>
@@ -808,17 +808,7 @@
                             <option>Rust</option><option>PHP</option><option>Ruby</option><option>SQL</option>
                             <option>HTML</option><option>CSS</option><option>Другой</option>
                         </select>
-                        <textarea id="codeInput">def get_user(user_id):
-    query = "SELECT * FROM users WHERE id = %s"
-    conn = sqlite3.connect("db.sqlite3")
-    cursor = conn.cursor()
-    cursor.execute(query, (user_id,))
-    return cursor.fetchone()
 
-user_input = input("Enter user id: ")
-user = get_user(user_input)
-print(user)
-</textarea>
                         <div class="file-row">
                             <label class="file-upload" for="fileInput"><i class="fas fa-upload"></i> Загрузить файл</label>
                             <input id="fileInput" type="file" onchange="loadFile(event)">
@@ -841,16 +831,29 @@ print(user)
                             <div class="execution-controls">
                                 <label for="executionLanguage">Язык запуска</label>
                                 <select id="executionLanguage" class="language-select"><option>Python</option><option>JavaScript</option></select>
-                                <label for="executionInput">Входные данные</label>
+                        <div class="editor-toolbar"><span class="editor-file"><span id="editorLanguageIcon" aria-hidden="true">Py</span> <input id="editorFileLabel" value="main.py" aria-label="Имя файла" title="Изменить имя файла" maxlength="120" spellcheck="false" onchange="renameEditorFile()"></span><div class="editor-actions"><button type="button" id="saveEditorCode" class="save-editor" onclick="saveCodeFromEditor()"><i class="far fa-bookmark" aria-hidden="true"></i> <span>Сохранить код</span></button><button class="clear-editor" onclick="clearCode()">Очистить</button></div></div><p id="editorSaveStatus" class="editor-save-status" role="status" aria-live="polite"></p>
+                                <label for="codeInput">Код программы — пишите здесь</label>
+                        <textarea id="codeInput">def get_user(user_id):
+    query = "SELECT * FROM users WHERE id = %s"
+    conn = sqlite3.connect("db.sqlite3")
+    cursor = conn.cursor()
+    cursor.execute(query, (user_id,))
+    return cursor.fetchone()
+
+user_input = input("Enter user id: ")
+user = get_user(user_input)
+print(user)
+</textarea>
+                                <label for="executionInput">Данные для input() — не код</label>
                                 <textarea id="executionInput" rows="3" placeholder="Например: 42" aria-describedby="executionInputHelp"></textarea>
-                                <small id="executionInputHelp">Для input() / prompt() — по одной строке.</small>
+                                <small id="executionInputHelp">Только ответы программе, например 42 или имя. Если input() нет — оставьте пустым.</small>
                                 <div class="execution-actions">
                                     <button class="btn-primary" id="runCodeButton" onclick="runCode()">▶ Запустить</button>
                                     <button class="btn-secondary" id="stopCodeButton" onclick="stopCode()" disabled>■ Остановить</button>
                                 </div>
                             </div>
                             <div class="execution-result">
-                                <h4>Вывод программы</h4>
+                                <h4>Терминал — результат и ошибки</h4>
                                 <pre id="executionOutput" aria-label="Вывод программы"></pre>
                                 <p id="executionStatus" role="status" aria-live="polite">Готово к запуску.</p>
                             </div>
