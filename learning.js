@@ -42,7 +42,23 @@
             if(el.type==='checkbox') el.checked=value; else if(el.tagName!=='SELECT'||[...el.options].some(o=>o.value===value)) el.value=value;
         }
     }
-    function show(html) { root.innerHTML=html; restoreDraft(); }
+    function show(html) { root.innerHTML=html; restoreDraft(); updatePasteNotice(); }
+    function updatePasteNotice() {
+        const notice=document.getElementById('codePasteNotice');
+        if(notice) notice.hidden=field('codePasteDetected')!=='true';
+    }
+    function recordCodePaste(event) {
+        if(state.view!=='assignment'||!canSubmit(state.data)||!['assignmentCode','changedCode'].includes(event.target.id)) return;
+        if(event.type==='beforeinput'&&!['insertFromPaste','insertFromDrop'].includes(event.inputType)) return;
+        if(event.target.readOnly||event.target.disabled||event.defaultPrevented) return;
+        if(event.type==='paste'&&!event.clipboardData?.getData('text/plain')) return;
+        if(event.type==='drop'&&!event.dataTransfer?.getData('text/plain')) return;
+        const flag=document.getElementById('codePasteDetected');
+        if(flag) {flag.value='true';updatePasteNotice();persistAssignment();}
+    }
+    root.addEventListener('paste',recordCodePaste);
+    root.addEventListener('beforeinput',recordCodePaste);
+    root.addEventListener('drop',recordCodePaste);
     function message(text) { feedback.textContent=text; }
     function updateNavigation() {
         document.getElementById('learningNavLabel').textContent=tr('Учебный кабинет','O‘quv xonasi');
@@ -282,6 +298,7 @@
     function renderAssignment() {
         const a=state.data;
         return `${a.archived?`<p class="notice">${tr('Группа в архиве. Отправка новых работ закрыта.','Guruh arxivda. Yangi ish yuborish yopilgan.')}</p>`:''}${back('group',a.group_id)}<h2>${esc(local(a.title))}</h2><p>${exerciseBadges(a)}</p><p>${esc(local(a.prompt))}</p>
+        ${canSubmit(a)?`<input type="hidden" id="codePasteDetected" value="false"><p class="notice">${tr('Вставка кода разрешена. Факт вставки из буфера или перетаскивания текста отмечается в отправленной работе для преподавателя.','Kod joylashga ruxsat berilgan. Buferdan joylash yoki matnni sudrash holati o‘qituvchi uchun yuborilgan ishda belgilanadi.')}</p><p class="notice" id="codePasteNotice" role="status" hidden>${tr('Зафиксирована вставка текста в код. При сдаче преподаватель увидит отметку: источник неизвестен.','Kodga matn joylangani qayd etildi. Topshirilganda o‘qituvchi manba noma’lum belgisini ko‘radi.')}</p>`:''}
         ${a.is_owner?`<p class="notice">${tr('Просмотр своего задания. Можно написать код и запустить тесты; отправка работы самому себе недоступна.','O‘z topshirig‘ingizni ko‘rish. Kod yozib testlarni bajaring; ishni o‘zingizga yuborib bo‘lmaydi.')}</p>`:''}
         <p class="notice">${tr('1. Напишите код → 2. Запустите тесты → 3. Объясните решение → 4. Отправьте преподавателю.','1. Kod yozing → 2. Testlarni bajaring → 3. Yechimni tushuntiring → 4. O‘qituvchiga yuboring.')}</p><div class="assignment-workspace"><section class="learning-card assignment-editor"><h3>${tr('Редактор решения','Yechim muharriri')}</h3><label for="assignmentCode">${tr('Ваш код','Sizning kodingiz')}</label><textarea class="code" id="assignmentCode" spellcheck="false" maxlength="10000" rows="12">${esc(a.starter_code)}</textarea>
         <div class="actions">${button(tr('Запустить тесты','Testlarni ishga tushirish'),'test',a.id,'id="assignmentTestButton"')}${button(tr('Остановить','To‘xtatish'),'stop','', 'id="assignmentStopButton" disabled')}</div>
@@ -304,6 +321,7 @@
     function renderSubmission() {
         const s=state.data;
         return `${back('group',s.group_id)}<h2>${esc(local(s.title))}</h2><p>${esc(status(s.status))}</p>${notice()}
+        ${s.code_paste_detected?`<p class="notice" role="note">${tr('При работе над решением или мини-защитой зафиксирована вставка текста из буфера обмена или перетаскиванием. Источник неизвестен. Это сообщение браузера, а не доказательство списывания; вставленный текст мог быть изменён или удалён.','Yechim yoki kichik himoya ustida ishlaganda buferdan yoki sudrash orqali matn joylangani qayd etilgan. Manba noma’lum. Bu brauzer xabari, ko‘chirish isboti emas; joylangan matn o‘zgartirilgan yoki o‘chirilgan bo‘lishi mumkin.')}</p>`:''}
         <section class="learning-card"><h3>${tr('Исходное решение','Asosiy yechim')}</h3><pre>${esc(s.code)}</pre><p>${esc(s.explanation)}</p>
         <h3>${tr('Мини-защита','Kichik himoya')}</h3><p>${esc(local(s.change))}</p><pre>${esc(s.changed_code)}</pre><p>${esc(s.change_explanation)}</p>
         <h3>${tr('Отчёт тестов','Test hisoboti')}</h3>${s.results.map((r,i)=>`<details><summary>${tr('Тест','Test')} ${i+1}: ${r.passed?tr('пройден','o‘tdi'):tr('не пройден','o‘tmadi')}</summary><p>${tr('Ожидалось','Kutilgan')}</p><pre>${esc(s.tests[i].expected_stdout)}</pre><p>${tr('Получено / ошибка','Olingan natija / xato')}</p><pre>${esc(r.error||r.stdout)}</pre></details>`).join('')}
@@ -455,7 +473,7 @@
         }
         if(name==='submit') {
             if(!state.report||state.report.code!==field('assignmentCode')) throw new Error(tr('Сначала запустите тесты для текущего кода.','Avval joriy kod uchun testlarni bajaring.'));
-            const data=await api(`/assignments/${id}/submissions`,{code:state.report.code,results:state.report.results.map(r=>({stdout:r.stdout,error:r.truncated?'Output limit reached':r.error})),explanation:field('defenseExplanation'),changed_code:field('changedCode'),change_explanation:field('changeExplanation')});
+            const data=await api(`/assignments/${id}/submissions`,{code:state.report.code,results:state.report.results.map(r=>({stdout:r.stdout,error:r.truncated?'Output limit reached':r.error})),explanation:field('defenseExplanation'),changed_code:field('changedCode'),code_paste_detected:field('codePasteDetected')==='true',change_explanation:field('changeExplanation')});
             return open('submission',data.id);
         }
         if(name==='approve'||name==='revise') { await api(`/submissions/${id}/review`,{decision:name==='approve'?'approved':'needs_revision',feedback:field('reviewFeedback')}); return open('submission',id); }
