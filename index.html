@@ -953,9 +953,10 @@
                     <i id="togglePasswordIcon" class="fas fa-eye"></i>
                 </button>
             </div>
-            <input id="authCode" inputmode="text" maxlength="64" placeholder="Email verification code" style="display:none">
+            <input id="authCode" autocomplete="one-time-code" inputmode="numeric" maxlength="64" placeholder="Email verification code" style="display:none">
             <button class="btn-primary" style="width:100%;" onclick="submitAuth()" id="authSubmit">Регистрация</button>
             <div class="auth-switch" onclick="toggleAuthMode()" id="authSwitch">Уже есть аккаунт? Войти</div>
+            <button type="button" class="auth-switch verify-entry" onclick="showVerificationEntry()">Уже есть код из письма</button>
             <div id="authError" class="error-message" style="display:none;margin-top:12px;"></div>
         </div>
     </div>
@@ -1069,6 +1070,7 @@
             document.getElementById('authTitle').textContent = authMode === 'register' ? 'Create your account' : 'Welcome back';
             authSubmit.textContent = authMode === 'register' ? 'Register' : 'Sign in';
             authSubmit.onclick = submitAuth;
+            authSubmit.disabled = false;
             authName.style.display = authMode === 'register' ? 'block' : 'none';
             authCode.style.display = 'none';
             authError.style.display = 'none';
@@ -1077,6 +1079,12 @@
                 ? 'Already have an account? Sign in' : 'No account yet? Register';
         }
 
+        function showVerificationEntry() {
+            const btn=document.getElementById('authSubmit');
+            document.getElementById('authCode').style.display='block';
+            btn.textContent='Verify email';btn.onclick=verifyEmail;btn.disabled=false;
+            document.getElementById('authCode').focus();
+        }
         async function submitAuth() {
             const btn = document.getElementById('authSubmit');
             const originalText = btn.textContent;
@@ -1093,7 +1101,10 @@
                 if (authMode === 'register') body.display_name = document.getElementById('authName').value.trim() || null;
                 const response = await fetch(`${API_URL}/auth/${authMode}`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(body) });
                 const data = await response.json();
-                if (!response.ok) throw new Error(data.detail || 'Authentication failed');
+                if (!response.ok) {
+                    if (response.status === 403 && data.detail === 'Verify your email before signing in') showVerificationEntry();
+                    throw new Error(data.detail || 'Authentication failed');
+                }
                 if (authMode === 'register' && data.access_token && !data.verification_required) {
                     localStorage.setItem('mentor_token', data.access_token);
                     hideAuthOverlay();
@@ -1130,6 +1141,10 @@
                     }
                 }
             } catch (e) { error.textContent = e.message; error.style.display = 'block'; }
+            finally {
+                btn.disabled = false;
+                btn.textContent = btn.onclick === verifyEmail ? 'Verify email' : (authMode === 'register' ? 'Register' : 'Sign in');
+            }
         }
 
         async function verifyEmail() {
@@ -1139,8 +1154,8 @@
             btn.textContent = 'Verifying...';
             document.getElementById('authError').style.display = 'none';
             try {
-                const email = encodeURIComponent(document.getElementById('authEmail').value);
-                const code = encodeURIComponent(document.getElementById('authCode').value);
+                const email = encodeURIComponent(document.getElementById('authEmail').value.trim());
+                const code = encodeURIComponent(document.getElementById('authCode').value.trim());
                 const response = await fetch(`${API_URL}/auth/verify-email?email=${email}&code=${code}`, { method: 'POST' });
                 const data = await response.json();
                 if (!response.ok) { document.getElementById('authError').textContent = data.detail || 'Verification failed'; document.getElementById('authError').style.display = 'block'; return; }
