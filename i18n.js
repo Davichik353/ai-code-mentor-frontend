@@ -3,6 +3,10 @@ window.MentorLocale = localStorage.getItem('mentor_locale') === 'uz' ? 'uz' : 'r
 // Only application-owned strings are translated here. User code and AI explanations
 // remain untouched; the model receives its response language in the API request.
 const uiTranslations = {
+'Отправить код ещё раз':['Отправить код ещё раз','Kodni qayta yuborish'],
+'Please wait before requesting another code':['Подождите перед повторной отправкой кода.','Kodni qayta yuborishdan oldin kuting.'],
+'A new code has been sent. Use the latest email.':['Новый код отправлен. Используйте последнее письмо.','Yangi kod yuborildi. Oxirgi xatdagi koddan foydalaning.'],
+'Email already verified. Sign in.':['Почта уже подтверждена. Переключитесь на вход.','Pochta tasdiqlangan. Hisobga kiring.'],
 'Уже есть код из письма':['Уже есть код из письма','Xatdagi kod menda bor'],
 'Too many verification attempts':['Слишком много попыток. Попробуйте позже.','Urinishlar juda ko‘p. Keyinroq urinib ko‘ring.'],
 "РАБОЧЕЕ ПРОСТРАНСТВО":["РАБОЧЕЕ ПРОСТРАНСТВО", "ISH MAYDONI"],

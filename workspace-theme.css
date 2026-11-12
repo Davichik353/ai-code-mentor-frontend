@@ -93,3 +93,7 @@ body[data-workspace-screen]:not([data-workspace-screen=editor]) .code-card,body[
 .board-empty { font-size:12px !important; text-align:center; padding:24px 0; }.board-mobile-tabs { display:none; }.group-footer { margin-top:28px; padding-top:18px; border-top:1px solid var(--border); }
 @media(max-width:1100px) and (min-width:701px) { .assignment-board { grid-template-columns:repeat(2,minmax(0,1fr)); } }
 @media(max-width:700px) { .group-heading { align-items:flex-start; }.board-mobile-tabs { display:flex; gap:5px; overflow-x:auto; padding:8px 0; }.assignment-board { display:block; }.board-column { display:none; }.board-column.mobile-selected { display:block; }.group-tabs { gap:0; } }
+.light-mode .auth-box .auth-switch { display:block; width:100%; margin:12px 0 0; padding:10px 8px; min-height:40px; border:0; border-radius:6px; background:transparent; color:#2563eb; text-align:center; font-size:13px; font-weight:500; box-shadow:none; }
+.light-mode .auth-box .auth-switch:hover { background:#f2f5fb; }
+.light-mode .auth-box #resendCode:disabled { color:#667085; opacity:1; }
+.light-mode #authError[data-state=success] { background:#edf6f1; color:#306b4c; border-color:#c5dfd0; }

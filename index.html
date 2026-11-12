@@ -955,8 +955,9 @@
             </div>
             <input id="authCode" autocomplete="one-time-code" inputmode="numeric" maxlength="64" placeholder="Email verification code" style="display:none">
             <button class="btn-primary" style="width:100%;" onclick="submitAuth()" id="authSubmit">Регистрация</button>
-            <div class="auth-switch" onclick="toggleAuthMode()" id="authSwitch">Уже есть аккаунт? Войти</div>
+            <button type="button" class="auth-switch" onclick="toggleAuthMode()" id="authSwitch">Уже есть аккаунт? Войти</button>
             <button type="button" class="auth-switch verify-entry" onclick="showVerificationEntry()">Уже есть код из письма</button>
+            <button type="button" id="resendCode" class="auth-switch" onclick="resendVerificationCode()" hidden>Отправить код ещё раз</button>
             <div id="authError" class="error-message" style="display:none;margin-top:12px;"></div>
         </div>
     </div>
@@ -1073,6 +1074,8 @@
             authSubmit.disabled = false;
             authName.style.display = authMode === 'register' ? 'block' : 'none';
             authCode.style.display = 'none';
+            document.querySelector('.verify-entry').hidden=false;
+            document.getElementById('resendCode').hidden=true;
             authError.style.display = 'none';
             authError.textContent = '';
             document.getElementById('authSwitch').textContent = authMode === 'register'
@@ -1082,8 +1085,31 @@
         function showVerificationEntry() {
             const btn=document.getElementById('authSubmit');
             document.getElementById('authCode').style.display='block';
+            document.querySelector('.verify-entry').hidden=true;
+            document.getElementById('resendCode').hidden=false;
             btn.textContent='Verify email';btn.onclick=verifyEmail;btn.disabled=false;
             document.getElementById('authCode').focus();
+        }
+        let resendAvailableAt=0;
+        async function resendVerificationCode() {
+            const btn=document.getElementById('resendCode'), error=document.getElementById('authError');
+            if(Date.now()<resendAvailableAt)return;
+            btn.disabled=true;error.style.display='none';
+            try {
+                const response=await fetch(`${API_URL}/auth/resend-verification`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:document.getElementById('authEmail').value.trim(),password:document.getElementById('authPassword').value})});
+                const data=await response.json();
+                if(!response.ok){
+                    if(response.status===429)resendAvailableAt=Date.now()+Number(response.headers.get('Retry-After')||60)*1000;
+                    throw new Error(data.detail||'Network error');
+                }
+                resendAvailableAt=Date.now()+60000;
+                document.getElementById('authCode').value='';
+                error.textContent=data.message;error.dataset.state='success';
+            } catch(e){error.textContent=e.message;error.dataset.state='error';}
+            finally {
+                error.style.display='block';
+                const tick=()=>{const seconds=Math.ceil((resendAvailableAt-Date.now())/1000);btn.disabled=seconds>0;btn.textContent=seconds>0?(window.MentorLocale==='uz'?`Qayta yuborish: ${seconds} s`:`Повторная отправка через ${seconds} с`):(window.MentorLocale==='uz'?'Kodni qayta yuborish':'Отправить код ещё раз');if(seconds>0)setTimeout(tick,1000);};tick();
+            }
         }
         async function submitAuth() {
             const btn = document.getElementById('authSubmit');
@@ -1094,6 +1120,7 @@
             const email = document.getElementById('authEmail').value.trim();
             const password = document.getElementById('authPassword').value;
             const error = document.getElementById('authError');
+            error.dataset.state='error';
             if (!email) { error.textContent = 'Enter your email address.'; error.style.display = 'block'; btn.disabled = false; btn.textContent = originalText; return; }
             if (authMode === 'register' && password.length < 10) { error.textContent = 'Password must be at least 10 characters.'; error.style.display = 'block'; btn.disabled = false; btn.textContent = originalText; return; }
             try {
@@ -1120,7 +1147,7 @@
                         if (xpFill) xpFill.style.width = `${xpPercent}%`;
                     }
                 } else if (authMode === 'register') {
-                    document.getElementById('authCode').style.display = 'block';
+                    showVerificationEntry();
                     document.getElementById('authSubmit').textContent = 'Verify email';
                     document.getElementById('authSubmit').onclick = verifyEmail;
                     error.textContent = 'Verification code sent. Enter the code from your email.';
@@ -1152,6 +1179,7 @@
             const originalText = btn.textContent;
             btn.disabled = true;
             btn.textContent = 'Verifying...';
+            document.getElementById('authError').dataset.state='error';
             document.getElementById('authError').style.display = 'none';
             try {
                 const email = encodeURIComponent(document.getElementById('authEmail').value.trim());
