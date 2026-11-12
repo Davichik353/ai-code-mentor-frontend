@@ -68,6 +68,9 @@
         const data=await response.json();
         if(!response.ok) {
             if(response.status===401) {localStorage.removeItem('mentor_token'); showSignIn(); showAuthOverlay(); throw new Error(tr('Войдите в аккаунт.','Hisobingizga kiring.'));}
+            if(/\/(assignment-drafts|custom-assignments)$/.test(path)) {
+                throw new Error(typeof data.detail==='string'?data.detail:tr('Проверьте название, условие и тесты. Нужен хотя бы один тест с полями stdin и expected_stdout.','Nom, shart va testlarni tekshiring. stdin va expected_stdout maydonlari bilan kamida bitta test kerak.'));
+            }
             if(response.status===422) throw new Error(tr('Проверьте поля: объяснения — от 20 символов, код — от 5.','Maydonlarni tekshiring: izohlar kamida 20 belgi, kod kamida 5 belgi.'));
             const errors={
                 'Exercise already assigned to this group':['Это задание уже выдано группе. Выберите другое.','Bu topshiriq guruhga berilgan. Boshqasini tanlang.'],
