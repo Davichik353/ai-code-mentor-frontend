@@ -2,7 +2,7 @@
 (() => {
     const root=document.getElementById('learningRoot');
     const feedback=document.getElementById('learningFeedback');
-    const state={view:'home',data:null,profile:null,templates:[],filters:{catalog:{category:'all',difficulty:'all',language:'all'},assigned:{category:'all',difficulty:'all',language:'all'},glossary:{category:'all',language:'Python',query:''}},drafts:{},report:null,controller:null,publicSlug:null};
+    const state={groupTab:'board',boardColumn:'todo',groupId:null,view:'home',data:null,profile:null,templates:[],filters:{catalog:{category:'all',difficulty:'all',language:'all'},assigned:{category:'all',difficulty:'all',language:'all'},glossary:{category:'all',language:'Python',query:''}},drafts:{},report:null,controller:null,publicSlug:null};
     let loadedAccount='';
     let navigationId=0;
     let pendingAuth=false;
@@ -139,6 +139,7 @@
             state.profile=profile; data={groups};
         } else if(view==='group') {
             data=await api(`/groups/${encodeURIComponent(id)}`);
+            if(state.groupId!==id){state.groupId=id;state.groupTab='board';state.boardColumn='todo';}
             if(canManage(data)&&!state.templates.length) state.templates=await api('/templates');
         }
         else if(view==='assignment') data=await api(`/assignments/${encodeURIComponent(id)}`);
@@ -214,25 +215,46 @@
         ${!g.members.length?`<p>${tr('Пока нет учеников. Передайте им код приглашения ниже.','Hali o‘quvchilar yo‘q. Quyidagi taklif kodini ularga bering.')}</p>`:!g.assignments.length?`<p>${tr('Выдайте первое задание группе ниже.','Quyida guruhga birinchi topshiriqni bering.')}</p>`:
         `<div class="journal-scroll" tabindex="0" aria-label="${tr('Журнал группы','Guruh jurnali')}"><table><thead><tr><th scope="col">${tr('Ученик','O‘quvchi')}</th>${g.assignments.map(a=>`<th scope="col">${esc(local(a.title))}<br><small>${esc(a.language)}</small></th>`).join('')}</tr></thead><tbody>${g.members.map(m=>`<tr><th scope="row">${esc(m.display_name||tr('Ученик','O‘quvchi'))}</th>${g.assignments.map(a=>{const w=latest.get(m.id+':'+a.id);return `<td>${w?`${button(status(w.status),'submission',w.id)}<p>${w.tests_passed?tr('Все тесты пройдены','Barcha testlar o‘tdi'):tr('Есть ошибки в тестах','Testlarda xatolar bor')}</p>`:tr('Не отправлено','Yuborilmagan')}</td>`;}).join('')}</tr>`).join('')}</tbody></table></div>`}</section>`;
     }
-    function renderGroup() {
-        const g=state.data;
-        const templates=filteredExercises(state.templates,'catalog');
+    function boardColumns() {return [['todo',tr('К выполнению','Bajarish kerak')],['pending_review',tr('На проверке','Tekshiruvda')],['needs_revision',tr('Доработать','Tuzatish kerak')],['approved',tr('Принято','Qabul qilingan')]];}
+    function renderBoard(g) {
+        const teacher=canManage(g), columns=Object.fromEntries(boardColumns().map(([k])=>[k,[]]));
+        if(!teacher&&!Array.isArray(g.my_submissions)) return `<p class="notice">${tr('Статусы работ пока недоступны. Обновите группу немного позже.','Ish holatlari hozircha mavjud emas. Guruhni birozdan keyin yangilang.')}</p>`;
         const assignments=filteredExercises(g.assignments,'assigned');
-        const assignmentName=id=>local(g.assignments.find(a=>a.id===id)?.title)||id;
-        return `${back('home')}<h2>${esc(g.title)}</h2><span class="badge">${canManage(g)?tr('Преподаватель этой группы','Bu guruh o‘qituvchisi'):tr('Ученик этой группы','Bu guruh o‘quvchisi')}</span><p>${esc(g.description)}</p>
-        ${canManage(g)?renderJournal(g):''}
-        ${g.archived?`<p class="notice">${tr('Группа в архиве. Задания и работы сохранены. Вступление и отправка работ закрыты.','Guruh arxivda. Topshiriqlar va ishlar saqlangan. Qo‘shilish va ish yuborish yopilgan.')}</p>`:''}
-        ${canManage(g)?button(g.archived?tr('Восстановить группу','Guruhni tiklash'):tr('Архивировать группу','Guruhni arxivlash'),g.archived?'restore-group':'archive-group',g.id):''}
-        ${canManage(g)?'':button(tr('Выйти из группы','Guruhdan chiqish'),'leave-group',g.id)}
-        ${canManage(g)&&!g.archived?`<section class="learning-card"><h3>${tr('Пригласить учеников','O‘quvchilarni taklif qilish')}</h3><p>${tr('Передайте ученикам код. Вступившие по нему участники не могут выдавать или менять задания.','Kodni o‘quvchilarga bering. Kod orqali kirganlar topshiriq bera olmaydi va o‘zgartira olmaydi.')}</p><pre id="groupJoinCode">${esc(g.join_code)}</pre>
+        const latest=new Map();
+        for(const work of (teacher?g.submissions:g.my_submissions)||[]) {
+            const k=teacher?work.user_id+':'+work.assignment_id:work.assignment_id;
+            if(!latest.has(k)) latest.set(k,work);
+        }
+        for(const a of assignments) {
+            const works=[...latest.values()].filter(w=>w.assignment_id===a.id);
+            const card=(work)=>`<article class="board-card"><h4>${esc(local(a.title))}</h4><div>${exerciseBadges(a)}</div>${work?`<p>${teacher?esc(work.display_name||tr('Ученик','O‘quvchi')):esc(status(work.status))}</p><p>${work.tests_passed?tr('Тесты пройдены','Testlar o‘tildi'):tr('Есть ошибки в тестах','Testlarda xatolar bor')}</p>${button(teacher?tr('Проверить работу','Ishni tekshirish'):tr('Открыть попытку','Urinishni ochish'),'submission',work.id)}`:`${teacher?`<p>${tr('Сдали','Yuborganlar')}: ${works.length} · ${tr('Учеников в группе','Guruhdagi o‘quvchilar')}: ${g.member_count??g.members.length}</p>`:''}${button(tr('Открыть задание','Topshiriqni ochish'),'assignment',a.id)}`}${work&&!teacher?button(tr('Открыть задание','Topshiriqni ochish'),'assignment',a.id):''}</article>`;
+            if(teacher) {
+                columns.todo.push(card(null));
+                for(const work of works) (columns[work.status]||columns.pending_review).push(card(work));
+            } else {
+                const work=works[0];(columns[work?.status]||columns.todo).push(card(work));
+            }
+        }
+        return `<p class="board-caption">${teacher?tr('Слева — все задания. В остальных колонках — последние отправленные работы каждого ученика.','Chapda barcha topshiriqlar. Qolgan ustunlarda har bir o‘quvchining oxirgi yuborgan ishlari.'):tr('Статус меняется после отправки работы и проверки преподавателем.','Holat ish yuborilgandan va o‘qituvchi tekshirgandan so‘ng o‘zgaradi.')}</p>
+        <div class="board-mobile-tabs" aria-label="${tr('Статус заданий','Topshiriq holati')}">${boardColumns().map(([k,label])=>button(`${label} (${columns[k].length})`,'board-column',k,`aria-pressed="${state.boardColumn===k}"`)).join('')}</div>
+        <div class="assignment-board" id="assignedExercises">${boardColumns().map(([k,label])=>`<section class="board-column ${state.boardColumn===k?'mobile-selected':''}" data-column="${k}"><header><h3>${teacher&&k==='todo'?tr('Все задания','Barcha topshiriqlar'):label}</h3><span>${columns[k].length}</span></header>${columns[k].join('')||`<p class="board-empty">${tr('Здесь пока пусто','Hozircha bo‘sh')}</p>`}</section>`).join('')}</div>`;
+    }
+    function renderGroup() {
+        const g=state.data,teacher=canManage(g);
+        const templates=filteredExercises(state.templates,'catalog');
+        const tabs=[['board',tr('Задания','Topshiriqlar')],...(teacher?[['members',tr('Ученики','O‘quvchilar')],['journal',tr('Журнал','Jurnal')],['manage',tr('Управление','Boshqarish')]]:[])];
+        let content='';
+        if(state.groupTab==='journal'&&teacher) content=renderJournal(g);
+        else if(state.groupTab==='members'&&teacher) content=`<section class="learning-card"><h3>${tr('Ученики группы','Guruh o‘quvchilari')}</h3>${g.members.map(m=>`<p>${esc(m.display_name||tr('Ученик','O‘quvchi'))}</p>`).join('')||`<p>${tr('Пока нет учеников','Hali o‘quvchilar yo‘q')}</p>`}</section>`;
+        else if(state.groupTab==='manage'&&teacher) content=`        ${canManage(g)&&!g.archived?`<section class="learning-card"><h3>${tr('Пригласить учеников','O‘quvchilarni taklif qilish')}</h3><p>${tr('Передайте ученикам код. Вступившие по нему участники не могут выдавать или менять задания.','Kodni o‘quvchilarga bering. Kod orqali kirganlar topshiriq bera olmaydi va o‘zgartira olmaydi.')}</p><pre id="groupJoinCode">${esc(g.join_code)}</pre>
         <h3>${tr('Выдать задание','Topshiriq berish')}</h3>${exerciseFilters('catalog',state.templates)}<p>${tr('Подходящих заданий','Mos topshiriqlar')}: <strong id="catalogCount">${templates.length}</strong> / ${state.templates.length}</p>
         <label>${tr('Задание','Topshiriq')}<select id="templateChoice" ${templates.length?'':'disabled'}>${templates.length?templates.map(t=>`<option value="${esc(t.id)}">${esc(local(t.title))} · ${esc(t.language)}</option>`).join(''):`<option>${tr('Измените фильтры','Filtrlarni o‘zgartiring')}</option>`}</select></label>${button(tr('Выдать группе','Guruhga berish'),'assign',g.id,templates.length?'':'disabled')}</section>`:`<p class="notice">${tr('Задания выдаёт преподаватель этой группы. Ниже — ваши задания и редактор решения.','Topshiriqlarni bu guruh o‘qituvchisi beradi. Quyida topshiriqlaringiz va yechim muharriri.')}</p>`}
-        <h3 style="margin-top:18px">${tr('Задания группы','Guruh topshiriqlari')}</h3>${g.assignments.length?exerciseFilters('assigned',g.assignments):''}<div class="learning-grid" id="assignedExercises">${assignments.map(a=>`<section class="learning-card"><h3>${esc(local(a.title))}</h3><p>${exerciseBadges(a)}</p>${button(tr('Открыть задание','Topshiriqni ochish'),'assignment',a.id)}</section>`).join('')||`<p>${g.assignments.length?tr('Нет заданий по выбранным фильтрам.','Tanlangan filtrlar bo‘yicha topshiriq yo‘q.'):tr('Преподаватель ещё не выдал задания.','O‘qituvchi hali topshiriq bermagan.')}</p>`}</div>
-        ${canManage(g)?`<section class="learning-card"><h3>${tr('Обзор группы','Guruh holati')}</h3><p>${tr('Участников / сдали работу / принято последних работ / всего попыток','Ishtirokchilar / ish yuborganlar / qabul qilingan oxirgi ishlar / jami urinishlar')}: <strong>${g.members.length} / ${g.summary.learners_submitted} / ${g.summary.approved} / ${g.summary.attempts}</strong></p>
-        <p>${g.members.map(m=>esc(m.display_name||tr('Ученик','O‘quvchi'))).join(', ')||tr('Пока нет учеников','Hali o‘quvchilar yo‘q')}</p>
-        <h3>${tr('Частые затруднения — по последним отчётам','Ko‘p uchragan qiyinchiliklar — oxirgi hisobotlar bo‘yicha')}</h3>
-        ${g.summary.common_failures.map(f=>`<p>${esc(assignmentName(f.assignment_id))} · ${tr('тест','test')} ${f.case}: ${f.learners} ${tr('учеников не прошли','o‘quvchi o‘ta olmadi')}</p>`).join('')||`<p>${tr('Нет проваленных тестов в последних отчётах.','Oxirgi hisobotlarda muvaffaqiyatsiz testlar yo‘q.')}</p>`}
-        ${notice()}<h3>${tr('Работы на проверку','Tekshirish uchun ishlar')}</h3>${g.submissions.map(s=>`<div class="test-row"><p>${esc(s.display_name||tr('Ученик','O‘quvchi'))} · ${esc(assignmentName(s.assignment_id))} · ${esc(status(s.status))}</p>${button(tr('Проверить работу','Ishni tekshirish'),'submission',s.id)}</div>`).join('')||`<p>${tr('Работ пока нет.','Hali ishlar yo‘q.')}</p>`}</section>`:''}`;
+        <div class="actions">${button(g.archived?tr('Восстановить группу','Guruhni tiklash'):tr('Архивировать группу','Guruhni arxivlash'),g.archived?'restore-group':'archive-group',g.id)}</div>`;
+        else content=`${g.assignments.length?exerciseFilters('assigned',g.assignments):`<p>${tr('Преподаватель ещё не выдал задания.','O‘qituvchi hali topshiriq bermagan.')}</p>`}${renderBoard(g)}`;
+        return `${back('home')}<div class="group-heading"><div><h2>${esc(g.title)}</h2><p>${esc(g.description)}</p><p>${tr('Преподаватель','O‘qituvchi')}: ${esc(g.teacher_name||tr('Создатель группы','Guruh yaratuvchisi'))} · ${tr('Учеников','O‘quvchilar')}: ${g.member_count??g.members?.length??'—'} · ${tr('Заданий','Topshiriqlar')}: ${g.assignments.length}</p></div>${button(tr('Обновить','Yangilash'),'group',g.id)}</div>
+        ${g.archived?`<p class="notice">${tr('Группа в архиве. Новые работы не принимаются.','Guruh arxivda. Yangi ishlar qabul qilinmaydi.')}</p>`:''}
+        <nav class="group-tabs" aria-label="${tr('Разделы группы','Guruh bo‘limlari')}">${tabs.map(([k,label])=>button(label,'group-tab',k,`aria-pressed="${state.groupTab===k}"`)).join('')}</nav>${content}
+        ${teacher?'':`<div class="group-footer">${button(tr('Выйти из группы','Guruhdan chiqish'),'leave-group',g.id)}</div>`}`;
     }
     function renderAssignment() {
         const a=state.data;
@@ -339,6 +361,8 @@
         }
     }
     async function action(name,id) {
+        if(name==='group-tab'){state.groupTab=id;render();return;}
+        if(name==='board-column'){state.boardColumn=id;render();return;}
         if(name==='sign-in') { showAuthOverlay(); return; }
         if(['home','group','assignment','submission','portfolio','glossary'].includes(name)) return open(name,id);
         if(name==='editor') return close();

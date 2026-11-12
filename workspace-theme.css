@@ -80,3 +80,16 @@ body[data-workspace-screen]:not([data-workspace-screen=editor]) .content { grid-
 body[data-workspace-screen]:not([data-workspace-screen=editor]) .code-card,body[data-workspace-screen]:not([data-workspace-screen=editor]) .right-rail,body[data-workspace-screen]:not([data-workspace-screen=editor]) .progress-card { display:none; }
 .light-mode #forgotPassword { color:#2563eb !important; }
 .light-mode .settings-account-actions button[data-settings-action=delete] { color:#ad3939; border-color:#e7bebe; }
+.group-heading { display:flex; align-items:center; justify-content:space-between; gap:20px; margin-top:16px; }.group-heading > button { flex:none; }
+.group-tabs { display:flex; gap:6px; border-bottom:1px solid var(--border); margin:20px 0; padding-bottom:8px; overflow:auto; }
+.light-mode .group-tabs button,.light-mode .board-mobile-tabs button { background:transparent; border-color:transparent; color:#667085; white-space:nowrap; }
+.light-mode .group-tabs button[aria-pressed=true],.light-mode .board-mobile-tabs button[aria-pressed=true] { background:#e9effc; color:#2456aa; }
+.assignment-board { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:14px; margin:20px 0; align-items:start; }
+.board-column { padding:12px; background:#edf0f5; border-radius:10px; min-height:250px; min-width:0; }
+.board-column > header { display:flex; align-items:center; justify-content:space-between; gap:8px; margin:0 0 14px; }
+.learning-panel .board-column h3 { font-size:13px; margin:0; }.board-column > header > span { background:#fff; border-radius:5px; padding:2px 7px; font-size:11px; color:#667085; }
+.board-column[data-column=pending_review] { background:#edf2fc; }.board-column[data-column=needs_revision] { background:#faf2e7; }.board-column[data-column=approved] { background:#eaf4ef; }
+.board-card { padding:14px; background:#fff; border:1px solid #e1e6ed; border-radius:8px; margin-bottom:12px; overflow-wrap:anywhere; }.board-card h4 { font-size:14px; margin-bottom:12px; }.learning-panel .board-card p { font-size:12px; }.learning-panel .board-card .badge { margin:3px 3px 3px 0; font-size:10px; }.light-mode .board-card button { background:#fff; color:#315f9e; border-color:#dae3f0; font-size:11px; padding:7px 9px; margin:4px 0; width:100%; }
+.board-empty { font-size:12px !important; text-align:center; padding:24px 0; }.board-mobile-tabs { display:none; }.group-footer { margin-top:28px; padding-top:18px; border-top:1px solid var(--border); }
+@media(max-width:1100px) and (min-width:701px) { .assignment-board { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+@media(max-width:700px) { .group-heading { align-items:flex-start; }.board-mobile-tabs { display:flex; gap:5px; overflow-x:auto; padding:8px 0; }.assignment-board { display:block; }.board-column { display:none; }.board-column.mobile-selected { display:block; }.group-tabs { gap:0; } }

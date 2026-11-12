@@ -25,7 +25,7 @@ const crypto=require('node:crypto');
   await teacher.click('[data-action="profile"]');await teacher.waitForSelector('#groupTitle');
   await teacher.fill('#groupTitle','Browser pilot');
   await teacher.fill('#groupDescription','Full learning workflow');
-  await teacher.click('[data-action="create-group"]');await teacher.waitForSelector('#groupJoinCode');
+  await teacher.click('[data-action="create-group"]');await teacher.click('[data-action="group-tab"][data-id="manage"]');await teacher.waitForSelector('#groupJoinCode');
   const code=await teacher.locator('#groupJoinCode').textContent();
   await teacher.selectOption('#templateChoice','sum-js');
   await teacher.click('[data-action="assign"]');
