@@ -249,12 +249,32 @@
         else if(state.groupTab==='manage'&&teacher) content=`        ${canManage(g)&&!g.archived?`<section class="learning-card"><h3>${tr('Пригласить учеников','O‘quvchilarni taklif qilish')}</h3><p>${tr('Передайте ученикам код. Вступившие по нему участники не могут выдавать или менять задания.','Kodni o‘quvchilarga bering. Kod orqali kirganlar topshiriq bera olmaydi va o‘zgartira olmaydi.')}</p><pre id="groupJoinCode">${esc(g.join_code)}</pre>
         <h3>${tr('Выдать задание','Topshiriq berish')}</h3>${exerciseFilters('catalog',state.templates)}<p>${tr('Подходящих заданий','Mos topshiriqlar')}: <strong id="catalogCount">${templates.length}</strong> / ${state.templates.length}</p>
         <label>${tr('Задание','Topshiriq')}<select id="templateChoice" ${templates.length?'':'disabled'}>${templates.length?templates.map(t=>`<option value="${esc(t.id)}">${esc(local(t.title))} · ${esc(t.language)}</option>`).join(''):`<option>${tr('Измените фильтры','Filtrlarni o‘zgartiring')}</option>`}</select></label>${button(tr('Выдать группе','Guruhga berish'),'assign',g.id,templates.length?'':'disabled')}</section>`:`<p class="notice">${tr('Задания выдаёт преподаватель этой группы. Ниже — ваши задания и редактор решения.','Topshiriqlarni bu guruh o‘qituvchisi beradi. Quyida topshiriqlaringiz va yechim muharriri.')}</p>`}
-        <div class="actions">${button(g.archived?tr('Восстановить группу','Guruhni tiklash'):tr('Архивировать группу','Guruhni arxivlash'),g.archived?'restore-group':'archive-group',g.id)}</div>`;
+        ${g.archived?'':renderImport(g.id)}<div class="actions">${button(g.archived?tr('Восстановить группу','Guruhni tiklash'):tr('Архивировать группу','Guruhni arxivlash'),g.archived?'restore-group':'archive-group',g.id)}</div>`;
         else content=`${g.assignments.length?exerciseFilters('assigned',g.assignments):`<p>${tr('Преподаватель ещё не выдал задания.','O‘qituvchi hali topshiriq bermagan.')}</p>`}${renderBoard(g)}`;
         return `${back('home')}<div class="group-heading"><div><h2>${esc(g.title)}</h2><p>${esc(g.description)}</p><p>${tr('Преподаватель','O‘qituvchi')}: ${esc(g.teacher_name||tr('Создатель группы','Guruh yaratuvchisi'))} · ${tr('Учеников','O‘quvchilar')}: ${g.member_count??g.members?.length??'—'} · ${tr('Заданий','Topshiriqlar')}: ${g.assignments.length}</p></div>${button(tr('Обновить','Yangilash'),'group',g.id)}</div>
         ${g.archived?`<p class="notice">${tr('Группа в архиве. Новые работы не принимаются.','Guruh arxivda. Yangi ishlar qabul qilinmaydi.')}</p>`:''}
         <nav class="group-tabs" aria-label="${tr('Разделы группы','Guruh bo‘limlari')}">${tabs.map(([k,label])=>button(label,'group-tab',k,`aria-pressed="${state.groupTab===k}"`)).join('')}</nav>${content}
         ${teacher?'':`<div class="group-footer">${button(tr('Выйти из группы','Guruhdan chiqish'),'leave-group',g.id)}</div>`}`;
+    }
+    function renderImport(id) {
+        return `<section class="learning-card"><h3>${tr('Своё задание из текста или файла','Matn yoki fayldan o‘z topshirig‘i')}</h3>
+        <p>${tr('AI подготовит до 5 черновиков. Проверьте условия и ответы тестов перед публикацией. Текст документа отправляется AI-сервису.','AI 5 tagacha qoralama tayyorlaydi. Nashrdan oldin shartlar va test javoblarini tekshiring. Hujjat matni AI xizmatiga yuboriladi.')}</p>
+        <label>${tr('Условия заданий','Topshiriqlar shartlari')}<textarea id="importText" rows="5" maxlength="30000"></textarea></label>
+        <label>${tr('PDF с текстом или Word (.docx), до 4 МБ','Matnli PDF yoki Word (.docx), 4 MB gacha')}<input id="importFile" type="file" accept=".pdf,.docx"></label>
+        <label>${tr('Язык решений','Yechimlar tili')}<select id="importLanguage"><option>Python</option><option>JavaScript</option></select></label>
+        ${button(tr('Подготовить задания с AI','AI bilan topshiriqlar tayyorlash'),'import-tasks',id)}<p id="importStatus" role="status"></p><div id="importDrafts"></div></section>`;
+    }
+    function showImportedDrafts(tasks,groupId) {
+        document.getElementById('importDrafts').innerHTML=tasks.map((task,i)=>`<section class="learning-card import-draft" data-language="${esc(task.language)}">
+        <h4>${tr('Черновик','Qoralama')} ${i+1}</h4>
+        <label>${tr('Название','Nomi')}<input data-draft="title" maxlength="120" value="${esc(task.title)}"></label>
+        <label>${tr('Условие для ученика','O‘quvchi uchun shart')}<textarea data-draft="prompt" rows="7">${esc(task.prompt)}</textarea></label>
+        <label>${tr('Тесты: ввод и ожидаемый вывод (JSON)','Testlar: kiritish va kutilgan natija (JSON)')}<textarea class="code" data-draft="tests" rows="8">${esc(JSON.stringify(task.tests,null,2))}</textarea></label>
+        <label>${tr('Вопрос для защиты','Himoya savoli')}<textarea data-draft="defense_question">${esc(task.defense_question)}</textarea></label>
+        <label>${tr('Изменение программы для защиты','Himoya uchun dastur o‘zgarishi')}<textarea data-draft="change">${esc(task.change)}</textarea></label>
+        <p>${tr('Ученики получат условие и редактор. Решение не создаётся. Тесты не показаны в условии, но доступны через браузер. Для экзамена со скрытыми ответами этот режим не подходит.','O‘quvchilar shart va muharrirni oladi. Tayyor yechim yaratilmaydi. Testlar shartda ko‘rsatilmaydi, lekin brauzer orqali mavjud. Bu rejim yashirin javobli imtihon uchun mos emas.')}</p>
+        <label><input type="checkbox" data-draft="reviewed"> ${tr('Я проверил условие и ожидаемые ответы','Shart va kutilgan javoblarni tekshirdim')}</label>
+        ${button(tr('Выдать это задание группе','Bu topshiriqni guruhga berish'),'publish-custom',groupId)}</section>`).join('');
     }
     function renderAssignment() {
         const a=state.data;
@@ -263,16 +283,16 @@
         <p class="notice">${tr('1. Напишите код → 2. Запустите тесты → 3. Объясните решение → 4. Отправьте преподавателю.','1. Kod yozing → 2. Testlarni bajaring → 3. Yechimni tushuntiring → 4. O‘qituvchiga yuboring.')}</p><div class="assignment-workspace"><section class="learning-card assignment-editor"><h3>${tr('Редактор решения','Yechim muharriri')}</h3><label for="assignmentCode">${tr('Ваш код','Sizning kodingiz')}</label><textarea class="code" id="assignmentCode" spellcheck="false" maxlength="10000" rows="12">${esc(a.starter_code)}</textarea>
         <div class="actions">${button(tr('Запустить тесты','Testlarni ishga tushirish'),'test',a.id,'id="assignmentTestButton"')}${button(tr('Остановить','To‘xtatish'),'stop','', 'id="assignmentStopButton" disabled')}</div>
         <p id="draftStatus" role="status">${tr('Черновик сохраняется в этом браузере при вводе.','Qoralama yozish davomida shu brauzerda saqlanadi.')}</p><p id="assignmentRunStatus" role="status" aria-live="polite"></p><div id="assignmentTestResults"></div></section>
-        <aside class="learning-card"><h3>${tr('Подсказки к решению','Yechimga maslahatlar')}</h3><p>${tr('Сначала попробуйте сами. Подсказки открываются по очереди; пример решения — после вашего объяснения.','Avval o‘zingiz urinib ko‘ring. Maslahatlar ketma-ket ochiladi; namuna yechim esa izohingizdan keyin.')}</p>
+        <aside class="learning-card">${a.custom?'':`<h3>${tr('Подсказки к решению','Yechimga maslahatlar')}</h3><p>${tr('Сначала попробуйте сами. Подсказки открываются по очереди; пример решения — после вашего объяснения.','Avval o‘zingiz urinib ko‘ring. Maslahatlar ketma-ket ochiladi; namuna yechim esa izohingizdan keyin.')}</p>
         <div id="learningHints">${a.hints.map((h,i)=>`<p>${i+1}. ${esc(local(h))}</p>`).join('')}</div>
         ${a.is_owner?'':button(tr('Следующая подсказка','Keyingi maslahat'),'hint',a.id,`id="hintButton" ${a.hints.length>=a.hint_count?'disabled':''}`)}
         <details><summary>${tr('Нужен пример решения?','Namuna yechim kerakmi?')}</summary><label>${tr('Что вы уже пробовали? Не менее 20 символов.','Nimani sinab ko‘rdingiz? Kamida 20 belgi.')}<textarea id="solutionReflection" maxlength="3000"></textarea></label>${button(tr('Показать пример','Namunani ko‘rsatish'),'solution',a.id,`id="solutionButton" ${!a.is_owner&&a.hints.length<a.hint_count?'disabled':''}`)}<pre id="learningSolution" hidden></pre></details>
-        <h3>${tr('Проверочные примеры','Tekshiruv misollari')}</h3>${a.tests.map((t,i)=>`<details><summary>${tr('Тест','Test')} ${i+1}</summary><p>${tr('Ввод','Kiritish')}</p><pre>${esc(t.stdin)}</pre><p>${tr('Ожидаемый вывод','Kutilgan natija')}</p><pre>${esc(t.expected_stdout)}</pre></details>`).join('')}
-        ${button(tr('Открыть словарь','Lug‘atni ochish'),'glossary')}</aside></div>
+        `}${a.custom&&!a.is_owner?'':`<h3>${tr('Проверочные примеры','Tekshiruv misollari')}</h3>${a.tests.map((t,i)=>`<details><summary>${tr('Тест','Test')} ${i+1}</summary><p>${tr('Ввод','Kiritish')}</p><pre>${esc(t.stdin)}</pre><p>${tr('Ожидаемый вывод','Kutilgan natija')}</p><pre>${esc(t.expected_stdout)}</pre></details>`).join('')}
+        `}${button(tr('Открыть словарь','Lug‘atni ochish'),'glossary')}</aside></div>
         ${canSubmit(a)?`<section class="learning-card"><h3>${tr('Мини-защита','Kichik himoya')}</h3><ul>${a.defense_questions.map(q=>`<li>${esc(local(q))}</li>`).join('')}</ul>
         <label>${tr('Объяснение решения и граничного случая (от 20 символов)','Yechim va chegaraviy holat izohi (kamida 20 belgi)')}<textarea id="defenseExplanation" maxlength="3000"></textarea></label>
-        <p>${esc(local(a.change))}</p><label>${tr('Изменённый код для защиты','Himoya uchun o‘zgartirilgan kod')}<textarea class="code" id="changedCode" spellcheck="false" maxlength="10000"></textarea></label>
-        <label>${tr('Проверочный ввод для изменённого кода','O‘zgartirilgan kod uchun kiritish')}<textarea id="changedInput" maxlength="5000"></textarea></label>
+        <p>${esc(local(a.change))}</p>${button(tr('Скопировать своё решение','O‘z yechimimni nusxalash'),'copy-change')}<label>${tr('Изменённый код для защиты','Himoya uchun o‘zgartirilgan kod')}<textarea class="code" id="changedCode" spellcheck="false" rows="10" placeholder="${tr('Пишите изменённую программу здесь','O‘zgartirilgan dasturni shu yerga yozing')}" maxlength="10000"></textarea></label>
+        <label>${tr('Данные для input() / prompt() — не код','input() / prompt() uchun ma’lumotlar — kod emas')}<textarea id="changedInput" rows="3" placeholder="${tr('Например: 2 и 3, каждое число с новой строки. Если ввода нет — оставьте пустым.','Masalan: 2 va 3, har biri yangi qatorda. Kiritish bo‘lmasa, bo‘sh qoldiring.')}" maxlength="5000"></textarea></label>
         ${button(tr('Проверить изменённый код','O‘zgartirilgan kodni sinash'),'run-change',a.id,'id="changeRunButton"')}<pre id="changedOutput" hidden></pre>
         <label>${tr('Что и почему изменили (от 20 символов)','Nima va nima uchun o‘zgardi (kamida 20 belgi)')}<textarea id="changeExplanation" maxlength="3000"></textarea></label>
         ${button(tr('Отправить преподавателю','O‘qituvchiga yuborish'),'submit',a.id,'id="assignmentSubmitButton" disabled')}</section>
@@ -360,7 +380,7 @@
             const editor=document.getElementById('assignmentCode'); if(editor) editor.readOnly=false;
         }
     }
-    async function action(name,id) {
+    async function action(name,id,sourceButton) {
         if(name==='group-tab'){state.groupTab=id;render();return;}
         if(name==='board-column'){state.boardColumn=id;render();return;}
         if(name==='sign-in') { showAuthOverlay(); return; }
@@ -383,18 +403,50 @@
             state.report=null;
             return open('home');
         }
+        if(name==='import-tasks') {
+            const statusEl=document.getElementById('importStatus');
+            const file=document.getElementById('importFile').files[0];
+            if(file && (file.size>4*1024*1024 || !/\.(pdf|docx)$/i.test(file.name))) throw new Error(tr('Нужен PDF или DOCX до 4 МБ.','4 MB gacha PDF yoki DOCX kerak.'));
+            statusEl.textContent=tr('AI готовит черновики…','AI qoralamalar tayyorlamoqda…');
+            try {
+                const encoded=file?await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result.split(',')[1]);reader.onerror=reject;reader.readAsDataURL(file);}):'';
+                const data=await api(`/groups/${id}/assignment-drafts`,{text:field('importText'),filename:file?.name||'',file_base64:encoded,language:field('importLanguage'),locale:window.MentorLocale||'ru'});
+                showImportedDrafts(data.tasks,id); statusEl.textContent=tr('Черновики готовы. Проверьте каждый перед выдачей.','Qoralamalar tayyor. Berishdan oldin har birini tekshiring.');
+            } catch(error) {statusEl.textContent=tr('Не удалось подготовить задания. Исходный текст сохранён в форме.','Topshiriqlar tayyorlanmadi. Asl matn shaklda saqlangan.');throw error;}
+            return;
+        }
+        if(name==='publish-custom') {
+            const card=sourceButton.closest('.import-draft');
+            if(!card.querySelector('[data-draft="reviewed"]').checked) throw new Error(tr('Сначала проверьте условие и ответы тестов.','Avval shart va test javoblarini tekshiring.'));
+            const data={language:card.dataset.language};
+            for(const key of ['title','prompt','defense_question','change']) data[key]=card.querySelector(`[data-draft="${key}"]`).value;
+            try {data.tests=JSON.parse(card.querySelector('[data-draft="tests"]').value);} catch {throw new Error(tr('Проверьте формат JSON тестов.','Testlarning JSON formatini tekshiring.'));}
+            await api(`/groups/${id}/custom-assignments`,data);
+            card.innerHTML=`<p role="status">${tr('Задание выдано группе. Обновите доску, чтобы увидеть его.','Topshiriq guruhga berildi. Uni ko‘rish uchun doskani yangilang.')}</p>`;
+            return;
+        }
         if(name==='assign') { await api(`/groups/${id}/assignments`,{template_id:field('templateChoice')}); return open('group',id); }
         if(name==='hint') { const data=await api(`/assignments/${id}/hints`,{}); state.data.hints=data.hints; saveDraft(); render(); return; }
         if(name==='solution') { const data=await api(`/assignments/${id}/solution`,{reflection:field('solutionReflection')}); const el=document.getElementById('learningSolution'); el.hidden=false; el.textContent=data.solution; return; }
         if(name==='test') return runTests();
         if(name==='stop') {state.controller?.abort(); const el=document.getElementById('assignmentRunStatus'); if(el) el.textContent=tr('Выполнение остановлено.','Bajarish to‘xtatildi.'); return;}
+        if(name==='copy-change') {
+            if(field('changedCode').trim() && !confirm(tr('Заменить изменённый код своим основным решением?','O‘zgartirilgan kod asosiy yechim bilan almashtirilsinmi?'))) return;
+            document.getElementById('changedCode').value=field('assignmentCode'); persistAssignment(); return;
+        }
         if(name==='run-change') {
+            if(!field('changedCode').trim()) throw new Error(tr('Введите программу в поле «Изменённый код для защиты».','Dasturni o‘zgartirilgan kod maydoniga yozing.'));
+
             const controller=new AbortController(); state.controller=controller;
             const el=document.getElementById('changedOutput'); el.hidden=false; el.textContent=tr('Выполнение…','Bajarilmoqda…');
             document.getElementById('assignmentStopButton').disabled=false;
             try {
                 const result=await BrowserExecutor.run({code:field('changedCode'),language:state.data.language,stdin:field('changedInput'),signal:controller.signal});
-                if(el.isConnected) el.textContent=result.error||result.stdout||tr('(пустой вывод)','(bo‘sh natija)');
+                if(el.isConnected) {
+                    const error=result.error;
+                    const last=error?.trim().split('\n').filter(Boolean).pop();
+                    el.textContent=error ? `${tr('Ошибка в изменённой программе:','O‘zgartirilgan dasturda xato:')} ${last}\n${tr('Проверьте код выше. В поле данных должны быть только ответы для input(), а не программа.','Yuqoridagi kodni tekshiring. Ma’lumotlar maydonida dastur emas, input() uchun javoblar bo‘lishi kerak.')}` : result.stdout||tr('Программа завершилась без вывода. Для отображения результата используйте print() или console.log().','Dastur natijasiz yakunlandi. Natijani ko‘rsatish uchun print() yoki console.log() ishlating.');
+                }
             } finally { if(state.controller===controller) state.controller=null; const stop=document.getElementById('assignmentStopButton'); if(stop) stop.disabled=true; }
             return;
         }
@@ -411,7 +463,7 @@
         const name=el.dataset.action;
         if(state.controller && !['stop','home','group','editor'].includes(name)) return;
         el.disabled=true; message('');
-        try {await action(name,el.dataset.id);} catch(error) {message(error.message||tr('Ошибка соединения.','Ulanish xatosi.'));}
+        try {await action(name,el.dataset.id,el);} catch(error) {message(error.message||tr('Ошибка соединения.','Ulanish xatosi.'));}
         finally {if(el.isConnected && !['stop'].includes(name)) el.disabled=false;}
     });
     root.addEventListener('change',event=>{
