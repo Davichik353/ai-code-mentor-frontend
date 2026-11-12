@@ -192,13 +192,14 @@
         const p=state.profile;
         return `<h2>${tr('Учебный кабинет','O‘quv xonasi')}</h2><p>${tr('Получайте задания в группе преподавателя или создайте свою группу для обучения.','O‘qituvchi guruhida topshiriq oling yoki o‘qitish uchun o‘z guruhingizni yarating.')}</p>
         <div class="actions">${button(tr('Моё портфолио','Mening portfoliom'),'portfolio')}${button(tr('Словарь и команды','Lug‘at va buyruqlar'),'glossary')}${button(tr('Открыть редактор','Muharrirni ochish'),'editor')}</div>
+                <h3>${tr('Мои группы','Mening guruhlarim')}</h3><div class="learning-grid" id="activeGroups">${state.data.groups.filter(g=>!g.archived).map(groupCard).join('')||tr('Активных групп пока нет.','Hozircha faol guruhlar yo‘q.')}</div>
         <div class="learning-grid"><section class="learning-card"><h3>${tr('Режим кабинета','Xona rejimi')}</h3>
             <p>${tr('Преподаватель управляет только созданными им группами. В чужой группе участник остаётся учеником независимо от выбранного режима.','O‘qituvchi faqat o‘zi yaratgan guruhlarni boshqaradi. Boshqa guruhda tanlangan rejimdan qat’i nazar ishtirokchi o‘quvchi bo‘lib qoladi.')}</p>
             <label>${tr('Режим','Rejim')}<select id="learningRole"><option value="learner" ${p.role==='learner'?'selected':''}>${tr('Ученик','O‘quvchi')}</option><option value="teacher" ${p.role==='teacher'?'selected':''}>${tr('Преподаватель — моя группа','O‘qituvchi — o‘z guruhim')}</option></select></label>
             ${button(tr('Сохранить режим','Rejimni saqlash'),'profile')}</section>
         <section class="learning-card"><h3>${tr('Вступить как ученик','O‘quvchi sifatida qo‘shilish')}</h3><p>${tr('Введите код преподавателя. Задания в этой группе выдаёт только её создатель.','O‘qituvchi kodini kiriting. Bu guruhda topshiriqlarni faqat guruh yaratuvchisi beradi.')}</p><label>${tr('Код от преподавателя','O‘qituvchi bergan kod')}<input id="joinCode" maxlength="64" autocomplete="off"></label>${button(tr('Присоединиться','Qo‘shilish'),'join')}</section>
         ${p.role==='teacher'?`<section class="learning-card"><h3>${tr('Создать свою группу','O‘z guruhini yaratish')}</h3><label>${tr('Название группы','Guruh nomi')}<input id="groupTitle" maxlength="120"></label><label>${tr('Описание','Tavsif')}<textarea id="groupDescription" maxlength="1000"></textarea></label>${button(tr('Создать группу','Guruh yaratish'),'create-group')}</section>`:''}</div>
-        <h3>${tr('Мои группы','Mening guruhlarim')}</h3><div class="learning-grid" id="activeGroups">${state.data.groups.filter(g=>!g.archived).map(groupCard).join('')||tr('Активных групп пока нет.','Hozircha faol guruhlar yo‘q.')}</div>
+
         <details id="archivedGroups"><summary>${tr('Архив групп','Guruhlar arxivi')} (${state.data.groups.filter(g=>g.archived).length})</summary><div class="learning-grid">${state.data.groups.filter(g=>g.archived).map(groupCard).join('')||tr('Архив пуст.','Arxiv bo‘sh.')}</div></details>`;
 
     }

@@ -27,7 +27,7 @@
         <p class="settings-help">${tr('В своей группе вы преподаватель, в группе по коду — ученик.','O‘z guruhingizda o‘qituvchisiz, kod orqali kirgan guruhda esa o‘quvchisiz.')}</p></section>
         <section class="settings-card"><h3>${tr('Интерфейс','Interfeys')}</h3>
         ${select('settingsLocale',tr('Язык интерфейса','Interfeys tili'),[['ru','Русский'],['uz','O‘zbekcha']],d.locale)}
-        ${select('settingsTheme',tr('Оформление','Ko‘rinish'),[['light',tr('Светлое','Yorug‘')],['dark',tr('Тёмное','Qorong‘i')]],d.theme)}
+        ${select('settingsTheme',tr('Оформление','Ko‘rinish'),[['light',tr('Светлое','Yorug‘')]],d.theme)}
         <p class="settings-help">${tr('Язык объяснений AI соответствует языку интерфейса.','AI izohlari interfeys tilida beriladi.')}</p></section>
         <section class="settings-card"><h3>${tr('Редактор и анализ','Muharrir va tahlil')}</h3>
         ${select('settingsLanguage',tr('Язык кода по умолчанию','Standart kod tili'),[['',tr('Определять автоматически','Avtomatik aniqlash')],...['Python','JavaScript','TypeScript','Java','C++','C#','Go','Rust','PHP','Ruby','SQL','HTML','CSS','Other'].map(x=>[x,x])],d.defaultLanguage)}

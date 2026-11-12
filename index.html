@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Code Mentor - Interactive</title>
+    <title>AI Code Mentor — учебное пространство</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="learning.css">
     <link rel="stylesheet" href="settings.css">
@@ -722,7 +722,7 @@
         .light-mode #executionLanguage { background:#fff; color:#261329; border-color:var(--border); }
         @media(max-width:700px) { .execution-grid { grid-template-columns:1fr; gap:20px; } .execution-panel { padding:16px; } }
     </style>
-    <link rel="stylesheet" href="workspace-theme.css">
+    <link rel="stylesheet" href="workspace-theme.css?v=20261112">
 </head>
 <body class="light-mode">
     <div class="container">
@@ -786,7 +786,6 @@
                 </div>
                 <div class="topbar-actions">
                     <select id="localeSelect" aria-label="Язык интерфейса" onchange="setMentorLocale(this.value)"><option value="ru">Русский</option><option value="uz">O‘zbekcha</option></select>
-                    <button class="theme-button" onclick="toggleTheme()" aria-label="Toggle theme">☾</button>
                     <button class="btn-primary new-analysis-button" onclick="clearCode()"><i class="fas fa-plus"></i> Новый анализ</button>
                 </div>
             </div>
@@ -798,70 +797,42 @@
                 <div class="workspace-column">
                 <!-- Code Input -->
                 <div class="card code-card">
-                    <div class="code-editor">
-
-                        <label class="editor-label">Введите код или загрузите файл:</label>
-                        <select id="languageSelect" onchange="changeEditorLanguage()" class="language-select" aria-label="Язык анализа">
+                    <div class="studio-heading"><div><span class="eyebrow">РАБОЧЕЕ ПРОСТРАНСТВО</span><h2>Редактор кода</h2></div><label class="file-upload" for="fileInput">↑ Загрузить файл</label><input id="fileInput" type="file" onchange="loadFile(event)"></div>
+                    <div class="studio-language"><label for="languageSelect">Язык анализа</label><select id="languageSelect" onchange="changeEditorLanguage()" class="language-select" aria-label="Язык анализа">
                             <option value="">Определить язык автоматически</option>
                             <option>Python</option><option>JavaScript</option><option>TypeScript</option>
                             <option>Java</option><option>C++</option><option>C#</option><option>Go</option>
                             <option>Rust</option><option>PHP</option><option>Ruby</option><option>SQL</option>
                             <option>HTML</option><option>CSS</option><option>Другой</option>
-                        </select>
-
-                        <div class="file-row">
-                            <label class="file-upload" for="fileInput"><i class="fas fa-upload"></i> Загрузить файл</label>
-                            <input id="fileInput" type="file" onchange="loadFile(event)">
-                            <span id="fileName" style="font-size:11px;color:#8b8f9e;">Файл не выбран</span>
-                        </div>
-                        <div class="button-group">
-                            <button class="btn-primary" id="analyzeButton" onclick="analyzeCode()">
-                                <i class="fas fa-wand-magic-sparkles"></i> Анализировать
-                            </button>
-                            <button class="btn-primary" id="authorshipButton" onclick="checkAuthorship()">Проверить признаки AI</button>
-                            <button class="btn-secondary" onclick="clearCode()">
-                                <i class="fas fa-trash"></i> Очистить
-                            </button>
-                        </div>
+                        </select><span id="fileName" class="muted">Файл не выбран</span></div>
+                    <div class="code-editor"><div class="editor-toolbar"><span class="editor-file"><span id="editorLanguageIcon" aria-hidden="true">Py</span> <input id="editorFileLabel" value="main.py" aria-label="Имя файла" title="Изменить имя файла" maxlength="120" spellcheck="false" onchange="renameEditorFile()"></span><div class="editor-actions"><button type="button" id="saveEditorCode" class="save-editor" onclick="saveCodeFromEditor()"><i class="far fa-bookmark" aria-hidden="true"></i> <span>Сохранить код</span></button><button class="clear-editor" onclick="clearCode()">Очистить</button></div></div>
+                        <p id="editorSaveStatus" class="editor-save-status" role="status" aria-live="polite"></p>
+                        <label class="sr-only" for="codeInput">Код программы — пишите здесь</label>
+                        <textarea id="codeInput" spellcheck="false" placeholder="Напишите код здесь…"></textarea>
                     </div>
-
+                    <div class="studio-actions">
+                        <button class="btn-primary" id="runCodeButton" onclick="runCode()">▶ Запустить</button>
+                        <button class="btn-secondary" id="stopCodeButton" onclick="stopCode()" disabled>■ Остановить</button>
+                        <button class="btn-secondary" id="analyzeButton" onclick="analyzeCode()">✦ Анализировать</button>
+                        <span class="keyboard-hint">Ctrl + Enter</span>
+                    </div>
                     <section class="execution-panel" aria-labelledby="executionTitle">
-                        <header class="execution-heading"><h3 id="executionTitle">Запуск кода</h3><span>Ctrl + Enter</span></header>
-                        <div class="execution-grid">
-                            <div class="execution-controls">
-                                <label for="executionLanguage">Язык запуска</label>
-                                <select id="executionLanguage" class="language-select"><option>Python</option><option>JavaScript</option></select>
-                        <div class="editor-toolbar"><span class="editor-file"><span id="editorLanguageIcon" aria-hidden="true">Py</span> <input id="editorFileLabel" value="main.py" aria-label="Имя файла" title="Изменить имя файла" maxlength="120" spellcheck="false" onchange="renameEditorFile()"></span><div class="editor-actions"><button type="button" id="saveEditorCode" class="save-editor" onclick="saveCodeFromEditor()"><i class="far fa-bookmark" aria-hidden="true"></i> <span>Сохранить код</span></button><button class="clear-editor" onclick="clearCode()">Очистить</button></div></div><p id="editorSaveStatus" class="editor-save-status" role="status" aria-live="polite"></p>
-                                <label class="expression-toggle"><input id="showExpressionResults" type="checkbox" checked> Показывать результаты выражений Python без print()</label>
-                                <label for="codeInput">Код программы — пишите здесь</label>
-                        <textarea id="codeInput"></textarea>
-                                <label for="executionInput">Данные для input() — не код</label>
-                                <textarea id="executionInput" rows="3" placeholder="Например: 42" aria-describedby="executionInputHelp"></textarea>
-                                <small id="executionInputHelp">Только ответы программе, например 42 или имя. Если input() нет — оставьте пустым.</small>
-                                <div class="execution-actions">
-                                    <button class="btn-primary" id="runCodeButton" onclick="runCode()">▶ Запустить</button>
-                                    <button class="btn-secondary" id="stopCodeButton" onclick="stopCode()" disabled>■ Остановить</button>
-                                </div>
-                            </div>
-                            <div class="execution-result">
-                                <h4>Терминал — результат и ошибки</h4>
-                                <pre id="executionOutput" aria-label="Вывод программы"></pre>
-                                <p id="executionStatus" role="status" aria-live="polite">Готово к запуску.</p>
-                            </div>
-                        </div>
+                        <div class="terminal-heading"><h3 id="executionTitle">Терминал</h3><label for="executionLanguage">Язык запуска</label><select id="executionLanguage" class="language-select"><option>Python</option><option>JavaScript</option></select></div>
+                        <pre id="executionOutput" aria-label="Вывод программы"></pre>
+                        <p id="executionStatus" role="status" aria-live="polite">Готово к запуску.</p>
+                        <details class="run-settings"><summary>Входные данные и параметры запуска</summary>
+                            <label for="executionInput">Данные для input() — не код</label>
+                            <textarea id="executionInput" rows="2" placeholder="Например: 42" aria-describedby="executionInputHelp"></textarea>
+                            <small id="executionInputHelp">Только ответы программе, например 42 или имя. Если input() нет — оставьте пустым.</small>
+                            <label class="expression-toggle"><input id="showExpressionResults" type="checkbox" checked> Показывать результаты выражений Python без print()</label>
+                        </details>
                         <details class="execution-help"><summary>Как работает запуск</summary><p>Код выполняется в вашем браузере. Python и JavaScript: без серверных файлов и установки пакетов. Для Python при каждом запуске загружается runtime с CDN; встроенная библиотека доступна частично. Лимит выполнения — 10 секунд.</p></details>
                     </section>
-
-                    <!-- Quick Examples -->
-                    <div style="margin-top: 24px;">
-                        <h3 style="font-size: 12px; color: #8b8f9e; margin-bottom: 8px;">📚 Примеры:</h3>
-                        <button class="btn-secondary" style="width: 100%; margin-bottom: 6px; text-align: left;" onclick="loadExample1()">
-                            Ошибка в цикле
-                        </button>
-                        <button class="btn-secondary" style="width: 100%; text-align: left;" onclick="loadExample2()">
-                            Риск SQL-инъекции
-                        </button>
-                    </div>
+                    <details class="studio-extras"><summary>Примеры и дополнительные проверки</summary><div class="button-group">
+                        <button class="btn-secondary" onclick="loadExample1()">Ошибка в цикле</button>
+                        <button class="btn-secondary" onclick="loadExample2()">Риск SQL-инъекции</button>
+                        <button class="btn-secondary" id="authorshipButton" onclick="checkAuthorship()">Проверить признаки AI</button>
+                    </div></details>
                 </div>
 
                 <!-- Results -->
@@ -1025,12 +996,12 @@
         }
 
         function getSettings() {
-            return { theme: 'light', defaultLanguage: '', autoSave: false, fontSize:14, ...readStoredJson('mentor_settings', {}) };
+            return { defaultLanguage: '', autoSave: false, fontSize:14, ...readStoredJson('mentor_settings', {}), theme: 'light' };
         }
 
         function applySettings() {
             const settings = getSettings();
-            document.body.classList.toggle('light-mode', settings.theme === 'light');
+            document.body.classList.add('light-mode');
             const language = document.getElementById('languageSelect');
             if (language) { language.value = settings.defaultLanguage || ''; changeEditorLanguage(); }
             const fontSize=[14,16,18,20].includes(Number(settings.fontSize))?Number(settings.fontSize):14;
@@ -1774,5 +1745,6 @@ def find_user(user_id):
     <script src="settings.js"></script>
     <script src="learning.js"></script>
     <script src="account-recovery.js"></script>
+    <script src="workspace-navigation.js"></script>
 </body>
 </html>

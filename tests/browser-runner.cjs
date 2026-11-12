@@ -8,6 +8,7 @@ const assert=require('node:assert/strict');
  async function run(language,code,input=''){
   await page.selectOption('#executionLanguage',language);
   await page.fill('#codeInput',code);
+  await page.locator('.run-settings').evaluate(e=>e.open=true);
   await page.fill('#executionInput',input);
   await page.click('#runCodeButton');
   await page.waitForFunction(()=>!document.getElementById('runCodeButton').disabled,{},{timeout:75000});
