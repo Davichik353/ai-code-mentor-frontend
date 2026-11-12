@@ -40,14 +40,17 @@ function runCode() {
                 clearTimeout(executionTimer);
                 document.getElementById('executionStatus').textContent = 'Выполняется…';
                 executionTimer = setTimeout(() => finishExecution('Превышен лимит 10 секунд. Выполнение остановлено.'), 10000);
-            } else if (data.type === 'done') finishExecution(data.truncated ? 'Завершено. Вывод ограничен 50 000 символов.' : 'Завершено.');
+            } else if (data.type === 'done') {
+                if (!document.getElementById('executionOutput').textContent) appendExecutionOutput(window.MentorLocale === 'uz' ? 'Dastur tugadi, lekin hech narsa chiqarmadi.' : 'Программа завершилась без вывода.');
+                finishExecution(data.truncated ? 'Завершено. Вывод ограничен 50 000 символов.' : 'Завершено.');
+            }
             else if (data.type === 'error') {
                 appendExecutionOutput(data.text);
                 finishExecution('Ошибка выполнения.');
             }
         };
         worker.onerror = () => finishExecution('Не удалось запустить код. Проверьте соединение и поддержку Web Worker.');
-        worker.postMessage({code, language, stdin: document.getElementById('executionInput').value});
+        worker.postMessage({code, language, stdin: document.getElementById('executionInput').value, showExpressions: document.getElementById('showExpressionResults').checked});
     } catch (error) {
         finishExecution('Запуск недоступен в этом браузере. Откройте приложение через HTTP/HTTPS.');
     }

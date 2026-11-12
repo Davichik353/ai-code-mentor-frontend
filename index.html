@@ -832,13 +832,9 @@
                                 <label for="executionLanguage">Язык запуска</label>
                                 <select id="executionLanguage" class="language-select"><option>Python</option><option>JavaScript</option></select>
                         <div class="editor-toolbar"><span class="editor-file"><span id="editorLanguageIcon" aria-hidden="true">Py</span> <input id="editorFileLabel" value="main.py" aria-label="Имя файла" title="Изменить имя файла" maxlength="120" spellcheck="false" onchange="renameEditorFile()"></span><div class="editor-actions"><button type="button" id="saveEditorCode" class="save-editor" onclick="saveCodeFromEditor()"><i class="far fa-bookmark" aria-hidden="true"></i> <span>Сохранить код</span></button><button class="clear-editor" onclick="clearCode()">Очистить</button></div></div><p id="editorSaveStatus" class="editor-save-status" role="status" aria-live="polite"></p>
+                                <label class="expression-toggle"><input id="showExpressionResults" type="checkbox" checked> Показывать результаты выражений Python без print()</label>
                                 <label for="codeInput">Код программы — пишите здесь</label>
-                        <textarea id="codeInput">def capitalize(text):
-    return text.title()
-
-print(capitalize("shop"))
-print(capitalize("python programming"))
-print(capitalize("how are you!"))</textarea>
+                        <textarea id="codeInput"></textarea>
                                 <label for="executionInput">Данные для input() — не код</label>
                                 <textarea id="executionInput" rows="3" placeholder="Например: 42" aria-describedby="executionInputHelp"></textarea>
                                 <small id="executionInputHelp">Только ответы программе, например 42 или имя. Если input() нет — оставьте пустым.</small>

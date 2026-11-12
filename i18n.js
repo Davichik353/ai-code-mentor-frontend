@@ -3,6 +3,7 @@ window.MentorLocale = localStorage.getItem('mentor_locale') === 'uz' ? 'uz' : 'r
 // Only application-owned strings are translated here. User code and AI explanations
 // remain untouched; the model receives its response language in the API request.
 const uiTranslations = {
+'Показывать результаты выражений Python без print()':['Показывать результаты выражений Python без print()','Python ifodalari natijasini print() siz ko‘rsatish'],
 'Код программы — пишите здесь':['Код программы — пишите здесь','Dastur kodi — shu yerga yozing'],
 'Данные для input() — не код':['Данные для input() — не код','input() uchun ma’lumotlar — kod emas'],
 'Только ответы программе, например 42 или имя. Если input() нет — оставьте пустым.':['Только ответы программе, например 42 или имя. Если input() нет — оставьте пустым.','Faqat dasturga javoblar, masalan 42 yoki ism. input() bo‘lmasa — bo‘sh qoldiring.'],

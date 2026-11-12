@@ -110,3 +110,5 @@ body:not(.light-mode) #languageSelect.language-select { background:#211532; colo
 .execution-controls #executionInput { height:64px; min-height:64px; }
 .execution-grid { grid-template-columns:minmax(0,1.25fr) minmax(0,1fr); }
 @media(max-width:700px) { .execution-grid { grid-template-columns:1fr; } }
+.execution-controls .expression-toggle { display:flex; align-items:flex-start; gap:8px; font-size:12px; font-weight:400; line-height:1.5; color:var(--muted); }
+.expression-toggle input { flex:none; margin-top:3px; width:auto; }
