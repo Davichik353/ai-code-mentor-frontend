@@ -127,23 +127,54 @@
         if(!localStorage.getItem('mentor_token') && view!=='public') { root.removeAttribute('aria-busy'); showSignIn(); showAuthOverlay(); return; }
         pendingAuth=false;
         root.setAttribute('aria-busy','true');
-        show(`<section class="learning-card learning-state learning-loading" role="status" aria-live="polite"><svg class="mentor-loader" viewBox="0 0 200 190" aria-hidden="true" focusable="false">
-            <ellipse class="mentor-shadow" cx="100" cy="164" rx="30" ry="6"/>
-            <g class="mentor-jumper">
-              <path class="mentor-rope mentor-rope-back" d="M48 91 C0 0 200 0 152 91"/>
-              <path class="mentor-limbs" d="M80 85 L62 99 L48 91 M120 85 L138 99 L152 91 M88 122 L85 145 M112 122 L115 145"/>
-              <rect class="mentor-body" x="76" y="78" width="48" height="48" rx="17"/>
-              <path class="mentor-code" d="M94 94 L87 100 L94 106 M106 94 L113 100 L106 106"/>
-              <path class="mentor-antenna" d="M100 44 L100 32"/><circle class="mentor-spark" cx="100" cy="28" r="5"/>
-              <rect class="mentor-head" x="67" y="43" width="66" height="44" rx="17"/>
-              <rect class="mentor-face" x="75" y="51" width="50" height="27" rx="11"/>
-              <path class="mentor-eyes" d="M84 62 Q88 56 92 62 M108 62 Q112 56 116 62"/>
-              <path class="mentor-smile" d="M96 69 Q100 73 104 69"/>
-              <path class="mentor-shoes" d="M77 146 L90 146 M110 146 L123 146"/>
-              <path class="mentor-rope mentor-rope-front" d="M48 91 C0 179 200 179 152 91"/>
-              <path class="mentor-grips" d="M44 87 L52 95 M148 95 L156 87"/>
-            </g>
-        </svg><h2>${tr('Загружаем кабинет','Xona yuklanmoqda')}</h2><p>${tr('Получаем ваши группы и задания…','Guruhlar va topshiriqlar olinmoqda…')}</p><div class="learning-skeleton" aria-hidden="true"><span></span><span></span><span></span></div></section>`);
+        show(`<section class="learning-state learning-loading awe-loading" role="status" aria-live="polite">
+  <div class="awe-loader-meta" aria-hidden="true"><span>AI CODE MENTOR</span><span><i></i> ${tr('ПОДКЛЮЧЕНИЕ','ULANISH')}</span></div>
+  <div class="awe-robot-stage" aria-hidden="true">
+    <svg class="awe-robot" viewBox="0 0 480 310" focusable="false">
+      <defs>
+        <linearGradient id="awe-shell" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff"/><stop offset=".48" stop-color="#e8ebed"/><stop offset="1" stop-color="#929ca2"/></linearGradient>
+        <linearGradient id="awe-side"><stop stop-color="#7a858d"/><stop offset=".45" stop-color="#e0e5e8"/><stop offset="1" stop-color="#fafafa"/></linearGradient>
+        <linearGradient id="awe-glass" x1="0" y1="0" x2=".8" y2="1"><stop stop-color="#38444b"/><stop offset=".48" stop-color="#10181d"/><stop offset="1" stop-color="#030608"/></linearGradient>
+        <radialGradient id="awe-halo"><stop stop-color="#9ddbe4" stop-opacity=".12"/><stop offset="1" stop-color="#9ddbe4" stop-opacity="0"/></radialGradient>
+        <radialGradient id="awe-floor"><stop stop-color="#687a82" stop-opacity=".28"/><stop offset="1" stop-color="#687a82" stop-opacity="0"/></radialGradient>
+      </defs>
+      <ellipse cx="240" cy="158" rx="170" ry="145" fill="url(#awe-halo)"/>
+      <ellipse cx="240" cy="282" rx="140" ry="24" fill="url(#awe-floor)"/>
+      <ellipse class="awe-robot-shadow" cx="240" cy="278" rx="48" ry="7" fill="#000" opacity=".7"/>
+      <g class="awe-robot-float">
+        <g fill="url(#awe-side)" stroke="#cad2d6" stroke-width=".6">
+          <rect x="210" y="220" width="24" height="42" rx="12" transform="rotate(5 222 220)"/>
+          <rect x="246" y="220" width="24" height="42" rx="12" transform="rotate(-5 258 220)"/>
+          <path d="M208 252 Q222 248 234 255 L234 262 Q218 269 202 263 Q200 257 208 252Z"/>
+          <path d="M246 255 Q258 248 272 252 Q280 257 278 263 Q262 269 246 262Z"/>
+        </g>
+        <rect x="224" y="136" width="32" height="28" rx="12" fill="#78848c"/>
+        <rect x="230" y="140" width="20" height="18" rx="7" fill="#d1d8dd"/>
+        <g class="awe-robot-arm" fill="url(#awe-side)" stroke="#b0bac2" stroke-width=".6">
+          <path d="M202 163 C190 153 181 163 179 178 L173 204 C171 218 186 224 191 211 L203 181Z"/>
+          <ellipse cx="181" cy="218" rx="10" ry="12"/>
+          <path d="M278 163 C290 153 299 163 301 178 L307 204 C309 218 294 224 289 211 L277 181Z"/>
+          <ellipse cx="299" cy="218" rx="10" ry="12"/>
+        </g>
+        <path d="M208 151 Q240 143 272 151 Q282 159 280 185 L274 219 Q270 237 240 238 Q210 237 206 219 L200 185 Q198 159 208 151Z" fill="url(#awe-shell)" stroke="#edf3f5" stroke-width=".7"/>
+        <path d="M214 207 Q240 214 266 207" fill="none" stroke="#9da8b0" stroke-opacity=".45"/>
+        <rect x="226" y="169" width="28" height="9" rx="4.5" fill="#223038"/>
+        <rect class="awe-core" x="233" y="172" width="14" height="3" rx="1.5" fill="#9cf2ff"/>
+        <g class="awe-robot-head">
+          <rect x="174" y="79" width="13" height="37" rx="6" fill="url(#awe-side)"/>
+          <rect x="293" y="79" width="13" height="37" rx="6" fill="url(#awe-side)"/>
+          <path d="M194 50 Q240 36 286 50 Q300 57 300 79 L297 121 Q294 143 274 146 L206 146 Q186 143 183 121 L180 79 Q180 57 194 50Z" fill="url(#awe-shell)" stroke="#f1f5f6"/>
+          <path d="M197 65 Q240 54 283 65 Q289 69 289 81 L287 115 Q285 129 273 132 L207 132 Q195 129 193 115 L191 81 Q191 69 197 65Z" fill="url(#awe-glass)" stroke="#697880" stroke-width="1.5"/>
+          <path d="M201 69 Q239 60 276 68" fill="none" stroke="#d4e5ed" stroke-opacity=".23" stroke-width="2"/>
+          <g class="awe-robot-eyes" fill="#a5f3ff"><rect x="210" y="90" width="17" height="7" rx="3.5"/><rect x="253" y="90" width="17" height="7" rx="3.5"/></g>
+          <path d="M234 111 Q240 114 246 111" fill="none" stroke="#a5f3ff" stroke-width="2" stroke-linecap="round" opacity=".65"/>
+        </g>
+      </g>
+    </svg>
+  </div>
+  <div class="awe-loader-copy"><h2>${tr('Загружаем кабинет','Xona yuklanmoqda')}</h2><p>${tr('Получаем ваши группы и задания…','Guruhlar va topshiriqlar olinmoqda…')}</p></div>
+  <div class="awe-loader-track" aria-hidden="true"><span></span></div>
+</section>`);
         const slowTimer=setTimeout(()=>{
             if(navigation===navigationId && root.getAttribute('aria-busy')==='true') {
                 const text=root.querySelector('.learning-loading p');

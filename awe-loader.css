@@ -1,0 +1,24 @@
+/* AWE-inspired loading scene, isolated from the classroom's light UI. */
+#learningRoot .awe-loading { position:relative; isolation:isolate; overflow:hidden; box-sizing:border-box; width:100%; max-width:900px; margin:20px auto; padding:26px 36px 32px; border:1px solid #252525; border-radius:16px; background:linear-gradient(165deg,#1a1a1c 0%,#010101 65%); color:#e0e0e0; text-align:center; }
+.awe-loader-meta { display:flex; justify-content:space-between; gap:16px; color:#828b8d; font:10px/1.5 ui-monospace,SFMono-Regular,Consolas,monospace; letter-spacing:1.4px; }
+.awe-loader-meta span:last-child { display:flex; align-items:center; gap:8px; }
+.awe-loader-meta i { width:5px; height:5px; border-radius:50%; background:#a5f3ff; }
+.awe-robot-stage { max-width:480px; margin:0 auto; }
+.awe-robot { display:block; width:100%; height:auto; overflow:visible; }
+#learningRoot .awe-loading h2 { margin:4px 0 12px; color:#e0e0e0; font-family:Georgia,'Times New Roman',serif; font-size:clamp(28px,4vw,42px); font-weight:400; line-height:1.12; letter-spacing:-.03em; }
+#learningRoot .awe-loading p { min-height:44px; max-width:460px; margin:0 auto; color:#828b8d; font:400 14px/1.55 Inter,system-ui,sans-serif; }
+.awe-loader-track { overflow:hidden; height:2px; width:96px; margin:22px auto 0; background:#252525; border-radius:2px; }
+.awe-loader-track span { display:block; width:40%; height:100%; background:#a5f3ff; animation:awe-progress 2.4s ease-in-out infinite; }
+.awe-robot-float { animation:awe-float 4s ease-in-out infinite; }
+.awe-robot-head { transform-origin:240px 143px; animation:awe-attention 8s ease-in-out infinite; }
+.awe-robot-eyes { transform-box:fill-box; transform-origin:center; animation:awe-blink 5.6s linear infinite; }
+.awe-robot-shadow { transform-origin:240px 278px; animation:awe-shadow 4s ease-in-out infinite; }
+.awe-core { animation:awe-core 3s ease-in-out infinite; }
+@keyframes awe-float { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-9px); } }
+@keyframes awe-attention { 0%,25%,100% { transform:rotate(0); } 45%,65% { transform:rotate(-4deg); } }
+@keyframes awe-blink { 0%,42%,46%,100% { transform:scaleY(1); } 44% { transform:scaleY(.12); } }
+@keyframes awe-shadow { 0%,100% { transform:scaleX(1); opacity:.7; } 50% { transform:scaleX(.82); opacity:.4; } }
+@keyframes awe-core { 0%,100% { opacity:.55; } 50% { opacity:1; } }
+@keyframes awe-progress { 0% { transform:translateX(-105%); } 100% { transform:translateX(360%); } }
+@media(max-width:540px) { #learningRoot .awe-loading { margin:12px auto; padding:22px 16px 28px; } .awe-loader-meta { font-size:8px; letter-spacing:.8px; gap:8px; } .awe-robot-stage { margin:16px auto 8px; } #learningRoot .awe-loading p { font-size:13px; } }
+@media(prefers-reduced-motion:reduce) { .awe-loading *, .awe-loading *::before, .awe-loading *::after { animation:none!important; transition:none!important; } .awe-loader-track span { width:100%; background:#828b8d; } }
