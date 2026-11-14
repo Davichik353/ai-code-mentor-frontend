@@ -46,6 +46,7 @@
         try{response=await fetch(`${API_URL}${path}`,{signal:AbortSignal.timeout(30000),...options,headers:{...authHeaders(),...(options.headers||{})}});}
         catch{throw Error(tr('Сервер не ответил. Проверьте соединение и повторите.','Server javob bermadi. Aloqani tekshirib, qayta urinib ko‘ring.'));}
         if(response.status===401){showAuthOverlay();throw Error(tr('Войдите в аккаунт.','Hisobga kiring.'));}
+        if(response.status===409&&path==='/auth/account')throw Error(tr('Сначала передайте школу и её группы другому преподавателю, затем повторите удаление.','Avval maktab va uning guruhlarini boshqa o‘qituvchiga bering, so‘ng o‘chirishni takrorlang.'));
         if(!response.ok)throw Error(response.status===429?tr('Слишком много запросов. Повторите позже.','So‘rovlar ko‘p. Keyinroq urinib ko‘ring.'):tr('Не удалось выполнить действие. Повторите позже.','Amal bajarilmadi. Keyinroq urinib ko‘ring.'));
         return response.json();
     }
@@ -96,7 +97,7 @@
     }
     async function deleteAccount(){
         if(!confirm(tr('Удалить аккаунт, анализы и учебные работы? Отменить это действие нельзя.','Hisob, tahlillar va o‘quv ishlarini o‘chirasizmi? Bu amalni qaytarib bo‘lmaydi.')))return;
-        try{await request('/auth/account',{method:'DELETE'});for(const key of ['mentor_token','mentor_saved_snippets','mentor_saved_snippet'])localStorage.removeItem(key);location.reload();}
+        try{const id=state.account?.id;await request('/auth/account',{method:'DELETE'});if(id)for(const key of Object.keys(localStorage)){if(key.startsWith('mentor-assignment:'+id+':')||key==='mentor-editor-drafts:'+id)localStorage.removeItem(key);}for(const key of ['mentor_token','mentor_saved_snippets','mentor_saved_snippet'])localStorage.removeItem(key);location.reload();}
         catch(error){message(error.message,true);}
     }
     root.addEventListener('input',event=>{
