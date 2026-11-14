@@ -84,6 +84,8 @@ const uiTranslations = {
 'Email verification code':['Код подтверждения из письма','Xatdagi tasdiqlash kodi'], 'Verify email':['Подтвердить почту','Pochtani tasdiqlash'],
 'Verifying...':['Проверяем…','Tekshirilmoqda…'],
 'Verification code sent. Enter the code from your email.':['Код отправлен. Введите его из письма.','Kod yuborildi. Xatdagi kodni kiriting.'],
+'Account blocked. Contact support.':['Аккаунт заблокирован администратором.','Hisob administrator tomonidan bloklangan.'],
+'AI disabled by administrator':['ИИ временно отключён администратором.','AI administrator tomonidan vaqtincha o‘chirilgan.'],
 'Incorrect email or password':['Неверная почта или пароль','Pochta yoki parol noto‘g‘ri'],
 'Authentication failed':['Не удалось войти в аккаунт','Hisobga kirib bo‘lmadi'], 'Verification failed':['Не удалось подтвердить почту','Pochtani tasdiqlab bo‘lmadi'],
 'Network error':['Ошибка соединения','Ulanish xatosi'], 'Failed to fetch':['Нет соединения с сервером','Server bilan aloqa yo‘q'],
