@@ -17,6 +17,13 @@ self.onmessage = async ({data}) => {
             self.postMessage({type: 'status', text: 'Загрузка Python… Первый запуск может занять до минуты.'});
             importScripts('https://cdn.jsdelivr.net/pyodide/v0.27.7/full/pyodide.js');
             const runtime = await loadPyodide({indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.27.7/full/'});
+            // Resolve static imports from Pyodide's own package catalog before starting
+            // the execution clock. Dependencies (e.g. SymPy's mpmath) load with it.
+            self.postMessage({type: 'status', text: 'Подготовка библиотек Python…'});
+            await runtime.loadPackagesFromImports(String(data.code), {
+                messageCallback: () => self.postMessage({type: 'status', text: 'Загрузка библиотек Python…'}),
+                errorCallback: message => console.warn(message)
+            });
             runtime.setStdout({batched: text => output(text + '\n')});
             runtime.setStderr({batched: text => output(text + '\n')});
             runtime.setStdin({stdin: () => cursor < input.length ? input[cursor++] : null});
