@@ -87,9 +87,12 @@
             if(/\/(assignment-drafts|custom-assignments)$/.test(path)) {
                 throw new Error(typeof data.detail==='string'?data.detail:tr('Проверьте название, условие и тесты. Нужен хотя бы один тест с полями stdin и expected_stdout.','Nom, shart va testlarni tekshiring. stdin va expected_stdout maydonlari bilan kamida bitta test kerak.'));
             }
+            if(response.status===422 && /\/groups\/[^/]+\/settings$/.test(path)) throw new Error(tr('Введите название (до 120 символов) и целое число мест от 1 до 500 либо оставьте лимит пустым.','Nomni (120 belgigacha) va 1–500 oralig‘idagi butun o‘rinlar sonini kiriting yoki chegarani bo‘sh qoldiring.'));
             if(response.status===422) throw new Error(tr('Проверьте поля: объяснения — от 20 символов, код — от 5.','Maydonlarni tekshiring: izohlar kamida 20 belgi, kod kamida 5 belgi.'));
             const errors={
                 'Exercise already assigned to this group':['Это задание уже выдано группе. Выберите другое.','Bu topshiriq guruhga berilgan. Boshqasini tanlang.'],
+                'Group is full':['В группе нет свободных мест. Обратитесь к преподавателю.','Guruhda bo‘sh joy yo‘q. O‘qituvchiga murojaat qiling.'],
+                'Student limit below current membership':['Лимит не может быть меньше текущего числа учеников.','Chegara hozirgi o‘quvchilar sonidan kam bo‘lishi mumkin emas.'],
                 'Group is archived':['Группа в архиве. Преподаватель может её восстановить.','Guruh arxivda. O‘qituvchi uni tiklashi mumkin.'],
                 'Join code not found':['Код группы не найден.','Guruh kodi topilmadi.'],
                 'Cannot approve failing tests':['Нельзя принять работу с проваленными тестами.','Testlardan o‘tmagan ishni qabul qilib bo‘lmaydi.'],
@@ -194,7 +197,28 @@
         return `<span class="badge">${esc(item.language)}</span><span class="badge">${esc(local(item.category_title)||tr('Основы','Asoslar'))}</span><span class="badge">${esc(local(item.difficulty_title)||tr('Новичок','Boshlovchi'))}</span>`;
     }
     const back=(action,id='')=>button(tr('← Назад','← Orqaga'),action,id);
-    function groupCard(g) { return `<section class="learning-card"><h3>${esc(g.title)}</h3><p>${esc(g.description)}</p><span class="badge">${canManage(g)?tr('Вы преподаватель этой группы','Siz bu guruh o‘qituvchisisiz'):tr('Вы ученик этой группы','Siz bu guruh o‘quvchisisiz')}</span><p>${tr('Учеников','O‘quvchilar')}: ${g.member_count}</p>${button(tr('Открыть группу','Guruhni ochish'),'group',g.id)}</section>`; }
+    function groupCard(g) { return `<section class="learning-card group-summary"><div class="group-card-heading"><h3>${esc(g.title)}</h3>${canManage(g)?`<details class="group-menu" name="group-actions"><summary aria-label="${esc(tr('Действия с группой','Guruh amallari')+': '+g.title)}"><span aria-hidden="true">⋮</span></summary><div class="group-menu-items">${g.archived?'':`${button(tr('Изменить название','Nomini o‘zgartirish'),'edit-group-title',g.id)}${button(tr('Количество мест','O‘rinlar soni'),'edit-group-limit',g.id)}`}${button(g.archived?tr('Восстановить группу','Guruhni tiklash'):tr('Архивировать группу','Guruhni arxivlash'),g.archived?'restore-group':'archive-group',g.id)}</div></details>`:''}</div><p>${esc(g.description)}</p><span class="badge">${canManage(g)?tr('Вы преподаватель этой группы','Siz bu guruh o‘qituvchisisiz'):tr('Вы ученик этой группы','Siz bu guruh o‘quvchisisiz')}</span><p>${tr('Учеников','O‘quvchilar')}: ${g.member_count}${g.student_limit?` / ${g.student_limit}`:''}</p>${button(tr('Открыть группу','Guruhni ochish'),'group',g.id)}</section>`; }
+    function editGroupSettings(group,focusLimit) {
+        const dialog=document.createElement('dialog');
+        dialog.className='group-settings-dialog';dialog.setAttribute('aria-labelledby','groupSettingsTitle');
+        dialog.innerHTML=`<form><h2 id="groupSettingsTitle">${tr('Настройки группы','Guruh sozlamalari')}</h2><label>${tr('Название группы','Guruh nomi')}<input name="title" required maxlength="120" value="${esc(group.title)}"></label><label>${tr('Максимум учеников','O‘quvchilar chegarasi')}<input name="limit" type="number" min="${Math.max(1,group.member_count||0)}" max="500" step="1" value="${group.student_limit||''}" placeholder="${tr('Без ограничения','Cheklanmagan')}"></label><p>${tr('Сейчас в группе','Hozir guruhda')}: ${group.member_count}. ${tr('Оставьте поле пустым, чтобы не ограничивать количество мест. Фактическое число учеников меняется при вступлении и выходе из группы.','O‘rinlarni cheklamaslik uchun maydonni bo‘sh qoldiring. Haqiqiy o‘quvchilar soni guruhga qo‘shilish va chiqishda o‘zgaradi.')}</p><p class="group-settings-error" role="alert"></p><div class="actions"><button type="button" class="btn-secondary" data-cancel>${tr('Отмена','Bekor qilish')}</button><button type="submit" class="btn-primary">${tr('Сохранить','Saqlash')}</button></div></form>`;
+        document.body.append(dialog);
+        dialog.addEventListener('close',()=>dialog.remove(),{once:true});
+        dialog.querySelector('[data-cancel]').onclick=()=>dialog.close();
+        dialog.querySelector('form').onsubmit=async event=>{
+            event.preventDefault();const form=event.target, submit=form.querySelector('[type=submit]');
+            const title=form.elements.title.value.trim(), raw=form.elements.limit.value;
+            if(!title){form.elements.title.setCustomValidity(tr('Введите название группы.','Guruh nomini kiriting.'));form.elements.title.reportValidity();return;}
+            submit.disabled=true;
+            try {await api(`/groups/${group.id}/settings`,{title,student_limit:raw===''?null:Number(raw)});dialog.close();await open('home');}
+            catch(error){dialog.querySelector('[role=alert]').textContent=error.message;}
+            finally{submit.disabled=false;}
+        };
+        dialog.querySelector('[name=title]').addEventListener('input',event=>event.target.setCustomValidity(''));
+        dialog.showModal();dialog.querySelector(focusLimit?'[name=limit]':'[name=title]').focus();
+    }
+    document.addEventListener('click',event=>{root.querySelectorAll('.group-menu[open]').forEach(menu=>{if(!menu.contains(event.target))menu.open=false;});});
+    root.addEventListener('keydown',event=>{if(event.key==='Escape'){const menu=event.target.closest('.group-menu[open]');if(menu){menu.open=false;menu.querySelector('summary').focus();event.preventDefault();}}});
     function renderHome() {
         const p=state.profile;
         return `<h2>${tr('Учебный кабинет','O‘quv xonasi')}</h2><p>${tr('Получайте задания в группе преподавателя или создайте свою группу для обучения.','O‘qituvchi guruhida topshiriq oling yoki o‘qitish uchun o‘z guruhingizni yarating.')}</p>
@@ -395,6 +419,12 @@
         if(['home','group','assignment','submission','portfolio','glossary'].includes(name)) return open(name,id);
         if(name==='editor') return close();
         if(name==='profile') { state.profile=await api('/profile',{role:field('learningRole'),locale:window.MentorLocale,bio:state.profile.bio,portfolio_public:!!state.profile.public}); delete state.drafts[key()]; return open('home'); }
+        if(name==='edit-group-title'||name==='edit-group-limit') {
+            const group=state.data.groups.find(g=>g.id===id);
+            if(!group||!canManage(group))return;
+            sourceButton.closest('details').open=false;
+            return editGroupSettings(group,name==='edit-group-limit');
+        }
         if(name==='create-group') { const group=await api('/groups',{title:field('groupTitle'),description:field('groupDescription')}); return open('group',group.id); }
         if(name==='join') { const group=await api('/groups/join',{code:field('joinCode').trim()}); return open('group',group.id); }
         if(name==='archive-group'||name==='restore-group') {
