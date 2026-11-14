@@ -12,7 +12,7 @@ if(path==='/learning/assignments/a/submissions'){submitted=r.request().postDataJ
 if(path==='/learning/submissions/s')data={...assignment,...submitted,id:'s',tests_passed:true,status:'pending_review',results:[{passed:true,stdout:'5'}]};
 return r.fulfill({json:data});});
 async function openAssignment(){await page.evaluate(()=>{const b=document.createElement('button');b.dataset.action='assignment';b.dataset.id='a';document.getElementById('learningRoot').append(b);b.click()});await page.waitForSelector('#assignmentCode');}
-await page.goto('http://127.0.0.1:8080');await page.click('#learningNav');await openAssignment();
+await page.goto('http://127.0.0.1:8080/app.html');await page.click('#learningNav');await openAssignment();
 await page.fill('#assignmentCode','print(5)');assert.equal(await page.inputValue('#codePasteDetected'),'false');
 await page.click('[data-action="copy-change"]');assert.equal(await page.inputValue('#codePasteDetected'),'false');
 await page.evaluate(()=>navigator.clipboard.writeText('2\n3'));await page.focus('#changedInput');await page.keyboard.press('Control+V');assert.equal(await page.inputValue('#codePasteDetected'),'false');

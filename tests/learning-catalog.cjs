@@ -10,7 +10,7 @@ const crypto=require('node:crypto');
   const response=await context.request.post('http://localhost:8000/auth/register',{data:{email:'catalog-'+crypto.randomBytes(8).toString('hex')+'@example.com',password:crypto.randomBytes(16).toString('hex')+'Aa1!',display_name:label}});
   assert.equal(response.status(),201);const token=(await response.json()).access_token;actors.push({context,token});
   page.on('pageerror',e=>errors.push(e.message));
-  await page.goto('http://127.0.0.1:8080');await page.evaluate(t=>{localStorage.setItem('mentor_token',t);hideAuthOverlay();},token);
+  await page.goto('http://127.0.0.1:8080/app.html');await page.evaluate(t=>{localStorage.setItem('mentor_token',t);hideAuthOverlay();},token);
   await page.click('#learningNav');await page.waitForSelector('#learningRole');
   return {page,token,context};
  }

@@ -21,7 +21,7 @@ const assert=require('node:assert/strict');
    await route.fulfill({json:data});
   });
   await page.addInitScript(()=>localStorage.setItem('mentor_token','settings-test-token'));
-  await page.goto('http://127.0.0.1:8080');await page.waitForFunction(()=>document.getElementById('authOverlay').style.display==='none');
+  await page.goto('http://127.0.0.1:8080/app.html');await page.waitForFunction(()=>document.getElementById('authOverlay').style.display==='none');
   await page.click('#settingsNav');await page.waitForSelector('#settingsName');
   assert.equal(await page.locator('.main > .content').isVisible(),false);
   assert.match(await page.locator('.header h1').textContent(),/Настройки/);

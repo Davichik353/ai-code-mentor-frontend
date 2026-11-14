@@ -12,7 +12,7 @@ if(path.endsWith('/assignment-drafts'))data={tasks:[task]};
 if(path.endsWith('/custom-assignments')){published=r.request().postDataJSON();data={id:'a'}}
 if(path==='/learning/assignments/a')data={...task,id:'a',group_id:'g',is_owner:false,can_submit:true,custom:true,starter_code:'',hints:[],hint_count:0,defense_questions:[task.defense_question],submissions:[]};
 return r.fulfill({json:data});});
-await page.goto('http://127.0.0.1:8080');await page.click('#learningNav');await page.click('[data-action="group"]');await page.click('[data-action="group-tab"][data-id="manage"]');
+await page.goto('http://127.0.0.1:8080/app.html');await page.click('#learningNav');await page.click('[data-action="group"]');await page.click('[data-action="group-tab"][data-id="manage"]');
 await page.fill('#importText',task.prompt);await page.click('[data-action="import-tasks"]');await page.waitForSelector('.import-draft');await page.click('[data-action="publish-custom"]');assert.equal(published,undefined);
 await page.locator('[data-draft="reviewed"]').check();await page.click('[data-action="publish-custom"]');await page.waitForFunction(()=>document.querySelector('.import-draft').textContent.includes('выдано'));
 assert.equal(published.title,'Сумма');assert.deepEqual(published.tests,task.tests);

@@ -14,14 +14,14 @@ const assert=require('node:assert/strict');
    }
    return route.fulfill({json:{}});
   });
-  await page.goto('http://127.0.0.1:8080');
+  await page.goto('http://127.0.0.1:8080/app.html');
   await page.click('#forgotPassword');await page.fill('#recoveryEmail','student@example.com');
   await page.click('#recoverySubmit');await page.waitForFunction(()=>document.querySelector('#recoveryMessage').textContent.includes('Если аккаунт'));
   assert.equal(calls[0].path,'/auth/forgot-password');
   status=503;await page.click('#recoverySubmit');await page.waitForFunction(()=>document.querySelector('#recoveryMessage').textContent.includes('недоступна'));
   await page.click('#recoveryBack');assert.equal(await page.locator('#authSubmit').isVisible(),true);
   status=200;const token='temporary-test-token-for-browser-check-only';
-  await page.goto('http://127.0.0.1:8080/#reset='+token);
+  await page.goto('http://127.0.0.1:8080/app.html#reset='+token);
   await page.waitForFunction(()=>location.hash==='');
   assert.equal(new URL(page.url()).hash,'');
   assert.equal(await page.locator('#recoveryPassword').isVisible(),true);

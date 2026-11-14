@@ -29,3 +29,11 @@ node tests/exercise-runtime.cjs
 Восстановление пароля доступно через «Забыли пароль?»; реальная отправка требует SMTP на backend. Страница политики данных ссылается на контакт проекта. Тесты и демонстрационные аккаунты не заменяют живой учебный пилот; его результаты и себестоимость ещё не подтверждены.
 
 Лицензия: проприетарная, All rights reserved — см. [LICENSE](LICENSE).
+
+## Public site and workspace
+
+- `/` (`index.html`, `landing.css`, `landing.js`) is the public RU/UZ product page.
+- `/app.html` opens the existing authenticated workspace. `convex-workspace.css` adapts its shared components to the public site's warm palette.
+- Existing root links with `?portfolio=` or `#reset=` forward to the workspace, preserving their parameters.
+- The AWE entry video has been removed; classroom loading is independent of the public entry page.
+- Run locally with `python -m http.server 8080`. Browser workspace tests target `/app.html`; `node tests/landing.cjs` checks the public page and the handoff.

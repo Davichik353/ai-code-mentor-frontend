@@ -1,0 +1,1795 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Code Mentor — учебное пространство</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="learning.css">
+    <link rel="stylesheet" href="settings.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: radial-gradient(circle at 82% 8%, rgba(88, 29, 122, 0.85) 0%, transparent 24%),
+                        radial-gradient(circle at 30% 100%, rgba(247, 81, 190, 0.22) 0%, transparent 35%),
+                        #120d1b;
+            color: #f5eaf8;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 230px;
+            background: rgba(18, 9, 30, 0.96);
+            border-right: 1px solid rgba(255, 255, 255, 0.06);
+            padding: 18px 14px 14px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            box-shadow: inset -1px 0 0 rgba(255,255,255,0.03);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 0 8px 28px;
+            padding: 4px 0;
+        }
+
+        .logo-icon {
+            width: 38px;
+            height: 38px;
+            background: linear-gradient(135deg, #f32eb4 0%, #7d24dd 100%);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            box-shadow: 0 10px 24px rgba(216, 72, 191, 0.35);
+        }
+
+        .logo-text h2 {
+            font-size: 15px;
+            font-weight: 700;
+            color: #f9f2fb;
+            line-height: 1.2;
+        }
+
+
+
+        .nav-items {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            flex-grow: 1;
+            margin-top: 14px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 11px 14px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: rgba(216, 202, 223, 0.85);
+            font-size: 14px;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .nav-item:hover {
+            background: rgba(255,255,255,0.04);
+            color: #f8ebf9;
+        }
+
+        .nav-item.active {
+            background: linear-gradient(90deg, rgba(137, 39, 206, 0.95), rgba(173, 59, 214, 0.95));
+            color: white;
+            box-shadow: 0 12px 24px rgba(115, 43, 182, 0.26);
+        }
+
+        /* Main Content */
+        .main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            background: linear-gradient(180deg, rgba(12, 8, 18, 0.96) 0%, rgba(18, 9, 25, 0.96) 100%);
+        }
+
+        .header {
+            padding: 16px 22px 14px;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            background: rgba(17, 9, 25, 0.58);
+        }
+
+        .header h1 {
+            font-size: 20px;
+            font-weight: 700;
+            color: #f4edf8;
+            margin: 0;
+        }
+
+        .content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px 20px 20px 20px;
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 310px;
+            gap: 18px;
+            align-items: start;
+        }
+
+        .card {
+            background: rgba(24, 12, 35, 0.96);
+            border: 1px solid rgba(147, 104, 177, 0.25);
+            border-radius: 14px;
+            padding: 16px 18px;
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.14);
+        }
+
+        .card-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: #f7eef9;
+            margin-bottom: 16px;
+        }
+
+        /* Code Editor */
+        .code-editor {
+            position: relative;
+        }
+
+        .editor-label {
+            font-size: 12px;
+            color: #8b8f9e;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        textarea {
+            width: 100%;
+            height: 290px;
+            background: rgba(14, 9, 20, 0.95);
+            border: 1px solid rgba(93, 66, 114, 0.75);
+            border-radius: 10px;
+            color: #f2baf9;
+            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+            font-size: 12px;
+            padding: 16px 18px;
+            resize: none;
+            line-height: 1.55;
+            box-shadow: inset 0 0 0 1px rgba(255,255,255,0.01);
+        }
+
+        textarea::placeholder {
+            color: #6d5d7f;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: rgba(212, 118, 245, 0.9);
+            box-shadow: 0 0 0 2px rgba(199, 97, 223, 0.12);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 18px;
+            justify-content: flex-start;
+        }
+
+        button {
+            flex: 0 0 auto;
+            padding: 10px 16px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #ee2db8 0%, #9d25e4 100%);
+            color: white;
+            box-shadow: 0 12px 22px rgba(198, 66, 196, 0.25);
+        }
+
+        .btn-primary:hover {
+            filter: brightness(1.03);
+            transform: translateY(-1px);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: rgba(255,255,255,0.02);
+            color: #f1baf7;
+            border: 1px solid rgba(200, 109, 214, 0.5);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255,255,255,0.04);
+        }
+
+        /* Results Section */
+        .results-container {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .results-card {
+            padding: 16px 18px 12px;
+        }
+
+        .results-card #resultsContainer {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 10px;
+        }
+
+        .results-card .result-card {
+            min-height: 120px;
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(147, 104, 177, 0.25);
+            border-radius: 12px;
+            padding: 12px 12px 10px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px 20px;
+            color: #8b8f9e;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #2a3347;
+            border-top: 3px solid #6366f1;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 16px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .result-card {
+            background: #252d3d;
+            border-left: 3px solid;
+            border-radius: 8px;
+            padding: 16px;
+        }
+
+        .result-card.critical {
+            border-left-color: #ef4444;
+        }
+
+        .result-card.improvement {
+            border-left-color: #f59e0b;
+        }
+
+        .result-card.learning {
+            border-left-color: #06b6d4;
+        }
+
+        .result-card.good {
+            border-left-color: #10b981;
+        }
+
+        .result-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .result-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .badge-critical {
+            background: rgba(239, 68, 68, 0.2);
+            color: #fca5a5;
+        }
+
+        .badge-improvement {
+            background: rgba(245, 158, 11, 0.2);
+            color: #fcd34d;
+        }
+
+        .badge-learning {
+            background: rgba(6, 182, 212, 0.2);
+            color: #67e8f9;
+        }
+
+        .badge-good {
+            background: rgba(16, 185, 129, 0.2);
+            color: #6ee7b7;
+        }
+
+        .result-title {
+            font-size: 13px;
+            color: white;
+            font-weight: 500;
+            margin: 0;
+        }
+
+        .result-text {
+            font-size: 12px;
+            color: #c4c4c4;
+            line-height: 1.5;
+            margin: 8px 0 0 0;
+        }
+
+        /* Score Display */
+        .score-section {
+            text-align: center;
+            padding: 20px;
+            background: #252d3d;
+            border-radius: 8px;
+            margin-bottom: 16px;
+        }
+
+        .score-number {
+            font-size: 48px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 4px;
+        }
+
+        .score-label {
+            font-size: 12px;
+            color: #8b8f9e;
+        }
+
+        .score-feedback {
+            font-size: 13px;
+            color: #10b981;
+            margin-top: 8px;
+            font-weight: 500;
+        }
+
+        /* Hints Section */
+        .hints-section {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid #2a3347;
+        }
+
+        .hints-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: #6366f1;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .hint-item {
+            background: rgba(99, 102, 241, 0.1);
+            border-left: 2px solid #6366f1;
+            padding: 10px 12px;
+            border-radius: 4px;
+            margin-bottom: 8px;
+            font-size: 12px;
+            color: #a5b4fc;
+            line-height: 1.4;
+        }
+
+        .error-message {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid #dc2626;
+            color: #fca5a5;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            margin-bottom: 16px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #5a6170;
+        }
+
+        .auth-overlay {
+            position: fixed; inset: 0; z-index: 10; display: none; align-items: center;
+            justify-content: center; background: rgba(2, 7, 15, 0.70);
+            backdrop-filter: blur(1px);
+        }
+        .auth-box {
+            width: min(500px, 92vw);
+            background: rgba(27, 34, 48, 0.96);
+            border: 1px solid rgba(117, 130, 164, 0.28);
+            border-radius: 18px;
+            padding: 44px 40px 30px;
+            box-shadow: 0 24px 48px rgba(0,0,0,0.35);
+        }
+        .auth-box h2 {
+            color: white;
+            margin-bottom: 10px;
+            font-size: clamp(2.2rem, 2.7vw, 3.3rem);
+            font-weight: 700;
+            line-height: 1.1;
+            text-align: center;
+        }
+        .auth-box p {
+            color: rgba(217, 222, 241, 0.8);
+            font-size: 15px;
+            margin-bottom: 26px;
+            text-align: center;
+        }
+        .auth-box input, .language-select {
+            width: 100%;
+            padding: 18px 16px;
+            margin-bottom: 16px;
+            border-radius: 10px;
+            border: 1px solid rgba(132, 146, 173, 0.22);
+            background: rgba(109, 122, 143, 0.18);
+            color: white;
+            font-size: 16px;
+        }
+        .password-input-wrap {
+            position: relative;
+            width: 100%;
+            margin-bottom: 16px;
+        }
+        .password-input-wrap input {
+            margin-bottom: 0 !important;
+            padding-right: 52px !important;
+        }
+        .password-toggle-btn {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: transparent;
+            border: none;
+            color: rgba(216, 222, 237, 0.8);
+            cursor: pointer;
+            padding: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            transition: color 0.2s ease;
+        }
+        .password-toggle-btn:hover {
+            color: #fff;
+        }
+        .auth-switch {
+            color: rgba(245, 110, 219, 0.95);
+            cursor: pointer;
+            text-align: center;
+            margin-top: 22px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        .file-row { display: flex; gap: 8px; align-items: center; margin-top: 12px; }
+        .file-row input { display: none; }
+        .user-bar { margin-top: auto; border-top: 1px solid #2a3347; padding-top: 14px; font-size: 12px; color: #8b8f9e; }
+        .profile-card { margin-top: auto; padding: 14px 12px; border: 1px solid #552266; border-radius: 11px; background: rgba(31, 17, 45, .85); color: #f4eaf7; }
+        .profile-head { display: flex; align-items: center; gap: 9px; }
+        .profile-avatar { width: 36px; height: 36px; display: grid; place-items: center; border-radius: 50%; background: linear-gradient(135deg, #f151ba, #8e26d9); font-weight: 700; }
+        .profile-head b, .profile-head small { display: block; }
+        .profile-head b { font-size: 12px; }
+        .profile-head small { color: #ad91af; font-size: 10px; margin-top: 2px; }
+        .profile-card p { color: #c6b5ca; font-size: 10px; margin: 12px 0; }
+        .level-row { display: flex; justify-content: space-between; color: #d9c9df; font-size: 9px; }
+        .xp-track { height: 5px; border-radius: 5px; background: #3b244b; margin-top: 6px; overflow: hidden; }
+        .xp-track span { display: block; width: 0%; height: 100%; background: linear-gradient(90deg, #f344ba, #a62de2); }
+        .profile-email { display: block; margin-top: 8px; color: #a990ad; font-size: 9px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .video-link { display: block; color: #a5b4fc; margin-top: 10px; font-size: 12px; }
+        .file-upload { display: inline-flex; align-items: center; gap: 6px; padding: 9px 12px; border: 1px solid #8a3db5; border-radius: 7px; color: #e8a6ff; cursor: pointer; font-size: 11px; }
+        .file-upload:hover { background: rgba(232, 166, 255, .1); }
+        .investor-panel {
+            position: fixed; inset: 0; z-index: 9; display: none; overflow-y: auto;
+            background: rgba(15, 20, 25, 0.98); padding: 36px;
+        }
+        .investor-inner { max-width: 1040px; margin: 0 auto; }
+        .investor-hero { padding: 28px; border-radius: 14px; background: linear-gradient(135deg, #252d3d, #31245a); margin-bottom: 20px; }
+        .investor-hero h2 { color: white; font-size: 28px; margin-bottom: 10px; }
+        .investor-hero p { color: #d5d8e7; line-height: 1.6; max-width: 760px; }
+        .investor-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 20px; }
+        .investor-stat { background: #1a1f2e; border: 1px solid #2a3347; border-radius: 10px; padding: 18px; }
+        .investor-stat strong { display: block; color: #a5b4fc; font-size: 22px; margin-bottom: 6px; }
+        .investor-stat span { color: #8b8f9e; font-size: 12px; }
+        .investor-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .investor-list { color: #c4c4c4; line-height: 1.8; padding-left: 18px; font-size: 13px; }
+        @media (max-width: 768px) { .investor-panel { padding: 20px; } .investor-grid, .investor-columns { grid-template-columns: 1fr; } }
+
+        .empty-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        @media (max-width: 1024px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                height: auto;
+                border-right: none;
+                border-bottom: 1px solid #2a3347;
+            }
+
+            .content {
+                padding: 20px;
+            }
+        }
+
+        /* Dashboard visual system */
+        :root {
+            --bg: #10091a;
+            --panel: #1a1027;
+            --panel-soft: #211532;
+            --border: #39204e;
+            --pink: #e83bbd;
+            --purple: #8627d9;
+            --muted: #a99bb8;
+        }
+        body { background: radial-gradient(circle at 82% 8%, #291440 0, transparent 31%), var(--bg); color: #f8f3fb; }
+        .container { height: 100vh; }
+        .sidebar { width: 224px; background: rgba(22, 11, 32, .96); border-right: 1px solid var(--border); padding: 22px 14px 14px; }
+        .logo { padding: 0 8px; margin-bottom: 32px; }
+        .logo-icon { width: 38px; height: 38px; background: linear-gradient(135deg, #f532b8, #7d1fe1); box-shadow: 0 8px 24px rgba(225, 35, 181, .28); }
+        .logo-text h2 { font-size: 16px; }
+        .logo-text:after { content: attr(data-tagline); display: block; color: var(--muted); font-size: 10px; margin-top: 2px; }
+        .nav-items { gap: 6px; }
+        .nav-item { padding: 11px 13px; color: #c0b1cb; }
+        .nav-item.active { background: linear-gradient(100deg, #771bc9, #a81be1); box-shadow: 0 8px 22px rgba(128, 24, 207, .25); }
+        .main { min-width: 0; }
+        .header { padding: 16px 22px; background: rgba(18, 9, 28, .65); border-bottom: 1px solid var(--border); }
+        .topbar { display: flex; justify-content: space-between; align-items: center; }
+        .header h1 { font-size: 20px; }
+        .topbar-actions { display: flex; align-items: center; gap: 10px; }
+        .theme-button { flex: 0 0 auto; width: 34px; height: 34px; padding: 0; border: 1px solid var(--border); background: var(--panel); color: #ff70d5; border-radius: 50%; }
+        .new-analysis-button { flex: 0 0 auto; padding: 9px 15px; }
+        .content { grid-template-columns: minmax(0, 1fr) 310px; align-items: start; gap: 14px; padding: 14px 22px 24px; }
+        .workspace-column { min-width: 0; display: flex; flex-direction: column; gap: 14px; }
+        .card, .rail-card { background: rgba(28, 15, 42, .96); border: 1px solid var(--border); border-radius: 12px; padding: 14px; box-shadow: 0 14px 35px rgba(0, 0, 0, .16); }
+        .code-card { padding: 10px; }
+        .editor-toolbar { display: flex; justify-content: space-between; align-items: center; background: #171025; border: 1px solid #302041; border-radius: 8px; padding: 8px 12px; margin-bottom: 12px; }
+        .editor-file { color: #eee4f5; font-size: 12px; }
+        .editor-file i { color: #ffd35c; margin-right: 7px; }
+        .clear-editor { width: auto; flex: 0 0 auto; padding: 3px 9px; color: var(--muted); background: transparent; font-size: 11px; }
+        .editor-label { color: var(--muted); }
+        textarea { height: 274px; background: #100b1b; border-color: #302041; color: #f3a9ff; border-radius: 7px; }
+        .language-select { width: 130px; display: inline-block; margin: 0 0 0 8px; background: #281436; border-color: #4f2369; }
+        .file-row { display: inline-flex; float: left; margin-top: 13px; }
+        .file-row input { max-width: 120px; }
+        .button-group { clear: both; flex-wrap: wrap; }
+        .button-group button { padding: 9px 11px; }
+        .btn-primary { background: linear-gradient(100deg, #ef28b7, #9a20e3); }
+        .btn-secondary { color: #e8a6ff; border-color: #8a3db5; }
+        .quick-examples { display: none; }
+        .results-card { min-height: 220px; }
+        .results-card #resultsContainer { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+        .results-card #resultsContainer > h4, .results-card #resultsContainer > .hints-section, .results-card #resultsContainer > .score-section, .results-card #resultsContainer > .empty-state, .results-card #resultsContainer > .error-message { grid-column: 1 / -1; }
+        .results-card .result-card { min-height: 142px; }
+        .results-card .result-card > button { max-width: 100%; margin-top: 8px; }
+        .snippet-actions, .settings-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+        .snippet-actions button, .settings-actions button { flex: 1 1 140px; }
+        .settings-form { display: grid; gap: 14px; max-width: 460px; }
+        .settings-field { display: grid; gap: 6px; color: #d8c7df; font-size: 12px; }
+        .settings-field select { width: 100%; }
+        .settings-checkbox { display: flex; align-items: center; gap: 8px; color: #d8c7df; font-size: 12px; }
+        .settings-checkbox input { accent-color: var(--pink); }
+        .snippet-meta { color: #a990ad; font-size: 10px; margin-top: 5px; }
+        .account-details { display: grid; gap: 7px; margin: 14px 0 18px; max-width: 460px; text-align: left; }
+        .account-detail { display: flex; justify-content: space-between; gap: 16px; padding: 9px 11px; border: 1px solid rgba(147, 104, 177, 0.25); border-radius: 7px; color: #d8c7df; font-size: 12px; }
+        .account-detail span:last-child { color: #a990ad; text-align: right; overflow-wrap: anywhere; }
+        .danger-button { color: #ffb5c1; border-color: rgba(214, 75, 104, .65); }
+        .card-title { color: #f9edff; }
+        .results-container { max-height: none; }
+        .right-rail { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+        .rail-card {
+            background: #f8edf4;
+            color: #2c1830;
+            border: 1px solid rgba(228, 205, 222, 0.9);
+            border-radius: 14px;
+            padding: 14px 14px 12px;
+            box-shadow: 0 10px 22px rgba(14, 5, 21, 0.09);
+        }
+        .rail-title { font-size: 14px; font-weight: 700; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; color: #301b33; }
+        .rail-title span { color: #988699; font-weight: 400; }
+        .score-card { text-align: center; }
+        .score-ring {
+            width: 126px;
+            height: 126px;
+            margin: 10px auto 12px;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border: 10px solid #ead8e9;
+            border-top-color: #8b2ad8;
+            border-right-color: #d737b4;
+            transform: rotate(-25deg);
+            background: rgba(255,255,255,0.08);
+        }
+        .score-ring strong, .score-ring small { transform: rotate(25deg); }
+        .score-ring strong { font-size: 30px; line-height: 1; color: #2d1d34; }
+        .score-ring small { font-size: 10px; color: #785c7f; margin-top: 4px; }
+        .score-card p { color: #573d5c; font-size: 12px; line-height: 1.45; margin: 0 auto 8px; max-width: 210px; }
+        .score-breakdown { display: grid; grid-template-columns: repeat(4, 1fr); border-top: 1px solid #ead6e5; margin: 10px -14px -12px; padding: 12px 8px 6px; }
+        .score-breakdown span { border-right: 1px solid #ead6e5; }
+        .score-breakdown span:last-child { border: 0; }
+        .score-breakdown b, .score-breakdown em { display: block; font-style: normal; }
+        .score-breakdown b { color: #b22487; font-size: 15px; font-weight: 700; }
+        .score-breakdown em { color: #806b82; font-size: 9px; }
+        .step-pill { background: #f1cfe6; color: #9e3289 !important; padding: 5px 8px; border-radius: 6px; font-size: 10px; }
+        .rail-hint { background: #fff8fb; border: 1px solid #efdce9; border-radius: 7px; padding: 13px; color: #4d3850; font-size: 12px; line-height: 1.45; min-height: 78px; }
+        .hint-actions { display: flex; gap: 7px; margin-top: 10px; }
+        .hint-actions button { flex: 1 1 0; min-width: 0; font-size: 10px; padding: 8px 6px; color: #8d438a; border-color: #d99bca; }
+        .hint-actions .btn-primary { color: #fff; }
+        .hint-footer { display: block; color: #9f7896; margin-top: 11px; }
+        .view-all { border: 0; background: none; color: #b32993; font-size: 11px; width: auto; padding: 0; }
+        .recent-item { display: flex; align-items: center; gap: 8px; padding: 9px 0; border-top: 1px solid #ead6e5; font-size: 11px; }
+        .recent-item > div { flex: 1; }
+        .recent-item b, .recent-item small { display: block; }
+        .recent-item small { color: #8d788c; margin-top: 3px; }
+        .recent-item button { padding: 5px 8px; font-size: 10px; }
+        .file-icon { font-size: 17px; }
+        .status-good, .status-bad { padding: 4px 7px; border-radius: 5px; font-size: 9px; }
+        .status-good { background: #c8e9ca; color: #33853d; }
+        .status-bad { background: #f4cad8; color: #a32b58; }
+        .score-section { display: none; }
+        .progress-card { padding: 14px 18px; }
+        .progress-heading { display: flex; justify-content: space-between; align-items: center; }
+        .progress-heading .card-title { margin: 0; }
+        .progress-heading > span { color: #ad91af; font-size: 10px; }
+        .progress-body { display: flex; gap: 20px; align-items: center; min-width: 0; }
+        .progress-chart { height: 92px; flex: 1; display: flex; align-items: end; gap: 8px; padding: 8px 4px 0; border-bottom: 1px solid #4b265d; background: repeating-linear-gradient(to bottom, transparent 0, transparent 22px, rgba(112, 57, 126, .24) 23px); }
+        .progress-chart span { flex: 1; min-width: 8px; border-radius: 5px 5px 0 0; background: linear-gradient(180deg, #ee47c2, #8627d9); box-shadow: 0 0 10px rgba(224, 51, 186, .35); }
+        .progress-summary { width: 116px; min-width: 0; display: grid; gap: 3px; color: #f1e6f4; }
+        .progress-summary strong { font-size: 22px; }
+        .progress-summary small { color: #ad91af; font-size: 10px; }
+        .progress-summary b { font-size: 18px; }
+        .progress-summary button { width: 100%; flex: 0 0 auto; padding: 8px 5px; font-size: 10px; margin-top: 4px; }
+        .light-mode { background: #f5eef7; color: #261329; }
+        .light-mode .main, .light-mode .header { background: #f5eef7; }
+        .light-mode .header h1, .light-mode .card-title { color: #261329; }
+        .light-mode .card, .light-mode .code-card { background: #fffaff; border-color: #e4cce7; }
+        .light-mode textarea { background: #fff; color: #72208d; }
+        @media (max-width: 1050px) { .content { grid-template-columns: minmax(0, 1fr); } .right-rail { display: grid; grid-template-columns: repeat(3, 1fr); } .results-card #resultsContainer { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+        @media (max-width: 768px) { .topbar { align-items: flex-start; gap: 10px; } .new-analysis-button { font-size: 0; } .new-analysis-button i { font-size: 13px; } .right-rail { display: flex; } .content { padding: 12px; } .sidebar { width: 100%; } .results-card #resultsContainer { grid-template-columns: 1fr; } .progress-body { gap: 12px; } .progress-chart { gap: 4px; } .progress-summary { width: 92px; } }
+        @media (max-width: 460px) { .topbar-actions { gap: 6px; } .new-analysis-button { padding: 9px 11px; } .button-group { gap: 7px; } .button-group button { flex: 1 1 130px; } .progress-body { align-items: stretch; flex-direction: column; } .progress-summary { width: 100%; grid-template-columns: 1fr 1fr; align-items: center; } .progress-summary button { grid-column: 1 / -1; } }
+
+        .execution-panel { margin-top:16px; padding:20px; border:1px solid var(--border); border-radius:16px; background:var(--panel); }
+        .execution-heading { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:20px; }
+        .execution-heading h3 { margin:0; font-size:18px; }
+        .execution-heading span { font-size:11px; color:var(--muted); border:1px solid var(--border); border-radius:6px; padding:4px 8px; }
+        .execution-grid { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.3fr); gap:24px; }
+        .execution-controls { display:flex; flex-direction:column; gap:8px; min-width:0; }
+        .execution-controls label,.execution-result h4 { font-size:13px; font-weight:600; margin:0; }
+        .execution-controls #executionLanguage { width:100%; margin:0 0 8px; padding:10px 12px; height:42px; font-size:14px; border-radius:8px; }
+        .execution-controls #executionInput { width:100%; min-height:90px; height:90px; margin:0; padding:12px; border:1px solid var(--border); border-radius:8px; resize:vertical; }
+        .execution-controls small { color:var(--muted); font-size:11px; line-height:1.5; }
+        .execution-actions { display:flex; flex-wrap:wrap; gap:8px; margin-top:8px; }
+        .execution-actions button { flex:1 1 auto; width:auto; padding:10px 12px; font-size:12px; }
+        .execution-actions button:disabled { opacity:.45; cursor:not-allowed; }
+        .execution-result { display:flex; flex-direction:column; gap:10px; min-width:0; }
+        #executionOutput { flex:1; white-space:pre-wrap; overflow-wrap:anywhere; overflow:auto; max-height:300px; min-height:150px; margin:0; padding:14px; background:var(--bg); color:inherit; border:1px solid var(--border); border-radius:10px; font:13px/1.6 monospace; }
+        #executionStatus { margin:0; font-size:12px; color:var(--muted); }
+        .execution-help { margin-top:18px; padding-top:14px; border-top:1px solid var(--border); font-size:12px; color:var(--muted); }
+        .execution-help summary { cursor:pointer; width:fit-content; }
+        .execution-help p { margin:10px 0 0; line-height:1.6; }
+        .light-mode .execution-panel { --panel:#fffaff; --bg:#f8f4fb; --border:#e4cce7; --muted:#76647e; }
+        .light-mode .execution-actions .btn-secondary { color:#72208d; }
+        .light-mode #executionLanguage { background:#fff; color:#261329; border-color:var(--border); }
+        @media(max-width:700px) { .execution-grid { grid-template-columns:1fr; gap:20px; } .execution-panel { padding:16px; } }
+    </style>
+    <link rel="stylesheet" href="workspace-theme.css?v=20261112">
+    <link rel="stylesheet" href="convex-workspace.css?v=20261114">
+    <link rel="stylesheet" href="awe-loader.css?v=20261114">
+</head>
+<body class="light-mode">
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <a class="logo" href="./" aria-label="AI Code Mentor — главная">
+                <div class="logo-icon">
+                    <i class="fas fa-brain"></i>
+                </div>
+                <div class="logo-text" data-tagline="Учись. Пиши. Понимай.">
+                    <h2>AI Code Mentor</h2>
+                </div>
+            </a>
+
+            <nav class="nav-items">
+                <button type="button" class="nav-item" id="learningNav" aria-controls="learningRoot">
+                    <i class="fas fa-graduation-cap" aria-hidden="true"></i>
+                    <span><span id="learningNavLabel">Учебный кабинет</span><small id="learningNavDescription">Группы и задания</small></span>
+                </button>
+                <div class="nav-item active" onclick="showDashboard()">
+                    <i class="fas fa-chart-line"></i> Обзор
+                </div>
+                <div class="nav-item" onclick="clearCode()">
+                    <i class="fas fa-plus"></i> Новый анализ
+                </div>
+                <div class="nav-item" onclick="loadHistory()">
+                    <i class="fas fa-history"></i> История
+                </div>
+                <div class="nav-item" onclick="showProgress()">
+                    <i class="fas fa-chart-bar"></i> Прогресс
+                </div>
+                <div class="nav-item" onclick="showStatistics()">
+                    <i class="fas fa-chart-pie"></i> Статистика
+                </div>
+                <div class="nav-item" onclick="showSavedSnippets()">
+                    <i class="fas fa-bookmark"></i> Сохранённый код
+                </div>
+                <button type="button" class="nav-item" id="glossaryNav"><i class="fas fa-book" aria-hidden="true"></i><span id="glossaryNavLabel">Словарь и команды</span></button>
+                <div class="nav-item" id="settingsNav" onclick="showSettings()">
+                    <i class="fas fa-cog"></i> Настройки
+                </div>
+            </nav>
+            <a href="data-policy.html" style="margin:10px 16px;color:#c8b9d8;font-size:12px;">Политика данных</a>
+            <div class="profile-card" hidden>
+                <div class="profile-head"><span class="profile-avatar" aria-hidden="true">?</span><span><b id="userName">Гость</b><small id="userRole">Ученик</small></span></div>
+                <p>Практикуйся и развивайся! 🚀</p>
+                <div class="level-row"><span id="userLevel">Уровень —</span><span id="userXp">—</span></div>
+                <div class="xp-track"><span></span></div>
+                <details class="xp-help"><summary>Как получить XP</summary><p>+10 XP — за каждый сохранённый AI-анализ кода.</p><p>Каждые 1000 XP — новый уровень. После перехода шкала начинается заново, общий опыт сохраняется.</p><p>Запуск тестов, сохранение кода и подсказки пока не дают XP. Оценка кода не влияет на опыт.</p></details>
+                <span id="userEmail" class="profile-email">Вход не выполнен</span>
+                <button class="btn-secondary" style="margin-top:8px;width:100%;" onclick="logout()">Выйти</button>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main">
+            <div class="header topbar">
+                <div>
+                    <h1>Анализ кода</h1>
+                    <p style="color: #8b8f9e; margin-top: 4px; font-size: 13px;">Вставьте код и получите объяснение ошибок</p>
+                </div>
+                <div class="topbar-actions">
+                    <select id="localeSelect" aria-label="Язык интерфейса" onchange="setMentorLocale(this.value)"><option value="ru">Русский</option><option value="uz">O‘zbekcha</option></select>
+                    <button class="btn-primary new-analysis-button" onclick="clearCode()"><i class="fas fa-plus"></i> Новый анализ</button>
+                </div>
+            </div>
+
+            <div id="learningFeedback" class="learning-feedback" role="alert" hidden></div>
+            <section id="learningRoot" class="learning-panel" aria-label="Учебный кабинет" hidden></section>
+            <section id="settingsRoot" class="settings-page" aria-label="Настройки" hidden></section>
+            <div class="content">
+                <div class="workspace-column">
+                <!-- Code Input -->
+                <div class="card code-card">
+                    <div class="studio-heading"><div><span class="eyebrow">РАБОЧЕЕ ПРОСТРАНСТВО</span><h2>Редактор кода</h2></div><label class="file-upload" for="fileInput">↑ Загрузить файл</label><input id="fileInput" type="file" onchange="loadFile(event)"></div>
+                    <div class="studio-language"><label for="languageSelect">Язык анализа</label><select id="languageSelect" onchange="changeEditorLanguage()" class="language-select" aria-label="Язык анализа">
+                            <option value="">Определить язык автоматически</option>
+                            <option>Python</option><option>JavaScript</option><option>TypeScript</option>
+                            <option>Java</option><option>C++</option><option>C#</option><option>Go</option>
+                            <option>Rust</option><option>PHP</option><option>Ruby</option><option>SQL</option>
+                            <option>HTML</option><option>CSS</option><option>Другой</option>
+                        </select><span id="fileName" class="muted">Файл не выбран</span></div>
+                    <div class="code-editor"><div class="editor-toolbar"><span class="editor-file"><span id="editorLanguageIcon" aria-hidden="true">Py</span> <input id="editorFileLabel" value="main.py" aria-label="Имя файла" title="Изменить имя файла" maxlength="120" spellcheck="false" onchange="renameEditorFile()"></span><div class="editor-actions"><button type="button" id="saveEditorCode" class="save-editor" onclick="saveCodeFromEditor()"><i class="far fa-bookmark" aria-hidden="true"></i> <span>Сохранить код</span></button><button class="clear-editor" onclick="clearCode()">Очистить</button></div></div>
+                        <p id="editorSaveStatus" class="editor-save-status" role="status" aria-live="polite"></p>
+                        <label class="sr-only" for="codeInput">Код программы — пишите здесь</label>
+                        <textarea id="codeInput" spellcheck="false" placeholder="Напишите код здесь…"></textarea>
+                    </div>
+                    <div class="studio-actions">
+                        <button class="btn-primary" id="runCodeButton" onclick="runCode()">▶ Запустить</button>
+                        <button class="btn-secondary" id="stopCodeButton" onclick="stopCode()" disabled>■ Остановить</button>
+                        <button class="btn-secondary" id="analyzeButton" onclick="analyzeCode()">✦ Анализировать</button>
+                        <span class="keyboard-hint">Ctrl + Enter</span>
+                    </div>
+                    <section class="execution-panel" aria-labelledby="executionTitle">
+                        <div class="terminal-heading"><h3 id="executionTitle">Терминал</h3><label for="executionLanguage">Язык запуска</label><select id="executionLanguage" class="language-select"><option>Python</option><option>JavaScript</option></select></div>
+                        <pre id="executionOutput" aria-label="Вывод программы"></pre>
+                        <p id="executionStatus" role="status" aria-live="polite">Готово к запуску.</p>
+                        <details class="run-settings"><summary>Входные данные и параметры запуска</summary>
+                            <label for="executionInput">Данные для input() — не код</label>
+                            <textarea id="executionInput" rows="2" placeholder="Например: 42" aria-describedby="executionInputHelp"></textarea>
+                            <small id="executionInputHelp">Только ответы программе, например 42 или имя. Если input() нет — оставьте пустым.</small>
+                            <label class="expression-toggle"><input id="showExpressionResults" type="checkbox" checked> Показывать результаты выражений Python без print()</label>
+                        </details>
+                        <details class="execution-help"><summary>Как работает запуск</summary><p>Код выполняется в вашем браузере. Python и JavaScript: без серверных файлов и установки пакетов. Для Python при каждом запуске загружается runtime с CDN; встроенная библиотека доступна частично. Лимит выполнения — 10 секунд.</p></details>
+                    </section>
+                    <details class="studio-extras"><summary>Примеры и дополнительные проверки</summary><div class="button-group">
+                        <button class="btn-secondary" onclick="loadExample1()">Ошибка в цикле</button>
+                        <button class="btn-secondary" onclick="loadExample2()">Риск SQL-инъекции</button>
+                        <button class="btn-secondary" id="authorshipButton" onclick="checkAuthorship()">Проверить признаки AI</button>
+                    </div></details>
+                </div>
+
+                <!-- Results -->
+                <div class="card results-card">
+                    <h3 class="card-title">✨ Результаты анализа</h3>
+                    <div id="resultsContainer"><div class="empty-state"><p>Вставьте код и нажмите «Анализировать».</p></div></div>
+                </div>
+
+                <div class="card progress-card">
+                    <div class="progress-heading"><h3 class="card-title">Ваш прогресс</h3><span>Средняя оценка</span></div>
+                    <div class="progress-body">
+                        <div class="progress-chart" aria-label="Progress chart">
+                        </div>
+                        <div class="progress-summary">
+                            <strong id="progressAverage">0</strong><small>Средняя оценка</small>
+                            <b id="progressCount">0</b><small>Анализы</small>
+                            <button class="btn-primary" onclick="showProgress()">Посмотреть прогресс →</button>
+                        </div>
+                    </div>
+                </div>
+                </div>
+
+                <aside class="right-rail">
+                    <div class="rail-card score-card">
+                        <div class="rail-title">Оценка кода</div>
+                        <div class="score-ring">
+                            <strong id="railScore">—</strong>
+                            <small>/ 100</small>
+                        </div>
+                        <p id="railFeedback">Вставьте код и нажмите «Анализировать».</p>
+                        <div class="score-breakdown">
+                            <span><b id="railCritical">0</b><em>Ошибки</em></span>
+                            <span><b id="railImprovement">0</b><em>Улучшения</em></span>
+                            <span><b id="railLearning">0</b><em>Обучение</em></span>
+                            <span><b id="railGood">0</b><em>Удачные решения</em></span>
+                        </div>
+                    </div>
+                    <div class="rail-card mentor-card">
+                        <div class="rail-title">Режим наставника <span class="step-pill">Step 1 of 3</span></div>
+                        <div id="railHint" class="rail-hint">Сначала проанализируйте код, чтобы получить подсказки.</div>
+                        <div class="hint-actions"><button class="btn-secondary" onclick="changeHint(-1)">← Предыдущая подсказка</button><button class="btn-primary" onclick="changeHint(1)">Следующая подсказка →</button></div>
+                        <small class="hint-footer">💡 Подсказки помогают найти решение самостоятельно.</small>
+                    </div>
+                    <div class="rail-card recent-card">
+                        <div class="rail-title">Последние анализы <button class="view-all" onclick="loadHistory()">Все</button></div>
+                        <div class="recent-item"><div><small>Загрузка истории…</small></div></div>
+                    </div>
+                </aside>
+            </div>
+        </div>
+    </div>
+
+    <section id="investorPanel" class="investor-panel">
+        <div class="investor-inner">
+            <button class="btn-secondary" style="max-width:160px;margin-bottom:20px;" onclick="closeInvestorDemo()">
+                <i class="fas fa-arrow-left"></i> Назад в приложение
+            </button>
+            <div class="investor-hero">
+                <h2>AI Code Mentor</h2>
+                <p>Помощник преподавателя для практики программирования в школах и учебных центрах: задания группам, подсказки ученикам и проверка отправленных работ.</p>
+            </div>
+            <div class="investor-grid">
+                <div class="investor-stat"><strong>Python и JavaScript</strong><span>Выполнение кода в браузере</span></div>
+                <div class="investor-stat"><strong>Группа и преподаватель</strong><span>Задание → решение → проверка</span></div>
+                <div class="investor-stat"><strong>Русский и узбекский</strong><span>Интерфейс на двух языках</span></div>
+            </div>
+            <div class="investor-columns">
+                <div class="card">
+                    <h3 class="card-title">Проблема</h3>
+                    <ul class="investor-list">
+                        <li>Ученики видят ошибку, но не всегда понимают её причину.</li>
+                        <li>Преподавателю нужно проверять решения всей группы.</li>
+                        <li>Готовый ответ сам по себе не подтверждает понимание ученика.</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3 class="card-title">Решение</h3>
+                    <ul class="investor-list">
+                        <li>Преподаватель выдаёт задания своей группе.</li>
+                        <li>Ученик пишет код, запускает тесты и получает подсказки.</li>
+                        <li>Преподаватель видит отправленные работы и результаты тестов.</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3 class="card-title">Бизнес-модель</h3>
+                    <ul class="investor-list">
+                        <li>Планируемая модель — подписка для школ и учебных центров.</li>
+                        <li>Стоимость зависит от числа учеников и лимита AI-анализов.</li>
+                        <li>Тариф и себестоимость предстоит проверить на пилоте.</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3 class="card-title">Следующий этап</h3>
+                    <ul class="investor-list">
+                        <li>Провести пилот с преподавателем и учебной группой.</li>
+                        <li>Измерить время проверки, повторные попытки и затраты на AI.</li>
+                        <li>Результаты реального пилота пока не подтверждены.</li>
+                    </ul>
+                </div>
+            </div>
+            <p class="investor-limits">Тесты выполняются в браузере; преподаватель проверяет код и объяснение ученика. AI может ошибаться. Для Python нужен доступ к CDN; запуск ограничен 10 секундами. Доступность зависит от сети и сервера.</p>
+            <div class="button-group" style="max-width:420px;margin:22px auto 0;">
+                <button class="btn-primary" onclick="startInvestorDemo()">Открыть демонстрацию</button>
+                <button class="btn-secondary" onclick="window.print()">Печать презентации</button>
+            </div>
+        </div>
+    </section>
+
+    <div id="authOverlay" class="auth-overlay">
+        <div class="auth-box">
+            <h2 id="authTitle">Создайте аккаунт</h2>
+            <p id="authSubtitle">Для работы с наставником войдите или создайте аккаунт.</p>
+            <input id="authName" placeholder="Display name (optional)">
+            <input id="authEmail" type="email" placeholder="Email">
+            <div class="password-input-wrap">
+                <input id="authPassword" type="password" placeholder="Password (10+ chars, upper/lower/number/symbol)">
+                <button type="button" class="password-toggle-btn" onclick="togglePasswordVisibility('authPassword', 'togglePasswordIcon')" title="Show/hide password" aria-label="Toggle password visibility">
+                    <i id="togglePasswordIcon" class="fas fa-eye"></i>
+                </button>
+            </div>
+            <input id="authCode" autocomplete="one-time-code" inputmode="numeric" maxlength="64" placeholder="Email verification code" style="display:none">
+            <button class="btn-primary" style="width:100%;" onclick="submitAuth()" id="authSubmit">Регистрация</button>
+            <button type="button" class="auth-switch" onclick="toggleAuthMode()" id="authSwitch">Уже есть аккаунт? Войти</button>
+            <button type="button" class="auth-switch verify-entry" onclick="showVerificationEntry()">Уже есть код из письма</button>
+            <button type="button" id="resendCode" class="auth-switch" onclick="resendVerificationCode()" hidden>Отправить код ещё раз</button>
+            <div id="authError" class="error-message" style="display:none;margin-top:12px;"></div>
+        </div>
+    </div>
+
+    <script>
+        function showAuthOverlay() {
+            const overlay = document.getElementById('authOverlay');
+            if (overlay) overlay.style.display = 'flex';
+        }
+
+        function hideAuthOverlay() {
+            const overlay = document.getElementById('authOverlay');
+            if (overlay) overlay.style.display = 'none';
+            window.dispatchEvent(new CustomEvent('mentor-authenticated'));
+        }
+
+        const API_URL = (() => {
+            const host = location.hostname;
+            if (location.protocol === 'file:') return 'https://ai-code-mentor-backend-z80q.onrender.com';
+            if (host === 'localhost' || host === '127.0.0.1') return 'http://localhost:8000';
+            if (host.endsWith('onrender.com')) return '';
+            return 'https://ai-code-mentor-backend-z80q.onrender.com';
+        })();
+        let authMode = 'register';
+        const editorLanguages = {
+            Python:['py','Py'], JavaScript:['js','JS'], TypeScript:['ts','TS'],
+            Java:['java','Java'], 'C++':['cpp','C++'], 'C#':['cs','C#'], Go:['go','Go'],
+            Rust:['rs','Rs'], PHP:['php','PHP'], Ruby:['rb','Rb'], SQL:['sql','SQL'],
+            HTML:['html','<>'], CSS:['css','#']
+        };
+        let selectedFilename = 'main.py';
+        let currentHints = [];
+        let currentHintIndex = 0;
+
+        function readStoredJson(key, fallback) {
+            try { return JSON.parse(localStorage.getItem(key) || JSON.stringify(fallback)); }
+            catch (error) { return fallback; }
+        }
+
+        function getSettings() {
+            return { defaultLanguage: '', autoSave: false, fontSize:14, ...readStoredJson('mentor_settings', {}), theme: 'light' };
+        }
+
+        function applySettings() {
+            const settings = getSettings();
+            document.body.classList.add('light-mode');
+            const language = document.getElementById('languageSelect');
+            if (language) { language.value = settings.defaultLanguage || ''; changeEditorLanguage(); }
+            const fontSize=[14,16,18,20].includes(Number(settings.fontSize))?Number(settings.fontSize):14;
+            document.documentElement.style.setProperty('--mentor-code-font-size', fontSize+'px');
+        }
+
+        function toggleTheme() {
+            const settings = getSettings();
+            settings.theme = document.body.classList.contains('light-mode') ? 'dark' : 'light';
+            localStorage.setItem('mentor_settings', JSON.stringify(settings));
+            applySettings();
+        }
+
+        function authHeaders() {
+            const token = localStorage.getItem('mentor_token');
+            return token ? { 'Authorization': `Bearer ${token}` } : {};
+        }
+
+        function updateProfile(user) {
+            if (!user) return;
+            document.querySelector('.profile-card').hidden = false;
+            document.getElementById('userEmail').textContent = user.email || '';
+            document.getElementById('userName').textContent = user.display_name || user.email?.split('@')[0] || 'Пользователь';
+            document.querySelector('.profile-avatar').textContent = Array.from(document.getElementById('userName').textContent.trim())[0]?.toLocaleUpperCase() || '?';
+            if (user.level == null) return;
+            const xpCurrent = user.xp_current || 0;
+            const xpNeeded = user.xp_needed || 1;
+            document.getElementById('userLevel').textContent = `Level ${user.level}`;
+            document.getElementById('userXp').textContent = `${xpCurrent} / ${xpNeeded} XP`;
+            const xpFill = document.querySelector('.xp-track span');
+            if (xpFill) xpFill.style.width = `${Math.min(100, (xpCurrent / xpNeeded) * 100)}%`;
+        }
+
+        async function refreshUserProfile() {
+            try {
+                const response = await fetch(`${API_URL}/auth/me`, { headers: authHeaders() });
+                if (response.ok) updateProfile(await response.json());
+            } catch (error) {
+                console.warn('Unable to refresh profile:', error);
+            }
+        }
+
+        function togglePasswordVisibility(inputId, iconId) {
+            const input = document.getElementById(inputId);
+            const icon = document.getElementById(iconId);
+            if (!input || !icon) return;
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+
+        function toggleAuthMode() {
+            authMode = authMode === 'register' ? 'login' : 'register';
+            const authSubmit = document.getElementById('authSubmit');
+            const authName = document.getElementById('authName');
+            const authCode = document.getElementById('authCode');
+            const authError = document.getElementById('authError');
+
+            document.getElementById('authTitle').textContent = authMode === 'register' ? 'Create your account' : 'Welcome back';
+            authSubmit.textContent = authMode === 'register' ? 'Register' : 'Sign in';
+            authSubmit.onclick = submitAuth;
+            authSubmit.disabled = false;
+            authName.style.display = authMode === 'register' ? 'block' : 'none';
+            authCode.style.display = 'none';
+            document.querySelector('.verify-entry').hidden=false;
+            document.getElementById('resendCode').hidden=true;
+            authError.style.display = 'none';
+            authError.textContent = '';
+            document.getElementById('authSwitch').textContent = authMode === 'register'
+                ? 'Already have an account? Sign in' : 'No account yet? Register';
+        }
+
+        function showVerificationEntry() {
+            const btn=document.getElementById('authSubmit');
+            document.getElementById('authCode').style.display='block';
+            document.querySelector('.verify-entry').hidden=true;
+            document.getElementById('resendCode').hidden=false;
+            btn.textContent='Verify email';btn.onclick=verifyEmail;btn.disabled=false;
+            document.getElementById('authCode').focus();
+        }
+        let resendAvailableAt=0;
+        async function resendVerificationCode() {
+            const btn=document.getElementById('resendCode'), error=document.getElementById('authError');
+            if(Date.now()<resendAvailableAt)return;
+            btn.disabled=true;error.style.display='none';
+            try {
+                const response=await fetch(`${API_URL}/auth/resend-verification`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:document.getElementById('authEmail').value.trim(),password:document.getElementById('authPassword').value})});
+                const data=await response.json();
+                if(!response.ok){
+                    if(response.status===429)resendAvailableAt=Date.now()+Number(response.headers.get('Retry-After')||60)*1000;
+                    throw new Error(data.detail||'Network error');
+                }
+                resendAvailableAt=Date.now()+60000;
+                document.getElementById('authCode').value='';
+                error.textContent=data.message;error.dataset.state='success';
+            } catch(e){error.textContent=e.message;error.dataset.state='error';}
+            finally {
+                error.style.display='block';
+                const tick=()=>{const seconds=Math.ceil((resendAvailableAt-Date.now())/1000);btn.disabled=seconds>0;btn.textContent=seconds>0?(window.MentorLocale==='uz'?`Qayta yuborish: ${seconds} s`:`Повторная отправка через ${seconds} с`):(window.MentorLocale==='uz'?'Kodni qayta yuborish':'Отправить код ещё раз');if(seconds>0)setTimeout(tick,1000);};tick();
+            }
+        }
+        async function submitAuth() {
+            const btn = document.getElementById('authSubmit');
+            const originalText = btn.textContent;
+            btn.disabled = true;
+            btn.textContent = authMode === 'register' ? 'Registering...' : 'Signing in...';
+            document.getElementById('authError').style.display = 'none';
+            const email = document.getElementById('authEmail').value.trim();
+            const password = document.getElementById('authPassword').value;
+            const error = document.getElementById('authError');
+            error.dataset.state='error';
+            if (!email) { error.textContent = 'Enter your email address.'; error.style.display = 'block'; btn.disabled = false; btn.textContent = originalText; return; }
+            if (authMode === 'register' && password.length < 10) { error.textContent = 'Password must be at least 10 characters.'; error.style.display = 'block'; btn.disabled = false; btn.textContent = originalText; return; }
+            try {
+                const body = { email, password };
+                if (authMode === 'register') body.display_name = document.getElementById('authName').value.trim() || null;
+                const response = await fetch(`${API_URL}/auth/${authMode}`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(body) });
+                const data = await response.json();
+                if (!response.ok) {
+                    if (response.status === 403 && data.detail === 'Verify your email before signing in') showVerificationEntry();
+                    throw new Error(data.detail || 'Authentication failed');
+                }
+                if (authMode === 'register' && data.access_token && !data.verification_required) {
+                    localStorage.setItem('mentor_token', data.access_token);
+                    hideAuthOverlay();
+                    const user = data.user || { display_name: email.split('@')[0], email };
+                    updateProfile(user);
+                    if (user.level) {
+                        document.querySelector('.level-row span:first-child').textContent = `Level ${user.level}`;
+                        document.querySelector('.level-row span:last-child').textContent = `${user.xp_current || 0} / ${user.xp_needed || 1000} XP`;
+                        const xpCurrent = user.xp_current || 0;
+                        const xpNeeded = user.xp_needed || 1000;
+                        const xpPercent = Math.min(100, (xpCurrent / xpNeeded) * 100);
+                        const xpFill = document.querySelector('.xp-track span');
+                        if (xpFill) xpFill.style.width = `${xpPercent}%`;
+                    }
+                } else if (authMode === 'register') {
+                    showVerificationEntry();
+                    document.getElementById('authSubmit').textContent = 'Verify email';
+                    document.getElementById('authSubmit').onclick = verifyEmail;
+                    error.textContent = 'Verification code sent. Enter the code from your email.';
+                    error.style.display = 'block';
+                } else {
+                    localStorage.setItem('mentor_token', data.access_token);
+                    hideAuthOverlay();
+                    const user = data.user || {};
+                    updateProfile(user);
+                    if (user.level) {
+                        document.querySelector('.level-row span:first-child').textContent = `Level ${user.level}`;
+                        document.querySelector('.level-row span:last-child').textContent = `${user.xp_current || 0} / ${user.xp_needed || 1000} XP`;
+                        const xpCurrent = user.xp_current || 0;
+                        const xpNeeded = user.xp_needed || 1000;
+                        const xpPercent = Math.min(100, (xpCurrent / xpNeeded) * 100);
+                        const xpFill = document.querySelector('.xp-track span');
+                        if (xpFill) xpFill.style.width = `${xpPercent}%`;
+                    }
+                }
+            } catch (e) { error.textContent = e.message; error.style.display = 'block'; }
+            finally {
+                btn.disabled = false;
+                btn.textContent = btn.onclick === verifyEmail ? 'Verify email' : (authMode === 'register' ? 'Register' : 'Sign in');
+            }
+        }
+
+        async function verifyEmail() {
+            const btn = document.getElementById('authSubmit');
+            const originalText = btn.textContent;
+            btn.disabled = true;
+            btn.textContent = 'Verifying...';
+            document.getElementById('authError').dataset.state='error';
+            document.getElementById('authError').style.display = 'none';
+            try {
+                const email = encodeURIComponent(document.getElementById('authEmail').value.trim());
+                const code = encodeURIComponent(document.getElementById('authCode').value.trim());
+                const response = await fetch(`${API_URL}/auth/verify-email?email=${email}&code=${code}`, { method: 'POST' });
+                const data = await response.json();
+                if (!response.ok) { document.getElementById('authError').textContent = data.detail || 'Verification failed'; document.getElementById('authError').style.display = 'block'; return; }
+                localStorage.setItem('mentor_token', data.access_token);
+                hideAuthOverlay();
+                updateProfile(data.user);
+            } catch (e) {
+                document.getElementById('authError').textContent = e.message || 'Network error'; document.getElementById('authError').style.display = 'block';
+            } finally {
+                btn.disabled = false;
+                btn.textContent = originalText;
+            }
+        }
+
+        function logout() { localStorage.removeItem('mentor_token'); location.reload(); }
+
+        async function loadFile(event) {
+            const file = event.target.files[0]; if (!file) return;
+            selectedFilename = file.name; document.getElementById('languageSelect').value = filenameLanguage(); document.getElementById('fileName').textContent = file.name;
+            syncEditorFile();
+            try { document.getElementById('codeInput').value = await file.text(); }
+            catch (e) { showError('This file cannot be read as text. Binary files are accepted, but upload a text source file for analysis.'); }
+        }
+
+        function findTextErrors() {
+            const code = document.getElementById('codeInput').value;
+            if (!code.trim()) { showError('Paste text or upload a file first.'); return; }
+            const lines = code.split('\n'), issues = [];
+            lines.forEach((line, i) => { if (line.length > 120) issues.push(`Line ${i + 1}: more than 120 characters`); });
+            const brackets = {'(':')','[':']','{':'}'}, stack = [];
+            for (const char of code) { if (brackets[char]) stack.push(brackets[char]); else if (Object.values(brackets).includes(char) && stack.pop() !== char) issues.push('Unbalanced brackets or braces'); }
+            if (stack.length) issues.push('Some brackets or braces are not closed');
+            if (!issues.length) showError('Quick text check found no obvious formatting or bracket errors. Run Analyze for a full language-aware review.');
+            else document.getElementById('resultsContainer').innerHTML = `<div class="error-message"><strong>Quick check:</strong><br>${issues.map(escapeHtml).join('<br>')}</div>`;
+        }
+
+        function escapeHtml(value) { return String(value).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+        // Load example codes
+        function loadExample1() {
+            document.getElementById('codeInput').value = `data = [1, 2, 3, 4, 5]
+for i in range(len(data)):
+    print(data[i])
+
+result = []
+for item in data:
+    result.append(item * 2)`;
+        }
+
+        function loadExample2() {
+            document.getElementById('codeInput').value = `import sqlite3
+
+def get_user(user_id):
+    query = f"SELECT * FROM users WHERE id = {user_id}"
+    conn = sqlite3.connect("db.sqlite")
+    cursor = conn.cursor()
+    cursor.execute(query)
+    return cursor.fetchone()`;
+        }
+
+        function filenameLanguage() {
+            const extension = selectedFilename.split('.').pop().toLowerCase();
+            return Object.keys(editorLanguages).find(name => editorLanguages[name][0] === extension) || '';
+        }
+        function syncEditorFile() {
+            document.getElementById('editorFileLabel').value = selectedFilename;
+            const language = document.getElementById('languageSelect').value || filenameLanguage();
+            document.getElementById('editorLanguageIcon').textContent = editorLanguages[language]?.[1] || '</>';
+            document.getElementById('fileName').textContent = selectedFilename;
+        }
+        function changeEditorLanguage() {
+            const language = document.getElementById('languageSelect').value;
+            const extension = editorLanguages[language]?.[0];
+            if (extension) selectedFilename = (selectedFilename.replace(/\.[^.]+$/, '') || 'main') + '.' + extension;
+            syncEditorFile();
+        }
+        function renameEditorFile() {
+            const name = document.getElementById('editorFileLabel').value.trim().replace(/[\\/\x00-\x1f]/g, '').slice(0,120);
+            if (name && name !== '.' && name !== '..') {
+                selectedFilename = name;
+                document.getElementById('languageSelect').value = filenameLanguage();
+            }
+            syncEditorFile();
+        }
+
+        function clearCode() {
+            document.getElementById('codeInput').value = '';
+            selectedFilename = 'main.py';
+            changeEditorLanguage();
+            document.getElementById('resultsContainer').innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-icon">📋</div>
+                    <p>Paste code and click "Analyze" to get started</p>
+                </div>
+            `;
+        }
+
+        async function analyzeCode() {
+            const analyzeButton = document.getElementById('analyzeButton');
+            if (analyzeButton && analyzeButton.disabled) return;
+            const code = document.getElementById('codeInput').value.trim();
+
+            if (!code) {
+                showError('Please paste some code first!');
+                return;
+            }
+
+            if (code.length < 5) {
+                showError('Code must be at least 5 characters');
+                return;
+            }
+
+            showLoading();
+            if (analyzeButton) analyzeButton.disabled = true;
+
+            try {
+                const response = await fetch(`${API_URL}/analyze`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', ...authHeaders() },
+                    body: JSON.stringify({
+                        code: code,
+                        filename: selectedFilename,
+                        language: document.getElementById('languageSelect').value || null,
+                        response_language: window.MentorLocale || 'ru'
+                    })
+                });
+
+                if (!response.ok) {
+                    let detail = 'API Error: ' + response.status;
+                    try { const err = await response.json(); detail = err.detail || detail; } catch (e) {}
+                    throw new Error(detail);
+                }
+
+                const data = await response.json();
+                displayResults(data);
+                if (getSettings().autoSave) saveSnippetData(false);
+                refreshDashboardStats();
+                refreshStatistics();
+                refreshUserProfile();
+
+            } catch (error) {
+                const msg = String(error.message || '');
+                if (msg.includes('401') || /required|expired|sign in/i.test(msg)) {
+                    showError('Please sign in again.');
+                } else if (/Failed to fetch|NetworkError|Cannot connect/i.test(msg)) {
+                    showError('Cannot connect to the analysis server. Please try again in a few seconds.');
+                } else {
+                    showError(msg);
+                }
+                console.error('Error:', error);
+            } finally {
+                if (analyzeButton) analyzeButton.disabled = false;
+            }
+        }
+
+        function renderAuthorship(result) {
+            if (!result) return '';
+            return `<section class="result-card"><h3>Признаки AI в коде</h3>
+                <p><strong>${escapeHtml(result.label)}</strong></p>
+                ${!result.supported ? '<p>Пока проверяются только комментарии Python.</p>' : ''}
+                ${(result.signals || []).map(signal => `<p>Строка ${escapeHtml(signal.line)}: ${escapeHtml(signal.explanation)}<br><code>${escapeHtml(signal.excerpt)}</code></p>`).join('')}
+                <p>${escapeHtml(result.limitations)}</p><p>${escapeHtml(result.next_step)}</p></section>`;
+        }
+
+        async function checkAuthorship() {
+            const button = document.getElementById('authorshipButton');
+            if (button.disabled) return;
+            const code = document.getElementById('codeInput').value.trim();
+            if (code.length < 5 || code.length > 10000) {
+                showError('Введите от 5 до 10000 символов кода.');
+                return;
+            }
+            button.disabled = true;
+            showLoading();
+            try {
+                const response = await fetch(`${API_URL}/authorship`, {
+                    method: 'POST', headers: {'Content-Type': 'application/json', ...authHeaders()},
+                    body: JSON.stringify({code, filename: selectedFilename, language: document.getElementById('languageSelect').value || null,
+                        response_language: window.MentorLocale || 'ru'})
+                });
+                if (response.status === 401) throw new Error('Войдите в аккаунт для проверки.');
+                if (!response.ok) throw new Error('Не удалось проверить код. Попробуйте ещё раз.');
+                const result = await response.json();
+                document.getElementById('resultsContainer').innerHTML = renderAuthorship(result);
+            } catch (error) { showError(error.message); }
+            finally { button.disabled = false; }
+        }
+
+        function showLoading() {
+            document.getElementById('resultsContainer').innerHTML = `
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Analyzing your code...</p>
+                </div>
+            `;
+        }
+
+        function showError(message) {
+            document.getElementById('resultsContainer').innerHTML = `
+                <div class="error-message">
+                    <i class="fas fa-exclamation-circle"></i> ${escapeHtml(message)}
+                </div>
+            `;
+        }
+
+        function displayResults(data) {
+            const feedback = data.feedback;
+            let html = renderAuthorship(feedback.authorship);
+            currentHints = data.mentor_hints || [];
+            currentHintIndex = 0;
+            const criticalCount = (feedback.critical || []).length;
+            const improvementCount = (feedback.improvements || []).length;
+            const learningCount = (feedback.learning || []).length;
+            const goodCount = (feedback.good || []).length;
+            document.getElementById('railScore').textContent = data.score;
+            document.getElementById('railCritical').textContent = criticalCount;
+            document.getElementById('railImprovement').textContent = improvementCount;
+            document.getElementById('railLearning').textContent = learningCount;
+            document.getElementById('railGood').textContent = goodCount;
+            document.getElementById('railFeedback').textContent = data.summary || getScoreFeedback(data.score);
+            renderMentorHint();
+
+            // Score
+            html += `
+                <div class="score-section">
+                    <div class="score-number">${data.score}</div>
+                    <div class="score-label">/ 100</div>
+                    <div class="score-feedback">${getScoreFeedback(data.score)}</div>
+                </div>
+            `;
+
+            // Critical Issues
+            if (feedback.critical && feedback.critical.length > 0) {
+                html += `<h4 style="color: #ef4444; font-size: 12px; margin-top: 16px; margin-bottom: 8px;">🔴 CRITICAL ISSUES</h4>`;
+                feedback.critical.forEach(item => {
+                    html += createResultCard(item, 'critical');
+                });
+            }
+
+            // Improvements
+            if (feedback.improvements && feedback.improvements.length > 0) {
+                html += `<h4 style="color: #f59e0b; font-size: 12px; margin-top: 16px; margin-bottom: 8px;">🟠 IMPROVEMENTS</h4>`;
+                feedback.improvements.forEach(item => {
+                    html += createResultCard(item, 'improvement');
+                });
+            }
+
+            // Learning
+            if (feedback.learning && feedback.learning.length > 0) {
+                html += `<h4 style="color: #06b6d4; font-size: 12px; margin-top: 16px; margin-bottom: 8px;">🔵 LEARNING</h4>`;
+                feedback.learning.forEach(item => {
+                    html += createResultCard(item, 'learning');
+                });
+            }
+
+            // Good Practices
+            if (feedback.good && feedback.good.length > 0) {
+                html += `<h4 style="color: #10b981; font-size: 12px; margin-top: 16px; margin-bottom: 8px;">🟢 GOOD</h4>`;
+                feedback.good.forEach(item => {
+                    html += createResultCard(item, 'good');
+                });
+            }
+
+            // Mentor Hints
+            if (data.mentor_hints && data.mentor_hints.length > 0) {
+                html += `
+                    <div class="hints-section">
+                        <div class="hints-title">💡 Mentor Hints</div>
+                `;
+                data.mentor_hints.forEach(hint => {
+                    html += `<div class="hint-item"><strong>${escapeHtml(hint.hint)}</strong><br>${escapeHtml(hint.guide)}</div>`;
+                });
+                html += `</div>`;
+            }
+
+            document.getElementById('resultsContainer').innerHTML = html;
+        }
+
+        function createResultCard(item, type) {
+            const badgeClass = `badge-${type}`;
+            let title = item.issue || item.topic || item.practice || 'Item';
+            let description = item.explanation || item.why || '';
+            let suggestion = item.suggestion || item.fix || item.resource || '';
+
+            const topic = title || description;
+            const videoLink = topic ? `<a class="video-link" target="_blank" rel="noopener" href="https://www.youtube.com/results?search_query=${encodeURIComponent(topic + ' programming error tutorial')}"><i class="fab fa-youtube"></i> Find a YouTube explanation</a>` : '';
+            return `
+                <div class="result-card ${type}">
+                    <div class="result-header">
+                        <span class="result-badge ${badgeClass}">${type.toUpperCase()}</span>
+                    </div>
+                    <h4 class="result-title">${escapeHtml(title)}</h4>
+                    ${description ? `<p class="result-text">${escapeHtml(description)}</p>` : ''}
+                    ${suggestion ? `<p class="result-text" style="margin-top: 8px; color: #a5b4fc;"><strong>→ ${escapeHtml(suggestion)}</strong></p>` : ''}
+                    ${videoLink}
+                </div>
+            `;
+        }
+
+        async function loadHistory() {
+            try {
+                const response = await fetch(`${API_URL}/history`, { headers: authHeaders() });
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.detail || 'Unable to load history');
+                document.getElementById('resultsContainer').innerHTML = renderHistory(data.analyses || []);
+            } catch (error) {
+                showError(error.message);
+            }
+        }
+
+        // Legacy server timestamps were stored in UTC without an offset.
+        function parseServerDate(timestamp) {
+            if (typeof timestamp === 'string' && /^\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}:\d{2}(?:\.\d+)?$/.test(timestamp.trim())) {
+                timestamp = timestamp.trim().replace(' ', 'T') + 'Z';
+            }
+            return new Date(timestamp);
+        }
+        function formatHistoryTime(timestamp) {
+            const date = parseServerDate(timestamp);
+            if (Number.isNaN(date.getTime())) return 'Recently';
+            const seconds = Math.max(0, Math.floor((Date.now() - date.getTime()) / 1000));
+            if (seconds < 60) return 'Just now';
+            if (seconds < 3600) return `${Math.floor(seconds / 60)} min ago`;
+            if (seconds < 86400) return `${Math.floor(seconds / 3600)} hr ago`;
+            if (seconds < 604800) return `${Math.floor(seconds / 86400)} days ago`;
+            return date.toLocaleDateString();
+        }
+
+        function renderHistory(analyses) {
+            if (!analyses.length) return '<div class="empty-state">No analyses yet.</div>';
+            return analyses.map(item => {
+                return `<div class="result-card ${item.score >= 70 ? 'good' : 'critical'}">
+                    <div class="result-header"><span class="result-badge badge-${item.score >= 70 ? 'good' : 'critical'}">${item.score}/100</span></div>
+                    <h4 class="result-title">${escapeHtml(item.filename || 'Untitled')}</h4>
+                    <p class="result-text">${escapeHtml(item.feedback_summary || 'No summary')}</p>
+                    <small class="hint-footer">${formatHistoryTime(item.timestamp)}</small>
+                    <button class="btn-secondary" onclick="openHistoryItem('${escapeHtml(item.id)}')">Open analysis</button>
+                </div>`;
+            }).join('');
+        }
+
+        async function openHistoryItem(analysisId) {
+            try {
+                const response = await fetch(`${API_URL}/analysis/${encodeURIComponent(analysisId)}`, { headers: authHeaders() });
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.detail || 'Unable to open analysis');
+                selectedFilename = data.filename || 'analysis.txt';
+                document.getElementById('languageSelect').value = filenameLanguage();
+                document.getElementById('fileName').textContent = selectedFilename;
+                syncEditorFile();
+                document.getElementById('codeInput').value = data.code || '';
+                displayResults({ feedback: data.feedback || {}, score: data.score || 0, summary: data.feedback?.summary || '' });
+                document.querySelector('.code-card')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            } catch (error) {
+                showError(error.message);
+            }
+        }
+
+        async function refreshDashboardStats() {
+            try {
+                const response = await fetch(`${API_URL}/progress`, { headers: authHeaders() });
+                const data = await response.json();
+                if (!response.ok) return;
+                document.getElementById('progressAverage').textContent = data.average_score || 0;
+                document.getElementById('progressCount').textContent = data.total_analyses || 0;
+                updateProgressChart(data.score_trend || []);
+                updateRecentAnalyses();
+            } catch (error) {
+                console.warn('Unable to refresh dashboard stats:', error);
+            }
+        }
+
+        async function updateRecentAnalyses() {
+            try {
+                const response = await fetch(`${API_URL}/history?limit=3`, { headers: authHeaders() });
+                const data = await response.json();
+                if (!response.ok) return;
+                const recent = document.querySelector('.recent-card');
+                if (!recent) return;
+                const items = (data.analyses || []).map(item => `<div class="recent-item">
+                    <span class="file-icon">🐍</span><div><b>${escapeHtml(item.filename || 'Untitled')}</b><small>Score: ${item.score}/100 · ${formatHistoryTime(item.timestamp)}</small></div>
+                    <button class="btn-secondary" onclick="openHistoryItem('${escapeHtml(item.id)}')">Open</button>
+                </div>`).join('');
+                const title = recent.querySelector('.rail-title');
+                recent.innerHTML = '';
+                recent.appendChild(title);
+                recent.insertAdjacentHTML('beforeend', items || '<div class="empty-state">No analyses yet.</div>');
+            } catch (error) {
+                console.warn('Unable to refresh recent analyses:', error);
+            }
+        }
+
+        function updateProgressChart(scores) {
+            const chart = document.querySelector('.progress-chart');
+            if (!chart) return;
+            const recentScores = scores.slice(-12);
+            chart.innerHTML = recentScores.length
+                ? recentScores.map((score, index) => `<span style="height:${Math.max(4, Math.min(100, Number(score) || 0))}%" title="Analysis ${index + 1}: ${score}/100"></span>`).join('')
+                : '<small style="width:100%;align-self:center;text-align:center;color:#ad91af;font-size:10px;">No scores yet</small>';
+        }
+
+        function showDashboard() { location.reload(); }
+        function showSettings() { return window.SettingsUI.open(); }
+        function saveSettings() { return window.SettingsUI.save(); }
+        function exportAccountData() { return window.SettingsUI.exportHistory(); }
+        function deleteAccount() { return window.SettingsUI.deleteAccount(); }
+
+        function renderMentorHint() {
+            const hint = currentHints[currentHintIndex];
+            const box = document.getElementById('railHint');
+            box.replaceChildren();
+            const observation = document.createElement('p');
+            observation.textContent = hint?.hint || (window.MentorLocale === 'uz' ? 'Bu tahlil uchun aniq maslahatlar yo‘q. Tahlil natijalarini ko‘ring.' : 'Для этого анализа нет конкретных подсказок. Посмотрите результаты анализа.');
+            box.append(observation);
+            if (hint?.guide) {
+                const guide = document.createElement('p');
+                guide.className = 'mentor-guide';
+                guide.textContent = hint.guide;
+                box.append(guide);
+            }
+            document.querySelector('.step-pill').textContent = `Step ${hint ? currentHintIndex + 1 : 0} of ${currentHints.length}`;
+            document.querySelector('[onclick="changeHint(-1)"]').disabled = currentHintIndex <= 0;
+            document.querySelector('[onclick="changeHint(1)"]').disabled = currentHintIndex >= currentHints.length - 1;
+        }
+        function changeHint(direction) {
+            if (!currentHints.length) {
+                document.getElementById('railHint').textContent = 'Analyze code first to unlock mentor hints.';
+                return;
+            }
+            currentHintIndex = Math.max(0, Math.min(currentHints.length - 1, currentHintIndex + direction));
+            renderMentorHint();
+        }
+
+        async function showProgress() {
+            try {
+                const response = await fetch(`${API_URL}/progress`, { headers: authHeaders() });
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.detail || 'Unable to load progress');
+                document.getElementById('progressAverage').textContent = data.average_score || 0;
+                document.getElementById('progressCount').textContent = data.total_analyses || 0;
+                updateProgressChart(data.score_trend || []);
+                document.getElementById('resultsContainer').innerHTML = `<div class="empty-state"><div class="empty-icon">📈</div><p>Average score: <strong>${data.average_score || 0}</strong><br>Total analyses: <strong>${data.total_analyses || 0}</strong></p></div>`;
+            } catch (error) { showError(error.message); }
+        }
+
+        async function showStatistics() {
+            try {
+                const data = await refreshStatistics();
+                if (!data) throw new Error('Unable to load statistics');
+                document.getElementById('resultsContainer').innerHTML = `<div class="empty-state" id="statisticsView"><div class="empty-icon">📊</div><p>Analyses: <strong id="statisticsTotal">${data.total_analyses || 0}</strong><br>Average score: <strong id="statisticsAverage">${data.average_score || 0}</strong><br>Best score: <strong id="statisticsBest">${data.best_score || 0}</strong></p></div>`;
+            } catch (error) { showError(error.message); }
+        }
+
+        async function refreshStatistics() {
+            try {
+                const response = await fetch(`${API_URL}/stats`, { headers: authHeaders() });
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.detail || 'Unable to load statistics');
+                const total = document.getElementById('statisticsTotal');
+                const average = document.getElementById('statisticsAverage');
+                const best = document.getElementById('statisticsBest');
+                if (total) total.textContent = data.total_analyses || 0;
+                if (average) average.textContent = data.average_score || 0;
+                if (best) best.textContent = data.best_score || 0;
+                return data;
+            } catch (error) {
+                console.warn('Unable to refresh statistics:', error);
+                return null;
+            }
+        }
+
+        function showSavedSnippets() {
+            let snippets = readStoredJson('mentor_saved_snippets', []);
+            const legacy = readStoredJson('mentor_saved_snippet', null);
+            if (!snippets.length && legacy?.code) snippets = [{ ...legacy, id: Date.now(), updatedAt: Date.now() }];
+            const cards = snippets.map(snippet => `<div class="result-card good"><h4 class="result-title">${escapeHtml(snippet.filename || 'Untitled')}</h4><p class="snippet-meta">${escapeHtml(snippet.language || 'Auto-detect')} · ${formatHistoryTime(snippet.updatedAt)}</p><div class="snippet-actions"><button class="btn-primary" onclick="restoreSnippet(${snippet.id})">Open</button><button class="btn-secondary" onclick="deleteSnippet(${snippet.id})">Delete</button></div></div>`).join('');
+            document.getElementById('resultsContainer').innerHTML = `<div class="empty-state"><div class="empty-icon">🔖</div><p>${snippets.length ? 'Your saved code snippets' : 'No saved snippets yet.'}</p><div class="snippet-actions"><button class="btn-primary" onclick="saveCurrentSnippet()">Save current code</button></div></div>${cards}`;
+        }
+
+        function saveCodeFromEditor() {
+            const status = document.getElementById('editorSaveStatus');
+            if (!document.getElementById('codeInput').value.trim()) {
+                status.textContent = 'Введите код перед сохранением.';
+                return;
+            }
+            try {
+                saveSnippetData(false);
+                status.textContent = 'Сохранено в этом браузере. Откройте «Сохранённый код» в меню.';
+            } catch (_) {
+                status.textContent = 'Не удалось сохранить. Скопируйте код в файл.';
+            }
+        }
+        function saveCurrentSnippet() {
+            const code = document.getElementById('codeInput').value.trim();
+            if (!code) { showError('Enter code before saving a snippet.'); return; }
+            saveSnippetData(true);
+        }
+
+        function saveSnippetData(refreshView) {
+            const code = document.getElementById('codeInput').value.trim();
+            if (!code) return;
+            const snippets = readStoredJson('mentor_saved_snippets', []).filter(item => item.filename !== selectedFilename);
+            snippets.unshift({ id: Date.now(), filename: selectedFilename, language: document.getElementById('languageSelect').value || 'Auto-detect', code, updatedAt: Date.now() });
+            localStorage.setItem('mentor_saved_snippets', JSON.stringify(snippets.slice(0, 20)));
+            if (refreshView) showSavedSnippets();
+        }
+
+        function restoreSnippet(snippetId) {
+            const snippets = readStoredJson('mentor_saved_snippets', []);
+            const saved = snippets.find(item => item.id === snippetId) || readStoredJson('mentor_saved_snippet', null);
+            if (!saved) return;
+            selectedFilename = saved.filename || 'analysis.txt';
+            document.getElementById('codeInput').value = saved.code || '';
+            document.getElementById('languageSelect').value = saved.language === 'Auto-detect' ? '' : (saved.language || '');
+            document.getElementById('fileName').textContent = selectedFilename;
+            syncEditorFile();
+        }
+
+        function deleteSnippet(snippetId) {
+            const snippets = readStoredJson('mentor_saved_snippets', []).filter(item => item.id !== snippetId);
+            localStorage.setItem('mentor_saved_snippets', JSON.stringify(snippets));
+            showSavedSnippets();
+        }
+
+        function showInvestorDemo() {
+            document.getElementById('investorPanel').style.display = 'block';
+        }
+
+        function closeInvestorDemo() {
+            document.getElementById('investorPanel').style.display = 'none';
+        }
+
+        function startInvestorDemo() {
+            closeInvestorDemo();
+            document.getElementById('languageSelect').value = 'Python';
+            selectedFilename = 'investor-demo.py';
+            syncEditorFile();
+            document.getElementById('fileName').textContent = selectedFilename;
+            document.getElementById('codeInput').value = `import sqlite3
+
+def find_user(user_id):
+    query = f"SELECT * FROM users WHERE id = {user_id}"
+    connection = sqlite3.connect("app.db")
+    return connection.execute(query).fetchone()`;
+            analyzeCode();
+        }
+
+        function getScoreFeedback(score) {
+            if (score >= 90) return '🎉 Excellent!';
+            if (score >= 80) return '👍 Good!';
+            if (score >= 70) return '📚 Fair';
+            if (score >= 60) return '⚠️ Needs Work';
+            return '🔴 Critical Issues';
+        }
+
+        // Auth gate + backend ping on load
+        window.addEventListener('load', async () => {
+            applySettings();
+            if (new URLSearchParams(location.search).has('portfolio') || window.AccountRecovery?.active) return;
+            const token = localStorage.getItem('mentor_token');
+            if (token) {
+                try {
+                    const me = await fetch(`${API_URL}/auth/me`, { headers: authHeaders() });
+                    if (me.ok) {
+                        const data = await me.json();
+                        hideAuthOverlay();
+                        updateProfile(data);
+                        if (data.level) {
+                            document.querySelector('.level-row span:first-child').textContent = `Level ${data.level}`;
+                            document.querySelector('.level-row span:last-child').textContent = `${data.xp_current || 0} / ${data.xp_needed || 1000} XP`;
+                            const xpCurrent = data.xp_current || 0;
+                            const xpNeeded = data.xp_needed || 1000;
+                            const xpPercent = Math.min(100, (xpCurrent / xpNeeded) * 100);
+                            const xpFill = document.querySelector('.xp-track span');
+                            if (xpFill) xpFill.style.width = `${xpPercent}%`;
+                        }
+                    } else {
+                        localStorage.removeItem('mentor_token');
+                        showAuthOverlay();
+                    }
+                } catch (e) {
+                    console.warn('Authentication check failed', e);
+                    showAuthOverlay();
+                }
+            } else {
+                showAuthOverlay();
+            }
+            if (localStorage.getItem('mentor_token')) refreshDashboardStats();
+            try {
+                const response = await fetch(`${API_URL}/`);
+                if (!response.ok) {
+                    console.warn('Backend not available');
+                }
+            } catch (e) {
+                console.warn('Cannot connect to backend. Start it with: python main.py');
+            }
+        });
+    </script>
+    <script src="runner.js"></script>
+    <script src="i18n.js"></script>
+    <script src="executor.js"></script>
+    <script src="settings.js"></script>
+    <script src="learning.js"></script>
+    <script src="account-recovery.js"></script>
+    <script src="workspace-navigation.js"></script>
+</body>
+</html>

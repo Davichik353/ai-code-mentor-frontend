@@ -15,7 +15,7 @@ const assert=require('node:assert/strict');
     path==='/stats'?{average_score:0,total_analyses:0,best_score:0}:{};
    return r.fulfill({json:data});
   });
-  await page.goto('http://127.0.0.1:8080');
+  await page.goto('http://127.0.0.1:8080/app.html');
   await page.waitForFunction(()=>document.getElementById('authOverlay').style.display==='none');
   await page.waitForFunction(()=>document.querySelector('.step-pill').textContent.includes('Шаг'));
   assert.match(await page.locator('.hint-footer').first().textContent(),/Подсказки/);
@@ -65,7 +65,7 @@ const assert=require('node:assert/strict');
   assert.deepEqual(errors,[]);
   const guest=await browser.newPage();
   await guest.route('https://**/*',r=>r.abort());
-  await guest.goto('http://127.0.0.1:8080');
+  await guest.goto('http://127.0.0.1:8080/app.html');
   assert.equal(await guest.locator('.profile-card').isVisible(),false);
   assert.equal(await guest.locator('#authTitle').textContent(),'Создайте аккаунт');
   for(const locale of ['uz','ru']) {

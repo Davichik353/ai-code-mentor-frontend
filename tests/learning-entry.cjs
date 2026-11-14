@@ -16,7 +16,7 @@ const assert=require('node:assert/strict');
    const data=path==='/learning/profile'?{role:'learner',bio:'',public:false}:path==='/auth/me'?{email:'entry@example.com',display_name:'Demo'}:[];
    await route.fulfill({json:data});
   });
-  await page.goto('http://127.0.0.1:8080');
+  await page.goto('http://127.0.0.1:8080/app.html');
   // Open from a signed-out editor: the page must explain what to do, then resume after login.
   await page.evaluate(()=>hideAuthOverlay());
   await page.click('#learningNav');

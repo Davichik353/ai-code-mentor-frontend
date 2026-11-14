@@ -3,7 +3,7 @@ const assert=require('node:assert/strict');
 (async()=>{
  const browser=await chromium.launch({executablePath:'/usr/bin/chromium',headless:true,args:['--no-sandbox']});
  const page=await browser.newPage();
- await page.goto('http://127.0.0.1:8080');
+ await page.goto('http://127.0.0.1:8080/app.html');
  await page.evaluate(()=>{document.getElementById('authOverlay').style.display='none'});
  async function run(language,code,input=''){
   await page.selectOption('#executionLanguage',language);

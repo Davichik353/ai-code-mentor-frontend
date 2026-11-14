@@ -11,7 +11,7 @@ const path=require('node:path');
  const exercises=JSON.parse(fixtures.stdout);
  const browser=await chromium.launch({executablePath:process.env.CHROMIUM_PATH||'/usr/bin/chromium',headless:true,args:['--no-sandbox']});
  try {
-  const page=await browser.newPage();await page.goto('http://127.0.0.1:8080');
+  const page=await browser.newPage();await page.goto('http://127.0.0.1:8080/app.html');
   for(const item of exercises) {
    for(const test of item.tests) {
     const result=await page.evaluate(async({item,test})=>BrowserExecutor.run({code:item.solution,language:item.language,stdin:test.stdin}),{item,test});

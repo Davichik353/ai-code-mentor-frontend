@@ -3,7 +3,7 @@ const assert=require('node:assert/strict');
 (async()=>{
  const browser=await chromium.launch({executablePath:'/usr/bin/chromium',args:['--no-sandbox']});
  try {
- const page=await browser.newPage();await page.goto('http://127.0.0.1:8080');await page.evaluate(()=>hideAuthOverlay());
+ const page=await browser.newPage();await page.goto('http://127.0.0.1:8080/app.html');await page.evaluate(()=>hideAuthOverlay());
  assert.equal(await page.locator('#codeInput').inputValue(),'');
  async function run(code){await page.fill('#codeInput',code);await page.click('#runCodeButton');await page.waitForFunction(()=>!document.getElementById('runCodeButton').disabled,{},{timeout:75000});return page.locator('#executionOutput').innerText();}
  assert.equal((await run('def get_vowels(text):\n    return [c for c in text if c in "aeiou"]\nget_vowels("animal")\nget_vowels("sky")\nget_vowels("football")')).trim(),"['a', 'i', 'a']\n[]\n['o', 'o', 'a']");

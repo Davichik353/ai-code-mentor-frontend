@@ -10,7 +10,7 @@ const crypto=require('node:crypto');
  async function actor(name){
   const context=await browser.newContext();contexts.push(context);
   const page=await context.newPage();page.on('pageerror',e=>errors.push(e.message));
-  await page.goto('http://127.0.0.1:8080');
+  await page.goto('http://127.0.0.1:8080/app.html');
   await page.fill('#authName',name);
   await page.fill('#authEmail',`${name.toLowerCase()}-${suffix}@example.com`);
   await page.fill('#authPassword',password);
