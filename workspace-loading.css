@@ -1,0 +1,19 @@
+/* Small, honest loading state: no fake progress or minimum display time. */
+#learningRoot .workspace-loading { padding:24px 0; width:100%; text-align:left; }
+.workspace-loading-heading { display:flex; align-items:center; gap:16px; margin-bottom:28px; }
+.loading-code-mark { display:flex; align-items:center; justify-content:center; gap:5px; width:54px; height:54px; flex:none; border:1px solid #493b32; border-radius:12px; background:#292321; color:#f1dcc3; font:22px/1 ui-monospace,Consolas,monospace; }
+.loading-code-mark i { width:3px; height:19px; border-radius:2px; background:#e3af73; transform:rotate(20deg); animation:loading-code-pulse 1.5s ease-in-out infinite; }
+#learningRoot .workspace-loading h2 { margin:0 0 5px; color:var(--ink,#282321); font:650 21px/1.3 Inter,system-ui,sans-serif; letter-spacing:-.5px; }
+#learningRoot .workspace-loading p { margin:0; color:var(--muted,#70695f); font-size:13px; line-height:1.6; }
+.loading-card-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px; }
+.loading-card-placeholder { padding:22px; border:1px solid #e1d8c7; border-radius:12px; background:#fffdf7; }
+.loading-line { display:block; height:10px; margin-bottom:13px; border-radius:3px; background:#e9e0d1; animation:loading-card-pulse 1.8s ease-in-out infinite; }
+.loading-line.short { width:28%; height:17px; margin-bottom:24px; background:#dfcfb8; }
+.loading-line.medium { width:68%; }
+.loading-line.foot { width:40%; height:24px; margin:26px 0 0; }
+.loading-card-placeholder:nth-child(2) .loading-line { animation-delay:.15s; }
+.loading-card-placeholder:nth-child(3) .loading-line { animation-delay:.3s; }
+@keyframes loading-code-pulse { 0%,100% { opacity:.45; transform:rotate(20deg) scaleY(.8); } 50% { opacity:1; transform:rotate(20deg) scaleY(1); } }
+@keyframes loading-card-pulse { 0%,100% { opacity:.55; } 50% { opacity:1; } }
+@media(max-width:700px) { #learningRoot .workspace-loading { padding:16px 0; } #learningRoot .workspace-loading h2 { font-size:19px; } .workspace-loading-heading { gap:12px; margin-bottom:22px; } .loading-code-mark { width:46px; height:46px; } .loading-card-grid { grid-template-columns:1fr; gap:12px; } .loading-card-placeholder { padding:20px; } .loading-card-placeholder:nth-child(n+3) { display:none; } }
+@media(prefers-reduced-motion:reduce) { .loading-code-mark i,.loading-line { animation:none; } }
